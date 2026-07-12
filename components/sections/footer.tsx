@@ -5,7 +5,7 @@ import { LogoMark } from "@/components/ui/logo-mark";
 import { cn } from "@/lib/utils";
 
 const footerVariants = cva(
-  "flex w-full flex-col items-start gap-[3.6875rem] pl-2.5 pr-2 pt-8 pb-[10.5625rem]",
+  "flex w-full flex-col items-start gap-[3.6875rem] pl-2.5 pr-2 py-8",
   {
     variants: {
       variant: {
