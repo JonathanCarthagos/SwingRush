@@ -8,6 +8,7 @@ import {
   type Transition,
 } from "framer-motion";
 
+import { Scoreboard } from "@/components/ui/scoreboard";
 import { cn } from "@/lib/utils";
 
 // Mirror the easing/duration conventions from nav.tsx.
@@ -21,12 +22,16 @@ interface Challenge {
   title: string;
   subtitle: string;
   body: string;
-  image: string;
-  imageAlt: string;
-  /** Aspect ratio of the image frame in the Figma design. */
-  aspect: string;
-  objectPosition: string;
+  /** Animated media instead of a static image. */
+  media?: "scoreboard";
+  image?: string;
+  imageAlt?: string;
+  /** Aspect ratio of the media frame in the Figma design. */
+  aspect?: string;
+  objectPosition?: string;
 }
+
+const SCOREBOARD_ROWS = ["SKILL DIVISIONS", "OPEN DIVISION", "ELITE DIVISION"];
 
 const CHALLENGES: Challenge[] = [
   {
@@ -52,10 +57,8 @@ const CHALLENGES: Challenge[] = [
     subtitle:
       "Whether you are an elite golfer or a weekend warrior, we have a division for you",
     body: "The elite division will increase the difficulty at each challenge while upping the stakes for those who top its leaderboard. The open division will challenge the average recreational golfer to see who has what it takes to be crowned a Swingrusher by crossing the finish line in under 60 minutes.",
-    image: "/images/challenge-divisions.avif",
-    imageAlt: "Split-flap board showing skill, open and elite divisions",
+    media: "scoreboard",
     aspect: "aspect-[370/296]",
-    objectPosition: "center",
   },
   {
     title: "Compete as a\nsingle or a team",
@@ -115,15 +118,26 @@ function ChallengeCard({
 
   return (
     <article className="flex flex-col gap-6">
-      <div className={cn("relative w-full overflow-hidden", item.aspect)}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={item.image}
-          alt={item.imageAlt}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: item.objectPosition }}
-        />
-      </div>
+      {item.media === "scoreboard" ? (
+        <div
+          className={cn(
+            "flex w-full items-center overflow-hidden",
+            item.aspect,
+          )}
+        >
+          <Scoreboard rows={SCOREBOARD_ROWS} />
+        </div>
+      ) : (
+        <div className={cn("relative w-full overflow-hidden", item.aspect)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.image}
+            alt={item.imageAlt}
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: item.objectPosition }}
+          />
+        </div>
+      )}
 
       <div className="flex w-full flex-col text-white">
         <div className="flex flex-col gap-[0.834rem]">
