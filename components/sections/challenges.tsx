@@ -8,6 +8,7 @@ import {
   type Transition,
 } from "framer-motion";
 
+import { RevealMedia, RevealText } from "@/components/motion";
 import { Scoreboard } from "@/components/ui/scoreboard";
 import { cn } from "@/lib/utils";
 
@@ -128,22 +129,22 @@ function ChallengeCard({
           <Scoreboard rows={SCOREBOARD_ROWS} />
         </div>
       ) : (
-        <div className={cn("relative w-full overflow-hidden", item.aspect)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={item.image}
-            alt={item.imageAlt}
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: item.objectPosition }}
-          />
-        </div>
+        <RevealMedia
+          src={item.image ?? ""}
+          alt={item.imageAlt ?? ""}
+          className={cn("relative w-full overflow-hidden", item.aspect)}
+          imgClassName="absolute inset-0 h-full w-full object-cover"
+          imgStyle={{ objectPosition: item.objectPosition }}
+        />
       )}
 
       <div className="flex w-full flex-col text-white">
         <div className="flex flex-col gap-[0.834rem]">
-          <h3 className="whitespace-pre-line font-display text-[3.125rem] uppercase leading-[0.84]">
-            {item.title}
-          </h3>
+          <RevealText
+            as="h3"
+            text={item.title}
+            className="whitespace-pre-line font-display text-[3.125rem] uppercase leading-[0.84]"
+          />
           <p className="max-w-[18.1rem] font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body">
             {item.subtitle}
           </p>

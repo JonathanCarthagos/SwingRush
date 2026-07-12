@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { RevealText } from "@/components/motion";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,9 +29,11 @@ export function Cta({
     >
       <div className="flex flex-col items-center gap-2.5">
         <div className="flex flex-col items-center gap-[0.834rem]">
-          <h2 className="whitespace-pre-line font-display text-[4rem] leading-[0.84] text-brand-dark">
-            {heading}
-          </h2>
+          <RevealText
+            as="h2"
+            text={heading}
+            className="whitespace-pre-line font-display text-[4rem] leading-[0.84] text-brand-dark"
+          />
           <p className="max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-brand-dark">
             {description}
           </p>

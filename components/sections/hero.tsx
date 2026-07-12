@@ -2,6 +2,7 @@
 
 import { useReducedMotion } from "framer-motion";
 
+import { RevealText } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
 export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
@@ -49,9 +50,11 @@ export function Hero({
         </video>
       )}
 
-      <h1 className="relative z-10 whitespace-pre-line text-center font-display text-hero leading-[0.84] text-white">
-        {heading}
-      </h1>
+      <RevealText
+        as="h1"
+        text={heading}
+        className="relative z-10 whitespace-pre-line text-center font-display text-hero leading-[0.84] text-white"
+      />
     </section>
   );
 }

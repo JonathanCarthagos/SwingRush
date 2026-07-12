@@ -1,3 +1,4 @@
+import { RevealText } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
 export interface ArenaProps extends React.HTMLAttributes<HTMLElement> {
@@ -20,9 +21,11 @@ export function Arena({
       {...props}
     >
       <div className="flex flex-col items-center gap-[0.834rem]">
-        <h2 className="whitespace-pre-line font-display text-[4rem] leading-[0.84] text-white">
-          {heading}
-        </h2>
+        <RevealText
+          as="h2"
+          text={heading}
+          className="whitespace-pre-line font-display text-[4rem] leading-[0.84] text-white"
+        />
         <p className="max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white">
           {description}
         </p>

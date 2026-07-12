@@ -8,6 +8,7 @@ import { fontBody, fontDisplay, fontNav } from "@/lib/fonts";
 import { SanityLive } from "@/sanity/lib/live";
 
 import "./globals.css";
+import "lenis/dist/lenis.css";
 
 export const metadata: Metadata = {
   title: {
