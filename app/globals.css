@@ -23,3 +23,118 @@ body {
   font-weight: 800;
   font-synthesis: none;
 }
+
+@keyframes hero-scroll-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 0.95;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes hero-scroll-bounce {
+  0%,
+  100% {
+    opacity: 0.95;
+    transform: translate3d(0, 0, 0);
+  }
+
+  18% {
+    opacity: 0.95;
+    transform: translate3d(0, 0, 0);
+  }
+
+  31% {
+    opacity: 1;
+    transform: translate3d(0, -2px, 0);
+  }
+
+  56% {
+    opacity: 0.58;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  78% {
+    opacity: 0.86;
+    transform: translate3d(0, 2px, 0);
+  }
+}
+
+@keyframes hero-scroll-halo {
+  0%,
+  100% {
+    opacity: 0.05;
+  }
+
+  50% {
+    opacity: 0.12;
+  }
+}
+
+.hero-scroll-cue {
+  animation:
+    hero-scroll-enter 360ms cubic-bezier(0.23, 1, 0.32, 1) 1.28s both,
+    hero-scroll-bounce 2.15s cubic-bezier(0.65, 0, 0.35, 1) 1.72s infinite;
+  transition:
+    opacity 220ms ease-out,
+    filter 220ms ease-out,
+    scale 140ms cubic-bezier(0.23, 1, 0.32, 1);
+  scale: 1;
+  will-change: transform, opacity;
+}
+
+.hero-scroll-cue__halo {
+  background: radial-gradient(circle, rgb(255 255 255 / 0.14) 0%, rgb(255 255 255 / 0.06) 38%, transparent 74%);
+  filter: blur(10px);
+  animation: hero-scroll-halo 2.8s ease-in-out 1.68s infinite;
+  will-change: transform, opacity;
+}
+
+.hero-scroll-cue__icon-wrap {
+  transform: translateY(0);
+}
+
+.hero-scroll-cue__icon {
+  opacity: 0.95;
+}
+
+.hero-scroll-cue:active {
+  scale: 0.97;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-scroll-cue:hover {
+    opacity: 1;
+    filter: brightness(1.08);
+  }
+
+  .hero-scroll-cue:hover .hero-scroll-cue__halo {
+    opacity: 0.2;
+  }
+}
+
+.hero-scroll-cue:focus-visible {
+  opacity: 1;
+  filter: brightness(1.08);
+}
+
+.hero-scroll-cue:focus-visible .hero-scroll-cue__halo {
+  opacity: 0.2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-cue,
+  .hero-scroll-cue__halo,
+  .hero-scroll-cue__icon {
+    animation: none;
+  }
+
+  .hero-scroll-cue {
+    opacity: 1;
+    transform: none;
+  }
+}

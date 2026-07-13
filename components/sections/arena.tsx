@@ -14,8 +14,9 @@ export function Arena({
 }: ArenaProps) {
   return (
     <section
+      id="arena"
       className={cn(
-        "relative left-1/2 right-1/2 -mx-[50vw] flex min-h-[28.4375rem] w-screen flex-col items-center justify-center bg-brand px-[0.96rem] text-center",
+        "relative left-1/2 right-1/2 -mx-[50vw] flex min-h-[28.4375rem] w-screen scroll-mt-nav-offset flex-col items-center justify-center bg-brand px-[0.96rem] text-center",
         className,
       )}
       {...props}

@@ -7,12 +7,25 @@ import { fontBody, fontDisplay, fontNav } from "@/lib/fonts";
 import "./globals.css";
 import "lenis/dist/lenis.css";
 
+const SITE_URL = "https://swingrush.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "SwingRush",
     template: "%s | SwingRush",
   },
-  description: "Premium swing dance experiences across cities.",
+  description:
+    "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and competitive social golf.",
+  applicationName: "SwingRush",
+  openGraph: {
+    siteName: "SwingRush",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export const viewport: Viewport = {

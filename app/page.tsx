@@ -8,8 +8,32 @@ import { Hero } from "@/components/sections/hero";
 import { HomeMotionShell } from "@/components/motion";
 
 export const metadata: Metadata = {
-  title: "SwingRush",
-  description: "Premium swing dance experiences across cities.",
+  title: "Arena Golf Challenges and Competitive Social Golf",
+  description:
+    "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and leaderboard-driven competition.",
+  alternates: {
+    canonical: "/",
+  },
+  keywords: [
+    "arena golf",
+    "golf challenges",
+    "competitive social golf",
+    "team golf events",
+    "skills golf challenges",
+    "indoor golf competition",
+  ],
+  openGraph: {
+    title: "Arena Golf Challenges and Competitive Social Golf",
+    description:
+      "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and leaderboard-driven competition.",
+    url: "/",
+    type: "website",
+  },
+  twitter: {
+    title: "Arena Golf Challenges and Competitive Social Golf",
+    description:
+      "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and leaderboard-driven competition.",
+  },
 };
 
 export default function HomePage() {

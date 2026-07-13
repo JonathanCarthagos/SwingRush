@@ -58,6 +58,49 @@ export function Hero({
         text={heading}
         className="relative z-10 box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-hero leading-[0.84] text-white"
       />
+
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-x-0 z-10 flex justify-center",
+          "bottom-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.75rem))]",
+        )}
+      >
+        <a
+          href="#arena"
+          data-ready="true"
+          aria-label="Scroll to next section"
+          className={cn(
+            "hero-scroll-cue group pointer-events-auto relative inline-flex size-12 items-center justify-center rounded-full text-white opacity-95 outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+            shouldReduceMotion && "motion-reduce:opacity-100",
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className="hero-scroll-cue__halo absolute inset-0 rounded-full"
+          />
+          <span
+            aria-hidden="true"
+            className="hero-scroll-cue__icon-wrap relative z-10 flex items-center justify-center"
+          >
+            <svg
+              viewBox="0 0 53 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="hero-scroll-cue__icon block w-[2.85rem] overflow-visible"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <path
+                d="M2 2L26.5 25L51 2"
+                stroke="currentColor"
+                strokeWidth="1.65"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </span>
+        </a>
+      </div>
     </section>
   );
 }
