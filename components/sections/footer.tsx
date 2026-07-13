@@ -78,7 +78,7 @@ export function Footer({ className, variant, ...props }: FooterProps) {
         <div className="flex items-center gap-[1.3406rem]">
           {socialLinks.map(({ Icon, label, href }) => (
             <a key={label} href={href} aria-label={label}>
-              <Icon className="size-7" />
+              <Icon className="size-7" aria-hidden="true" focusable="false" />
             </a>
           ))}
         </div>
