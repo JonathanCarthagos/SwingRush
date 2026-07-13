@@ -19,7 +19,7 @@ export default function HomePage() {
         <Hero />
         <Arena />
         <Challenges />
-        <Cta />
+        <Cta variant="inverted" />
       </main>
       <Footer />
     </HomeMotionShell>
