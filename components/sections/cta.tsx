@@ -33,6 +33,7 @@ export function Cta({
             as="h2"
             text={heading}
             className="box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[clamp(3.25rem,15.5vw,4rem)] leading-[0.86] text-brand-dark [text-wrap:balance]"
+            wipeClassName="bg-brand"
           />
           <p className="max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-brand-dark">
             {description}
