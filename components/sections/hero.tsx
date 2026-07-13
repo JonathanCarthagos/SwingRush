@@ -6,6 +6,7 @@ import { RevealText } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
 export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
+  webmSrc?: string;
   videoSrc?: string;
   poster?: string;
   heading?: string;
@@ -13,6 +14,7 @@ export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
 
 export function Hero({
   className,
+  webmSrc = "/videos/Sizzzle%20one.webm",
   videoSrc = "/videos/Sizzzle%20one.mp4",
   poster = "/images/hero-poster.jpg",
   heading = "READY\nSET\nGOLF",
@@ -42,10 +44,11 @@ export function Hero({
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           poster={poster}
           className="absolute inset-0 h-full w-full object-cover [object-position:50%_44%]"
         >
+          <source src={webmSrc} type="video/webm" />
           <source src={videoSrc} type="video/mp4" />
         </video>
       )}

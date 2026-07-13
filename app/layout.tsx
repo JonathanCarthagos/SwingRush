@@ -1,11 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { draftMode } from "next/headers";
-import { VisualEditing } from "next-sanity/visual-editing";
 
 import { DesktopNotice } from "@/components/sections/desktop-notice";
 import { Nav } from "@/components/sections/nav";
 import { fontBody, fontDisplay, fontNav } from "@/lib/fonts";
-import { SanityLive } from "@/sanity/lib/live";
 
 import "./globals.css";
 import "lenis/dist/lenis.css";
@@ -29,8 +26,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isDraftMode = (await draftMode()).isEnabled;
-
   return (
     <html
       lang="en"
@@ -42,8 +37,6 @@ export default async function RootLayout({
           {children}
         </div>
         <DesktopNotice />
-        <SanityLive />
-        {isDraftMode ? <VisualEditing /> : null}
       </body>
     </html>
   );
