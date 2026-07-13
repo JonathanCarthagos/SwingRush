@@ -53,7 +53,7 @@ export function Hero({
       <RevealText
         as="h1"
         text={heading}
-        className="relative z-10 max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-hero leading-[0.84] text-white"
+        className="relative z-10 box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-hero leading-[0.84] text-white"
       />
     </section>
   );

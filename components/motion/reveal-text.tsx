@@ -1,12 +1,13 @@
 "use client";
 
 import {
+  type AnimationDefinition,
   motion,
   useReducedMotion,
   type HTMLMotionProps,
   type Variants,
 } from "framer-motion";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -63,9 +64,13 @@ export function RevealText({
   className,
   lineClassName,
   wordClassName,
+  onAnimationComplete,
   ...props
 }: RevealTextProps) {
   const shouldReduceMotion = useReducedMotion();
+  const [hasRevealed, setHasRevealed] = useState(false);
+  const clipClassName =
+    shouldReduceMotion || hasRevealed ? "overflow-visible" : "overflow-hidden";
   const lines = splitLines(text);
   const content = lines.map((line, lineIndex) => {
     const words = line.split(/\s+/).filter(Boolean);
@@ -79,7 +84,12 @@ export function RevealText({
       >
         {words.map((word, wordIndex) => (
           <Fragment key={`${line}-${word}-${wordIndex}`}>
-            <span className="inline-block overflow-hidden px-[0.22em] py-[0.24em] -mx-[0.22em] -my-[0.24em] align-bottom">
+            <span
+              className={cn(
+                "inline-block px-[0.3em] py-[0.28em] -mx-[0.3em] -my-[0.28em] align-bottom",
+                clipClassName,
+              )}
+            >
               <motion.span
                 className={cn(
                   "inline-block will-change-transform",
@@ -108,12 +118,20 @@ export function RevealText({
   });
 
   const sharedProps = {
-    className,
+    className: className ? `notranslate ${className}` : "notranslate",
     "aria-label": text.replace(/\s+/g, " ").trim(),
-    initial: "hidden",
-    whileInView: "visible",
-    viewport: IN_VIEW_VIEWPORT,
+    translate: "no",
+    initial: shouldReduceMotion ? false : "hidden",
+    whileInView: shouldReduceMotion ? undefined : "visible",
+    viewport: shouldReduceMotion ? undefined : IN_VIEW_VIEWPORT,
     variants: shouldReduceMotion ? undefined : containerVariants,
+    onAnimationComplete: (definition: AnimationDefinition) => {
+      if (definition === "visible") {
+        setHasRevealed(true);
+      }
+
+      onAnimationComplete?.(definition);
+    },
     ...props,
   } satisfies Omit<HTMLMotionProps<"h1">, "children">;
 

@@ -202,7 +202,8 @@ export function Nav() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block max-w-[calc(100vw-2rem)] px-[0.08em] text-center font-display text-[clamp(3rem,13.6vw,4rem)] uppercase leading-[0.88] text-white"
+                    translate="no"
+                    className="notranslate block box-border max-w-[calc(100vw-2rem)] px-[0.08em] text-center font-display text-[clamp(3rem,13.6vw,4rem)] uppercase leading-[0.88] text-white"
                   >
                     {link.label}
                   </Link>
