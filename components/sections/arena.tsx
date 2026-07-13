@@ -24,7 +24,7 @@ export function Arena({
         <RevealText
           as="h2"
           text={heading}
-          className="whitespace-pre-line font-display text-[4rem] leading-[0.84] text-white"
+          className="max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[clamp(3.25rem,15.5vw,4rem)] leading-[0.86] text-white [text-wrap:balance]"
         />
         <p className="max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white">
           {description}

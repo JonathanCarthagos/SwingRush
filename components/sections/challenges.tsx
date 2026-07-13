@@ -143,7 +143,7 @@ function ChallengeCard({
           <RevealText
             as="h3"
             text={item.title}
-            className="whitespace-pre-line font-display text-[3.125rem] uppercase leading-[0.84]"
+            className="max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[clamp(2.625rem,11.25vw,3.125rem)] uppercase leading-[0.88] [text-wrap:balance]"
           />
           <p className="max-w-[18.1rem] font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body">
             {item.subtitle}

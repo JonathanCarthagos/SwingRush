@@ -6,6 +6,7 @@ import {
   type HTMLMotionProps,
   type Variants,
 } from "framer-motion";
+import { Fragment } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -77,28 +78,30 @@ export function RevealText({
         variants={shouldReduceMotion ? undefined : lineVariants}
       >
         {words.map((word, wordIndex) => (
-          <span
-            key={`${line}-${word}-${wordIndex}`}
-            className="inline-block overflow-hidden px-[0.12em] py-[0.18em] -mx-[0.12em] -my-[0.18em] align-bottom"
-          >
-            <motion.span
-              className={cn("inline-block will-change-transform", wordClassName)}
-              variants={
-                shouldReduceMotion
-                  ? {
-                      hidden: { opacity: 0 },
-                      visible: {
-                        opacity: 1,
-                        transition: { duration: 0.2, ease: OUT_CUBIC },
-                      },
-                    }
-                  : wordVariants
-              }
-            >
-              {word}
-            </motion.span>
-            {wordIndex < words.length - 1 ? "\u00a0" : null}
-          </span>
+          <Fragment key={`${line}-${word}-${wordIndex}`}>
+            <span className="inline-block overflow-hidden px-[0.22em] py-[0.24em] -mx-[0.22em] -my-[0.24em] align-bottom">
+              <motion.span
+                className={cn(
+                  "inline-block will-change-transform",
+                  wordClassName,
+                )}
+                variants={
+                  shouldReduceMotion
+                    ? {
+                        hidden: { opacity: 0 },
+                        visible: {
+                          opacity: 1,
+                          transition: { duration: 0.2, ease: OUT_CUBIC },
+                        },
+                      }
+                    : wordVariants
+                }
+              >
+                {word}
+              </motion.span>
+            </span>
+            {wordIndex < words.length - 1 ? " " : null}
+          </Fragment>
         ))}
       </motion.span>
     );

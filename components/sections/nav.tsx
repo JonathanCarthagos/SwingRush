@@ -202,7 +202,7 @@ export function Nav() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="font-display text-[4rem] uppercase leading-[0.84] text-white"
+                    className="block max-w-[calc(100vw-2rem)] px-[0.08em] text-center font-display text-[clamp(3rem,13.6vw,4rem)] uppercase leading-[0.88] text-white"
                   >
                     {link.label}
                   </Link>
