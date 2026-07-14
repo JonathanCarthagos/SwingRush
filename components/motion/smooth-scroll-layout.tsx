@@ -4,6 +4,8 @@ import Lenis, { type LenisOptions } from "lenis";
 import { useReducedMotion } from "framer-motion";
 import { useEffect } from "react";
 
+let currentLenis: Lenis | null = null;
+
 export interface SmoothScrollLayoutProps {
   children: React.ReactNode;
   enabled?: boolean;
@@ -11,10 +13,13 @@ export interface SmoothScrollLayoutProps {
 }
 
 const DEFAULT_LENIS_OPTIONS = {
-  anchors: true,
   lerp: 0.09,
   smoothWheel: true,
 } satisfies LenisOptions;
+
+export function getCurrentLenis() {
+  return currentLenis;
+}
 
 export function SmoothScrollLayout({
   children,
@@ -30,6 +35,7 @@ export function SmoothScrollLayout({
       ...DEFAULT_LENIS_OPTIONS,
       ...options,
     });
+    currentLenis = lenis;
 
     let frameId = 0;
 
@@ -42,6 +48,9 @@ export function SmoothScrollLayout({
     frameId = requestAnimationFrame(raf);
 
     return () => {
+      if (currentLenis === lenis) {
+        currentLenis = null;
+      }
       cancelAnimationFrame(frameId);
       lenis.destroy();
     };
