@@ -5,7 +5,6 @@ import { Nav } from "@/components/sections/nav";
 import { fontBody, fontDisplay, fontNav } from "@/lib/fonts";
 
 import "./globals.css";
-import "lenis/dist/lenis.css";
 
 const SITE_URL = "https://swingrush.vercel.app";
 

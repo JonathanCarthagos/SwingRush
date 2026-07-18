@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   AnimatePresence,
   motion,
@@ -8,7 +9,7 @@ import {
   type Transition,
 } from "framer-motion";
 
-import { RevealMedia, RevealText } from "@/components/motion";
+import { DisplayHeading } from "@/components/ui/display-heading";
 import { Scoreboard } from "@/components/ui/scoreboard";
 import { cn } from "@/lib/utils";
 
@@ -129,18 +130,21 @@ function ChallengeCard({
           <Scoreboard rows={SCOREBOARD_ROWS} />
         </div>
       ) : (
-        <RevealMedia
-          src={item.image ?? ""}
-          alt={item.imageAlt ?? ""}
-          className={cn("relative w-full overflow-hidden", item.aspect)}
-          imgClassName="absolute inset-0 h-full w-full object-cover"
-          imgStyle={{ objectPosition: item.objectPosition }}
-        />
+        <div className={cn("relative w-full overflow-hidden", item.aspect)}>
+          <Image
+            src={item.image ?? ""}
+            alt={item.imageAlt ?? ""}
+            fill
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: item.objectPosition }}
+          />
+        </div>
       )}
 
       <div className="flex w-full flex-col text-white">
         <div className="flex flex-col gap-[0.834rem]">
-          <RevealText
+          <DisplayHeading
             as="h3"
             text={item.title}
             className="box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[clamp(2.625rem,11.25vw,3.125rem)] uppercase leading-[0.88] [text-wrap:balance]"
@@ -174,16 +178,15 @@ function ChallengeCard({
           )}
         </AnimatePresence>
 
-        <motion.button
+        <button
           type="button"
           onClick={onToggle}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          whileTap={reduce ? undefined : { scale: 0.96 }}
           className="mt-4 w-fit font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body underline underline-offset-[0.1875rem]"
         >
           Learn More
-        </motion.button>
+        </button>
       </div>
     </article>
   );

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { RevealText } from "@/components/motion";
+import { DisplayHeading } from "@/components/ui/display-heading";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,6 @@ const CTA_VARIANTS: Record<
     sectionClassName: string;
     headingClassName: string;
     bodyClassName: string;
-    wipeClassName: string;
     buttonClassName?: string;
   }
 > = {
@@ -22,14 +21,12 @@ const CTA_VARIANTS: Record<
     sectionClassName: "bg-brand",
     headingClassName: "text-brand-dark",
     bodyClassName: "text-brand-dark",
-    wipeClassName: "bg-brand",
   },
   inverted: {
     heading: "SWING IN\nTHE ARENA",
     sectionClassName: "bg-brand-dark",
     headingClassName: "text-brand",
     bodyClassName: "text-brand",
-    wipeClassName: "bg-brand-dark",
     buttonClassName: "bg-brand text-brand-dark hover:bg-brand/90 focus-visible:ring-brand",
   },
 };
@@ -65,14 +62,13 @@ export function Cta({
     >
       <div className="flex flex-col items-center gap-2.5">
         <div className="flex flex-col items-center gap-[0.834rem]">
-          <RevealText
+          <DisplayHeading
             as="h2"
             text={resolvedHeading}
             className={cn(
               "box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[clamp(3.25rem,15.5vw,4rem)] leading-[0.86] [text-wrap:balance]",
               styles.headingClassName,
             )}
-            wipeClassName={styles.wipeClassName}
           />
           <p
             className={cn(
