@@ -8,10 +8,10 @@ import {
   type Variants,
 } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState, type RefObject } from "react";
 
 import { LogoLockup } from "@/components/ui/logo-lockup";
-import { cn } from "@/lib/utils";
 
 const links = [
   { label: "Home", href: "/" },
@@ -31,6 +31,12 @@ const barClass = `block shrink-0 ${BAR_H} ${BAR_W} origin-center bg-white`;
 // Curva drawer (Ionic) — desaceleração longa, sensação premium e fluida.
 const MOTION_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
 const MOTION_EASE_IN: [number, number, number, number] = [0.76, 0, 0.24, 1];
+const HEADER_FADE_IN_EASE: [number, number, number, number] = [
+  0.77, 0, 0.175, 1,
+];
+const HEADER_FADE_OUT_EASE: [number, number, number, number] = [
+  0.23, 1, 0.32, 1,
+];
 
 const panelEnter: Transition = { duration: 0.55, ease: MOTION_EASE };
 const panelExit: Transition = { duration: 0.38, ease: MOTION_EASE_IN };
@@ -81,7 +87,99 @@ const linkItemReduced: Variants = {
   exit: { opacity: 0, transition: { duration: 0.1 } },
 };
 
+interface HeaderBackgroundProps {
+  visible: boolean;
+  reduce: boolean | null;
+}
+
+function HeaderBackground({ visible, reduce }: HeaderBackgroundProps) {
+  return (
+    <motion.span
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 bg-brand"
+      initial={false}
+      animate={{ opacity: visible ? 1 : 0 }}
+      transition={
+        reduce
+          ? { duration: 0 }
+          : visible
+            ? { duration: 0.28, ease: HEADER_FADE_IN_EASE }
+            : { duration: 0.22, ease: HEADER_FADE_OUT_EASE }
+      }
+    />
+  );
+}
+
+interface HomeHeaderBackgroundProps {
+  headerRef: RefObject<HTMLElement | null>;
+  isOpen: boolean;
+  reduce: boolean | null;
+}
+
+function HomeHeaderBackground({
+  headerRef,
+  isOpen,
+  reduce,
+}: HomeHeaderBackgroundProps) {
+  const [hasPassedHero, setHasPassedHero] = useState(false);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    const hero = document.querySelector<HTMLElement>("[data-nav-hero]");
+    const boundary = document.querySelector<HTMLElement>(
+      "[data-nav-hero-boundary]",
+    );
+
+    if (!header || !hero || !boundary) return;
+
+    let boundaryObserver: IntersectionObserver | undefined;
+
+    const observeBoundary = () => {
+      boundaryObserver?.disconnect();
+
+      const headerBottom = Math.ceil(header.getBoundingClientRect().bottom);
+      boundaryObserver = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry) return;
+
+          const rootTop = entry.rootBounds?.top ?? headerBottom;
+          setHasPassedHero(
+            !entry.isIntersecting &&
+              entry.boundingClientRect.bottom <= rootTop,
+          );
+        },
+        {
+          rootMargin: `-${headerBottom}px 0px 0px`,
+          threshold: [0, 1],
+        },
+      );
+      boundaryObserver.observe(boundary);
+
+      setHasPassedHero(
+        boundary.getBoundingClientRect().bottom <= headerBottom,
+      );
+    };
+
+    observeBoundary();
+
+    const resizeObserver = new ResizeObserver(observeBoundary);
+    resizeObserver.observe(header);
+    resizeObserver.observe(hero);
+
+    return () => {
+      boundaryObserver?.disconnect();
+      resizeObserver.disconnect();
+    };
+  }, [headerRef]);
+
+  return (
+    <HeaderBackground visible={isOpen || hasPassedHero} reduce={reduce} />
+  );
+}
+
 export function Nav() {
+  const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const reduce = useReducedMotion();
 
@@ -105,13 +203,25 @@ export function Nav() {
   return (
     <>
       <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white",
-          isOpen ? "bg-brand" : "bg-transparent",
-        )}
+        ref={headerRef}
+        className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white"
       >
-        <div className="flex h-nav-bar-inner-h items-center justify-between">
-          <Link href="/" aria-label="SwingRush home" onClick={() => setIsOpen(false)}>
+        {pathname === "/" ? (
+          <HomeHeaderBackground
+            headerRef={headerRef}
+            isOpen={isOpen}
+            reduce={reduce}
+          />
+        ) : (
+          <HeaderBackground visible reduce={reduce} />
+        )}
+
+        <div className="relative z-10 flex h-nav-bar-inner-h items-center justify-between">
+          <Link
+            href="/"
+            aria-label="SwingRush home"
+            onClick={() => setIsOpen(false)}
+          >
             <LogoLockup className="h-nav-logo-h w-auto" />
           </Link>
 
