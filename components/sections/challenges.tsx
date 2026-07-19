@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
-import { Scoreboard } from "@/components/ui/scoreboard";
+import { SplitFlapBoard } from "@/components/ui/split-flap-board";
 import { cn } from "@/lib/utils";
 
 // Mirror the easing/duration conventions from nav.tsx.
@@ -127,7 +127,7 @@ function ChallengeCard({
             item.aspect,
           )}
         >
-          <Scoreboard rows={SCOREBOARD_ROWS} />
+          <SplitFlapBoard rows={SCOREBOARD_ROWS} />
         </div>
       ) : (
         <div className={cn("relative w-full overflow-hidden", item.aspect)}>
