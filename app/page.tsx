@@ -6,10 +6,15 @@ import { Cta } from "@/components/sections/cta";
 import { Footer } from "@/components/sections/footer";
 import { Hero } from "@/components/sections/hero";
 
+const HOME_TITLE = "Ready, Set, Golf. The World's First Arena Golf Gauntlet.";
+const HOME_DESCRIPTION =
+  "Ten one-of-a-kind golf skills challenges, hundreds of golfers, one finish line. Race to the finish line solo or as a team.";
+
 export const metadata: Metadata = {
-  title: "Arena Golf Challenges and Competitive Social Golf",
-  description:
-    "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and leaderboard-driven competition.",
+  title: {
+    absolute: HOME_TITLE,
+  },
+  description: HOME_DESCRIPTION,
   alternates: {
     canonical: "/",
   },
@@ -22,16 +27,14 @@ export const metadata: Metadata = {
     "indoor golf competition",
   ],
   openGraph: {
-    title: "Arena Golf Challenges and Competitive Social Golf",
-    description:
-      "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and leaderboard-driven competition.",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
     url: "/",
     type: "website",
   },
   twitter: {
-    title: "Arena Golf Challenges and Competitive Social Golf",
-    description:
-      "SwingRush is the world’s first arena golf gauntlet, blending one-of-a-kind skills challenges, team formats, and leaderboard-driven competition.",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
   },
 };
 
