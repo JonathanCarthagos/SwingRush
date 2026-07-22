@@ -2,30 +2,26 @@
 
 import {
   memo,
-  useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type RefObject,
 } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
-const RESHUFFLE_MS = 8000;
 const SESSION_ENTER_VISIBILITY = 0.65;
 const SESSION_EXIT_VISIBILITY = 0.35;
-const ROW_STAGGER_SECONDS = 0.08;
-const CHARACTER_STAGGER_SECONDS = 0.06;
-const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-const FLAP_SPRING = {
-  type: "spring",
-  stiffness: 150,
-  damping: 15,
-  mass: 1.2,
-} as const;
+const MIN_SETTLE_MS = 1400;
+const MAX_SETTLE_MS = 3400;
+const MIN_FLIP_MS = 85;
+const MAX_FLIP_MS = 110;
+const SETTLE_JITTER_MS = 80;
+const STEP_SCHEDULING_BUDGET_MS = 20;
+const FLAP_DECK = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 // Tile metrics sampled from the Figma asset (126x267px tiles at 0.322 scale).
 const slotClass =
@@ -39,12 +35,107 @@ const faceClass =
 const foldLineClass =
   "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-[0.09375rem] -translate-y-1/2 bg-black/60";
 
+interface FlapPlan {
+  startIndex: number;
+  stepDurationMs: number;
+  totalSteps: number;
+}
+
 function normalizeCharacter(character: string) {
   return character === " " ? "" : character;
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function createSeededRandom(seed: number) {
+  let state = seed >>> 0;
+
+  return () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+}
+
+function getRowSeed(rowIndex: number, runId: number) {
+  return (
+    Math.imul(rowIndex + 1, 0x9e3779b1) ^
+    Math.imul(runId + 1, 0x85ebca6b)
+  ) >>> 0;
+}
+
+function createRowPlans(row: string, rowIndex: number, runId: number) {
+  const characters = Array.from(row);
+  const random = createSeededRandom(getRowSeed(rowIndex, runId));
+  const shuffledSlotIndices = characters.map((_, slotIndex) => slotIndex);
+
+  for (let index = shuffledSlotIndices.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [shuffledSlotIndices[index], shuffledSlotIndices[swapIndex]] = [
+      shuffledSlotIndices[swapIndex],
+      shuffledSlotIndices[index],
+    ];
+  }
+
+  const completionRankBySlot = new Map<number, number>();
+  shuffledSlotIndices.forEach((slotIndex, rank) => {
+    completionRankBySlot.set(slotIndex, rank);
+  });
+
+  return characters.map((target, slotIndex) => {
+    const targetIndex = FLAP_DECK.indexOf(target);
+
+    if (targetIndex === -1) {
+      return {
+        startIndex: 0,
+        stepDurationMs: MIN_FLIP_MS,
+        totalSteps: 0,
+      } satisfies FlapPlan;
+    }
+
+    const completionRank = completionRankBySlot.get(slotIndex) ?? 0;
+    const completionProgress =
+      characters.length <= 1
+        ? 0.5
+        : completionRank / (characters.length - 1);
+    const baseSettleMs =
+      MIN_SETTLE_MS +
+      completionProgress * (MAX_SETTLE_MS - MIN_SETTLE_MS);
+    const settleMs = clamp(
+      baseSettleMs + (random() * 2 - 1) * SETTLE_JITTER_MS,
+      MIN_SETTLE_MS,
+      MAX_SETTLE_MS,
+    );
+    const stepDurationMs = Math.round(
+      MIN_FLIP_MS + random() * (MAX_FLIP_MS - MIN_FLIP_MS),
+    );
+    // React commits the next pair of glyphs between consecutive WAAPI flips.
+    // Budget that scheduling frame so the observed finish stays inside the
+    // intended 1.4–3.4 second window, not just the summed animation durations.
+    const observedStepDurationMs =
+      stepDurationMs + STEP_SCHEDULING_BUDGET_MS;
+    const minSteps = Math.ceil(MIN_SETTLE_MS / observedStepDurationMs);
+    const maxSteps = Math.floor(MAX_SETTLE_MS / observedStepDurationMs);
+    const totalSteps = clamp(
+      Math.round(settleMs / observedStepDurationMs),
+      minSteps,
+      maxSteps,
+    );
+    const startIndex =
+      (targetIndex - (totalSteps % FLAP_DECK.length) + FLAP_DECK.length) %
+      FLAP_DECK.length;
+
+    return {
+      startIndex,
+      stepDurationMs,
+      totalSteps,
+    } satisfies FlapPlan;
+  });
+}
+
 function useVisibilitySession(ref: RefObject<Element | null>) {
-  const [isActive, setIsActive] = useState(false);
+  const [session, setSession] = useState({ isActive: false, sessionId: 0 });
 
   useEffect(() => {
     const element = ref.current;
@@ -54,10 +145,25 @@ function useVisibilitySession(ref: RefObject<Element | null>) {
       ([entry]) => {
         if (!entry) return;
 
-        setIsActive((currentState) => {
-          if (entry.intersectionRatio >= SESSION_ENTER_VISIBILITY) return true;
-          if (entry.intersectionRatio < SESSION_EXIT_VISIBILITY) return false;
-          return currentState;
+        setSession((currentSession) => {
+          if (
+            entry.intersectionRatio >= SESSION_ENTER_VISIBILITY &&
+            !currentSession.isActive
+          ) {
+            return {
+              isActive: true,
+              sessionId: currentSession.sessionId + 1,
+            };
+          }
+
+          if (
+            entry.intersectionRatio < SESSION_EXIT_VISIBILITY &&
+            currentSession.isActive
+          ) {
+            return { ...currentSession, isActive: false };
+          }
+
+          return currentSession;
         });
       },
       {
@@ -72,55 +178,43 @@ function useVisibilitySession(ref: RefObject<Element | null>) {
     return () => observer.disconnect();
   }, [ref]);
 
-  return isActive;
+  return session;
 }
 
-function getIntermediateCharacter(
-  target: string,
-  rowIndex: number,
-  slotIndex: number,
-  cycle: number,
-) {
-  if (target === " ") return "";
+function useDocumentVisibility() {
+  const [visibility, setVisibility] = useState({
+    isVisible: true,
+    resumeId: 0,
+  });
 
-  const seed =
-    (Math.imul(rowIndex + 1, 0x9e3779b1) ^
-      Math.imul(slotIndex + 1, 0x85ebca6b) ^
-      Math.imul(cycle + 1, 0xc2b2ae35)) >>>
-    0;
-  const initialIndex = seed % CHARSET.length;
+  useEffect(() => {
+    const updateDocumentVisibility = () => {
+      const isVisible = document.visibilityState === "visible";
 
-  for (let offset = 0; offset < CHARSET.length; offset += 1) {
-    const candidate = CHARSET[(initialIndex + offset) % CHARSET.length];
-    if (candidate !== target) return candidate;
-  }
+      setVisibility((currentVisibility) => {
+        if (currentVisibility.isVisible === isVisible) {
+          return currentVisibility;
+        }
 
-  return "";
-}
+        return {
+          isVisible,
+          resumeId:
+            currentVisibility.resumeId + (isVisible ? 1 : 0),
+        };
+      });
+    };
 
-interface FlipStep {
-  current: string;
-  next: string;
-}
+    updateDocumentVisibility();
+    document.addEventListener("visibilitychange", updateDocumentVisibility);
 
-function buildFlipSteps(target: string, intermediate: string, cycle: number) {
-  const resolvedTarget = normalizeCharacter(target);
+    return () =>
+      document.removeEventListener(
+        "visibilitychange",
+        updateDocumentVisibility,
+      );
+  }, []);
 
-  if (!resolvedTarget) {
-    return [{ current: "", next: "" }] satisfies FlipStep[];
-  }
-
-  if (cycle === 0) {
-    return [
-      { current: "", next: intermediate },
-      { current: intermediate, next: resolvedTarget },
-    ] satisfies FlipStep[];
-  }
-
-  return [
-    { current: resolvedTarget, next: intermediate },
-    { current: intermediate, next: resolvedTarget },
-  ] satisfies FlipStep[];
+  return visibility;
 }
 
 function StaticCharacter({ character }: { character: string }) {
@@ -136,111 +230,116 @@ function StaticCharacter({ character }: { character: string }) {
 
 interface SplitFlapCharacterProps {
   target: string;
-  intermediate: string;
-  rowIndex: number;
-  slotIndex: number;
-  cycle: number;
-  active: boolean;
+  plan: FlapPlan;
 }
 
 const SplitFlapCharacter = memo(function SplitFlapCharacter({
   target,
-  intermediate,
-  rowIndex,
-  slotIndex,
-  cycle,
-  active,
+  plan,
 }: SplitFlapCharacterProps) {
-  const steps = useMemo(
-    () => buildFlipSteps(target, intermediate, cycle),
-    [cycle, intermediate, target],
-  );
-  const [progress, setProgress] = useState({ cycle, stepIndex: 0 });
-  const stepIndex = progress.cycle === cycle ? progress.stepIndex : 0;
-  const step = steps[stepIndex];
-  const isSpace = target === " ";
-  const staggerDelay =
-    stepIndex === 0
-      ? rowIndex * ROW_STAGGER_SECONDS +
-        slotIndex * CHARACTER_STAGGER_SECONDS
-      : 0;
+  const flapRef = useRef<HTMLSpanElement>(null);
+  const [stepIndex, setStepIndex] = useState(0);
+  const isComplete = stepIndex >= plan.totalSteps;
+  const currentDeckIndex =
+    (plan.startIndex + stepIndex) % FLAP_DECK.length;
+  const nextDeckIndex = (currentDeckIndex + 1) % FLAP_DECK.length;
+  const currentCharacter = normalizeCharacter(FLAP_DECK[currentDeckIndex]);
+  const nextCharacter = normalizeCharacter(FLAP_DECK[nextDeckIndex]);
 
-  const handleAnimationComplete = useCallback(() => {
-    if (!active || stepIndex >= steps.length - 1) return;
+  useLayoutEffect(() => {
+    const flap = flapRef.current;
+    if (!flap || isComplete) return;
 
-    setProgress({ cycle, stepIndex: stepIndex + 1 });
-  }, [active, cycle, stepIndex, steps.length]);
+    const animation = flap.animate(
+      [
+        { transform: "rotateX(0deg)" },
+        { transform: "rotateX(-180deg)" },
+      ],
+      {
+        duration: plan.stepDurationMs,
+        easing: "linear",
+        fill: "both",
+      },
+    );
 
-  if (!step) return null;
+    animation.onfinish = () => {
+      setStepIndex((currentStep) =>
+        Math.min(currentStep + 1, plan.totalSteps),
+      );
+    };
+
+    return () => {
+      animation.onfinish = null;
+      animation.cancel();
+    };
+  }, [isComplete, plan.stepDurationMs, plan.totalSteps, stepIndex]);
+
+  if (isComplete || plan.totalSteps === 0) {
+    return <StaticCharacter character={target} />;
+  }
 
   return (
     <div className={slotClass}>
-      {isSpace ? (
-        <span className={foldLineClass} />
-      ) : (
-        <>
-          <span className={cn(halfClass, "top-0")}>
-            <span className={cn(glyphClass, "top-0")}>{step.next}</span>
-          </span>
+      <span className={cn(halfClass, "top-0")}>
+        <span className={cn(glyphClass, "top-0")}>{nextCharacter}</span>
+      </span>
 
-          <span className={cn(halfClass, "bottom-0")}>
-            <span className={cn(glyphClass, "bottom-0")}>{step.current}</span>
-          </span>
+      <span className={cn(halfClass, "bottom-0")}>
+        <span className={cn(glyphClass, "bottom-0")}>
+          {currentCharacter}
+        </span>
+      </span>
 
-          <motion.span
-            key={`${cycle}-${stepIndex}`}
-            className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1/2 origin-bottom [transform-style:preserve-3d]"
-            initial={{ rotateX: 0 }}
-            animate={{ rotateX: active ? -180 : 0 }}
-            transition={{ ...FLAP_SPRING, delay: staggerDelay }}
-            onAnimationComplete={handleAnimationComplete}
-          >
-            <span className={faceClass}>
-              <span className={cn(glyphClass, "top-0")}>{step.current}</span>
-            </span>
+      <span
+        key={stepIndex}
+        ref={flapRef}
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1/2 origin-bottom [transform-style:preserve-3d]"
+      >
+        <span className={faceClass}>
+          <span className={cn(glyphClass, "top-0")}>{currentCharacter}</span>
+        </span>
 
-            <span className={cn(faceClass, "[transform:rotateX(180deg)]")}>
-              <span className={cn(glyphClass, "bottom-0")}>{step.next}</span>
-            </span>
-          </motion.span>
+        <span className={cn(faceClass, "[transform:rotateX(180deg)]")}>
+          <span className={cn(glyphClass, "bottom-0")}>{nextCharacter}</span>
+        </span>
+      </span>
 
-          <span className={foldLineClass} />
-        </>
-      )}
+      <span className={foldLineClass} />
     </div>
   );
 });
 
 interface SplitFlapRowProps {
   row: string;
-  rowIndex: number;
-  cycle: number;
-  active: boolean;
+  plans: readonly FlapPlan[];
 }
 
-function SplitFlapRow({
-  row,
-  rowIndex,
-  cycle,
-  active,
-}: SplitFlapRowProps) {
+function SplitFlapRow({ row, plans }: SplitFlapRowProps) {
   return (
     <div className="flex w-max gap-0.5">
       {Array.from(row).map((character, slotIndex) => (
         <SplitFlapCharacter
-          key={`${rowIndex}-${slotIndex}`}
+          key={slotIndex}
           target={character}
-          intermediate={getIntermediateCharacter(
-            character,
-            rowIndex,
-            slotIndex,
-            cycle,
-          )}
-          rowIndex={rowIndex}
-          slotIndex={slotIndex}
-          cycle={cycle}
-          active={active}
+          plan={plans[slotIndex]}
         />
+      ))}
+    </div>
+  );
+}
+
+function StaticBoard({ rows }: { rows: readonly string[] }) {
+  return (
+    <div aria-hidden className="flex flex-col gap-[0.28125rem]">
+      {rows.map((row, rowIndex) => (
+        <div key={`${row}-${rowIndex}`} className="flex w-max gap-0.5">
+          {Array.from(row).map((character, slotIndex) => (
+            <StaticCharacter
+              key={`${rowIndex}-${slotIndex}`}
+              character={character}
+            />
+          ))}
+        </div>
       ))}
     </div>
   );
@@ -257,73 +356,25 @@ export function SplitFlapBoard({
   ...props
 }: SplitFlapBoardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const played = useInView(ref, {
-    amount: SESSION_ENTER_VISIBILITY,
-    once: true,
-  });
-  const isAnimationSessionActive = useVisibilitySession(ref);
+  const { isActive: isAnimationSessionActive, sessionId } =
+    useVisibilitySession(ref);
+  const { isVisible: isDocumentVisible, resumeId } =
+    useDocumentVisibility();
   const shouldReduceMotion = useReducedMotion();
-  const lastCycleStartedAtRef = useRef<number | null>(null);
-  const [isDocumentVisible, setIsDocumentVisible] = useState(true);
-  const [cycle, setCycle] = useState(0);
-
-  useEffect(() => {
-    const updateDocumentVisibility = () => {
-      setIsDocumentVisible(document.visibilityState === "visible");
-    };
-
-    updateDocumentVisibility();
-    document.addEventListener("visibilitychange", updateDocumentVisibility);
-
-    return () =>
-      document.removeEventListener(
-        "visibilitychange",
-        updateDocumentVisibility,
-      );
-  }, []);
-
-  useEffect(() => {
-    if (
-      played &&
-      !shouldReduceMotion &&
-      lastCycleStartedAtRef.current === null
-    ) {
-      lastCycleStartedAtRef.current = Date.now();
-    }
-  }, [played, shouldReduceMotion]);
-
-  useEffect(() => {
-    if (
-      !played ||
-      !isAnimationSessionActive ||
-      !isDocumentVisible ||
-      shouldReduceMotion
-    ) {
-      return;
-    }
-
-    const lastCycleStartedAt = lastCycleStartedAtRef.current;
-    if (lastCycleStartedAt === null) return;
-
-    const elapsedSinceLastCycle = Date.now() - lastCycleStartedAt;
-    const remainingCooldown = Math.max(
-      0,
-      RESHUFFLE_MS - elapsedSinceLastCycle,
-    );
-
-    const timeoutId = window.setTimeout(() => {
-      lastCycleStartedAtRef.current = Date.now();
-      setCycle((currentCycle) => currentCycle + 1);
-    }, remainingCooldown);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [
-    cycle,
-    isAnimationSessionActive,
-    isDocumentVisible,
-    played,
-    shouldReduceMotion,
-  ]);
+  const canAnimate =
+    isAnimationSessionActive &&
+    isDocumentVisible &&
+    !shouldReduceMotion;
+  const runId =
+    (Math.imul(sessionId + 1, 0x9e3779b1) ^
+      Math.imul(resumeId + 1, 0x85ebca6b)) >>>
+    0;
+  const plansByRow = useMemo(
+    () =>
+      rows.map((row, rowIndex) => createRowPlans(row, rowIndex, runId)),
+    [rows, runId],
+  );
+  const rowsKey = rows.join("\u0000");
 
   return (
     <div
@@ -333,21 +384,9 @@ export function SplitFlapBoard({
       className={cn("w-full overflow-hidden", className)}
       {...props}
     >
-      {shouldReduceMotion ? (
-        <div aria-hidden className="flex flex-col gap-[0.28125rem]">
-          {rows.map((row, rowIndex) => (
-            <div key={`${row}-${rowIndex}`} className="flex w-max gap-0.5">
-              {Array.from(row).map((character, slotIndex) => (
-                <StaticCharacter
-                  key={`${rowIndex}-${slotIndex}`}
-                  character={character}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      ) : (
+      {canAnimate ? (
         <div
+          key={`${runId}-${rowsKey}`}
           aria-hidden
           className="flex flex-col gap-[0.28125rem]"
         >
@@ -355,12 +394,12 @@ export function SplitFlapBoard({
             <SplitFlapRow
               key={`${row}-${rowIndex}`}
               row={row}
-              rowIndex={rowIndex}
-              cycle={cycle}
-              active={played}
+              plans={plansByRow[rowIndex]}
             />
           ))}
         </div>
+      ) : (
+        <StaticBoard rows={rows} />
       )}
     </div>
   );
