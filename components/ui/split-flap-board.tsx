@@ -41,6 +41,8 @@ interface FlapPlan {
   totalSteps: number;
 }
 
+type VisibilityPhase = "final" | "prepared" | "running";
+
 function normalizeCharacter(character: string) {
   return character === " " ? "" : character;
 }
@@ -135,32 +137,78 @@ function createRowPlans(row: string, rowIndex: number, runId: number) {
 }
 
 function useVisibilitySession(ref: RefObject<Element | null>) {
-  const [session, setSession] = useState({ isActive: false, sessionId: 0 });
+  const [session, setSession] = useState<{
+    phase: VisibilityPhase;
+    sessionId: number;
+  }>({ phase: "final", sessionId: 0 });
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
+    let hasObserved = false;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return;
+        const isFirstObservation = !hasObserved;
+        hasObserved = true;
 
         setSession((currentSession) => {
+          if (isFirstObservation) {
+            if (entry.intersectionRatio >= SESSION_ENTER_VISIBILITY) {
+              return {
+                phase: "running",
+                sessionId: currentSession.sessionId + 1,
+              };
+            }
+
+            if (entry.intersectionRatio === 0) {
+              return {
+                phase: "prepared",
+                sessionId: currentSession.sessionId + 1,
+              };
+            }
+          }
+
+          let nextPhase = currentSession.phase;
+
           if (
-            entry.intersectionRatio >= SESSION_ENTER_VISIBILITY &&
-            !currentSession.isActive
+            entry.intersectionRatio < SESSION_EXIT_VISIBILITY &&
+            nextPhase === "running"
+          ) {
+            nextPhase = "final";
+          }
+
+          if (
+            entry.intersectionRatio === 0 &&
+            nextPhase === "final"
           ) {
             return {
-              isActive: true,
+              phase: "prepared",
               sessionId: currentSession.sessionId + 1,
             };
           }
 
           if (
-            entry.intersectionRatio < SESSION_EXIT_VISIBILITY &&
-            currentSession.isActive
+            entry.intersectionRatio >= SESSION_ENTER_VISIBILITY &&
+            nextPhase === "prepared"
           ) {
-            return { ...currentSession, isActive: false };
+            return { ...currentSession, phase: "running" };
+          }
+
+          if (
+            entry.intersectionRatio >= SESSION_ENTER_VISIBILITY &&
+            nextPhase === "final" &&
+            currentSession.sessionId === 0
+          ) {
+            return {
+              phase: "running",
+              sessionId: currentSession.sessionId + 1,
+            };
+          }
+
+          if (nextPhase !== currentSession.phase) {
+            return { ...currentSession, phase: nextPhase };
           }
 
           return currentSession;
@@ -168,6 +216,7 @@ function useVisibilitySession(ref: RefObject<Element | null>) {
       },
       {
         threshold: [
+          0,
           SESSION_EXIT_VISIBILITY,
           SESSION_ENTER_VISIBILITY,
         ],
@@ -231,11 +280,13 @@ function StaticCharacter({ character }: { character: string }) {
 interface SplitFlapCharacterProps {
   target: string;
   plan: FlapPlan;
+  isRunning: boolean;
 }
 
 const SplitFlapCharacter = memo(function SplitFlapCharacter({
   target,
   plan,
+  isRunning,
 }: SplitFlapCharacterProps) {
   const flapRef = useRef<HTMLSpanElement>(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -248,7 +299,7 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
 
   useLayoutEffect(() => {
     const flap = flapRef.current;
-    if (!flap || isComplete) return;
+    if (!isRunning || !flap || isComplete) return;
 
     const animation = flap.animate(
       [
@@ -272,7 +323,13 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
       animation.onfinish = null;
       animation.cancel();
     };
-  }, [isComplete, plan.stepDurationMs, plan.totalSteps, stepIndex]);
+  }, [
+    isComplete,
+    isRunning,
+    plan.stepDurationMs,
+    plan.totalSteps,
+    stepIndex,
+  ]);
 
   if (isComplete || plan.totalSteps === 0) {
     return <StaticCharacter character={target} />;
@@ -312,9 +369,10 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
 interface SplitFlapRowProps {
   row: string;
   plans: readonly FlapPlan[];
+  isRunning: boolean;
 }
 
-function SplitFlapRow({ row, plans }: SplitFlapRowProps) {
+function SplitFlapRow({ row, plans, isRunning }: SplitFlapRowProps) {
   return (
     <div className="flex w-max gap-0.5">
       {Array.from(row).map((character, slotIndex) => (
@@ -322,6 +380,7 @@ function SplitFlapRow({ row, plans }: SplitFlapRowProps) {
           key={slotIndex}
           target={character}
           plan={plans[slotIndex]}
+          isRunning={isRunning}
         />
       ))}
     </div>
@@ -356,13 +415,16 @@ export function SplitFlapBoard({
   ...props
 }: SplitFlapBoardProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const { isActive: isAnimationSessionActive, sessionId } =
-    useVisibilitySession(ref);
+  const { phase, sessionId } = useVisibilitySession(ref);
   const { isVisible: isDocumentVisible, resumeId } =
     useDocumentVisibility();
   const shouldReduceMotion = useReducedMotion();
-  const canAnimate =
-    isAnimationSessionActive &&
+  const shouldRenderScramble =
+    phase !== "final" &&
+    isDocumentVisible &&
+    !shouldReduceMotion;
+  const isScrambleRunning =
+    phase === "running" &&
     isDocumentVisible &&
     !shouldReduceMotion;
   const runId =
@@ -384,7 +446,7 @@ export function SplitFlapBoard({
       className={cn("w-full overflow-hidden", className)}
       {...props}
     >
-      {canAnimate ? (
+      {shouldRenderScramble ? (
         <div
           key={`${runId}-${rowsKey}`}
           aria-hidden
@@ -395,6 +457,7 @@ export function SplitFlapBoard({
               key={`${row}-${rowIndex}`}
               row={row}
               plans={plansByRow[rowIndex]}
+              isRunning={isScrambleRunning}
             />
           ))}
         </div>
