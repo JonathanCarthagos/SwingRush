@@ -33,7 +33,7 @@ interface Challenge {
   objectPosition?: string;
 }
 
-const SCOREBOARD_ROWS = ["SKILL DIVISIONS", "OPEN DIVISION", "ELITE DIVISION"];
+const SCOREBOARD_ROWS = ["SKILL DIVISIONS", "AMATEUR DIVISION", "ELITE DIVISION"];
 
 const CHALLENGES: Challenge[] = [
   {

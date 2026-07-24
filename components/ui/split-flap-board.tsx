@@ -15,11 +15,11 @@ import { cn } from "@/lib/utils";
 
 const SESSION_ENTER_VISIBILITY = 0.65;
 const SESSION_EXIT_VISIBILITY = 0.35;
-const MIN_SETTLE_MS = 1400;
-const MAX_SETTLE_MS = 3400;
-const MIN_FLIP_MS = 85;
-const MAX_FLIP_MS = 110;
-const SETTLE_JITTER_MS = 80;
+const MIN_SETTLE_MS = 840;
+const MAX_SETTLE_MS = 2040;
+const MIN_FLIP_MS = 51;
+const MAX_FLIP_MS = 66;
+const SETTLE_JITTER_MS = 48;
 const STEP_SCHEDULING_BUDGET_MS = 20;
 const FLAP_DECK = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -114,7 +114,7 @@ function createRowPlans(row: string, rowIndex: number, runId: number) {
     );
     // React commits the next pair of glyphs between consecutive WAAPI flips.
     // Budget that scheduling frame so the observed finish stays inside the
-    // intended 1.4–3.4 second window, not just the summed animation durations.
+    // intended 0.84–2.04 second window, not just the summed animation durations.
     const observedStepDurationMs =
       stepDurationMs + STEP_SCHEDULING_BUDGET_MS;
     const minSteps = Math.ceil(MIN_SETTLE_MS / observedStepDurationMs);
