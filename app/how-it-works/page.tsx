@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Footer } from "@/components/sections/footer";
+import { HowItWorksAccordionSection } from "@/components/sections/how-it-works-accordion-section";
 import { HowItWorksHero } from "@/components/sections/how-it-works-hero";
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export default function HowItWorksPage() {
     <>
       <main className="min-h-dvh flex-1 overflow-x-hidden bg-black">
         <HowItWorksHero />
+        <HowItWorksAccordionSection />
       </main>
       <Footer />
     </>

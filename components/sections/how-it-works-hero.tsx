@@ -37,7 +37,7 @@ export function HowItWorksHero({
   return (
     <section
       className={cn(
-        "relative min-h-svh w-full overflow-hidden bg-black text-white",
+        "relative w-full overflow-hidden bg-black text-white",
         className,
       )}
       {...props}
