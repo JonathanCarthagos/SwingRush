@@ -7,9 +7,15 @@ import {
   useMemo,
   useRef,
   useState,
+  type ReactNode,
   type RefObject,
 } from "react";
-import { useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Transition,
+} from "framer-motion";
 
 import { cn } from "@/lib/utils";
 
@@ -23,17 +29,40 @@ const SETTLE_JITTER_MS = 48;
 const STEP_SCHEDULING_BUDGET_MS = 20;
 const FLAP_DECK = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-// Tile metrics sampled from the Figma asset (126x267px tiles at 0.322 scale).
-const slotClass =
-  "relative h-[5.375rem] w-10 shrink-0 overflow-hidden rounded-[0.5625rem] bg-[#3f3f3f] [perspective:1000px]";
-const glyphClass =
-  "absolute inset-x-0 flex h-[5.375rem] items-center justify-center font-nav text-[4rem] leading-none text-white";
+const MOTION_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
+const MOTION_EASE_IN: [number, number, number, number] = [0.76, 0, 0.24, 1];
+const expandTransition: Transition = { duration: 0.5, ease: MOTION_EASE };
+const collapseTransition: Transition = {
+  duration: 0.38,
+  ease: MOTION_EASE_IN,
+};
+
+type SplitFlapDensity = "display" | "compact";
+
+// Display metrics preserve the Home board. Compact metrics reproduce the
+// denser station-board rows used by the Challenges page.
+const slotClasses: Record<SplitFlapDensity, string> = {
+  display:
+    "relative h-[5.375rem] w-10 shrink-0 overflow-hidden rounded-[0.5625rem] bg-[#3f3f3f] [perspective:1000px]",
+  compact:
+    "relative h-[2.625rem] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:600px]",
+};
+const glyphClasses: Record<SplitFlapDensity, string> = {
+  display:
+    "absolute inset-x-0 flex h-[5.375rem] items-center justify-center font-nav text-[4rem] leading-none",
+  compact:
+    "absolute inset-x-0 flex h-[2.625rem] items-center justify-center font-nav text-[clamp(1.625rem,8.3vw,2.125rem)] leading-none",
+};
 const halfClass =
   "pointer-events-none absolute inset-x-0 h-1/2 overflow-hidden bg-[#3f3f3f]";
 const faceClass =
   "pointer-events-none absolute inset-0 overflow-hidden bg-[#3f3f3f] [backface-visibility:hidden] [-webkit-backface-visibility:hidden]";
-const foldLineClass =
-  "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-[0.09375rem] -translate-y-1/2 bg-black/60";
+const foldLineClasses: Record<SplitFlapDensity, string> = {
+  display:
+    "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-[0.09375rem] -translate-y-1/2 bg-black/60",
+  compact:
+    "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-px -translate-y-1/2 bg-black/70",
+};
 
 interface FlapPlan {
   startIndex: number;
@@ -266,13 +295,27 @@ function useDocumentVisibility() {
   return visibility;
 }
 
-function StaticCharacter({ character }: { character: string }) {
+interface StaticCharacterProps {
+  character: string;
+  density?: SplitFlapDensity;
+  textClassName?: string;
+}
+
+function StaticCharacter({
+  character,
+  density = "display",
+  textClassName = "text-white",
+}: StaticCharacterProps) {
   const resolvedCharacter = normalizeCharacter(character);
 
   return (
-    <div className={slotClass}>
-      <span className={cn(glyphClass, "top-0")}>{resolvedCharacter}</span>
-      <span className={foldLineClass} />
+    <div className={slotClasses[density]}>
+      <span
+        className={cn(glyphClasses[density], "top-0", textClassName)}
+      >
+        {resolvedCharacter}
+      </span>
+      <span className={foldLineClasses[density]} />
     </div>
   );
 }
@@ -281,12 +324,16 @@ interface SplitFlapCharacterProps {
   target: string;
   plan: FlapPlan;
   isRunning: boolean;
+  density?: SplitFlapDensity;
+  textClassName?: string;
 }
 
 const SplitFlapCharacter = memo(function SplitFlapCharacter({
   target,
   plan,
   isRunning,
+  density = "display",
+  textClassName = "text-white",
 }: SplitFlapCharacterProps) {
   const flapRef = useRef<HTMLSpanElement>(null);
   const [stepIndex, setStepIndex] = useState(0);
@@ -332,17 +379,37 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
   ]);
 
   if (isComplete || plan.totalSteps === 0) {
-    return <StaticCharacter character={target} />;
+    return (
+      <StaticCharacter
+        character={target}
+        density={density}
+        textClassName={textClassName}
+      />
+    );
   }
 
   return (
-    <div className={slotClass}>
+    <div className={slotClasses[density]}>
       <span className={cn(halfClass, "top-0")}>
-        <span className={cn(glyphClass, "top-0")}>{nextCharacter}</span>
+        <span
+          className={cn(
+            glyphClasses[density],
+            "top-0",
+            textClassName,
+          )}
+        >
+          {nextCharacter}
+        </span>
       </span>
 
       <span className={cn(halfClass, "bottom-0")}>
-        <span className={cn(glyphClass, "bottom-0")}>
+        <span
+          className={cn(
+            glyphClasses[density],
+            "bottom-0",
+            textClassName,
+          )}
+        >
           {currentCharacter}
         </span>
       </span>
@@ -353,15 +420,31 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
         className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1/2 origin-bottom [transform-style:preserve-3d]"
       >
         <span className={faceClass}>
-          <span className={cn(glyphClass, "top-0")}>{currentCharacter}</span>
+          <span
+            className={cn(
+              glyphClasses[density],
+              "top-0",
+              textClassName,
+            )}
+          >
+            {currentCharacter}
+          </span>
         </span>
 
         <span className={cn(faceClass, "[transform:rotateX(180deg)]")}>
-          <span className={cn(glyphClass, "bottom-0")}>{nextCharacter}</span>
+          <span
+            className={cn(
+              glyphClasses[density],
+              "bottom-0",
+              textClassName,
+            )}
+          >
+            {nextCharacter}
+          </span>
         </span>
       </span>
 
-      <span className={foldLineClass} />
+      <span className={foldLineClasses[density]} />
     </div>
   );
 });
@@ -370,17 +453,42 @@ interface SplitFlapRowProps {
   row: string;
   plans: readonly FlapPlan[];
   isRunning: boolean;
+  density?: SplitFlapDensity;
+  textClassName?: string;
 }
 
-function SplitFlapRow({ row, plans, isRunning }: SplitFlapRowProps) {
+function SplitFlapRow({
+  row,
+  plans,
+  isRunning,
+  density = "display",
+  textClassName = "text-white",
+}: SplitFlapRowProps) {
+  const isCompact = density === "compact";
+
   return (
-    <div className="flex w-max gap-0.5">
+    <div
+      className={cn(
+        isCompact
+          ? "grid w-full gap-[0.09375rem]"
+          : "flex w-max gap-0.5",
+      )}
+      style={
+        isCompact
+          ? {
+              gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+            }
+          : undefined
+      }
+    >
       {Array.from(row).map((character, slotIndex) => (
         <SplitFlapCharacter
           key={slotIndex}
           target={character}
           plan={plans[slotIndex]}
           isRunning={isRunning}
+          density={density}
+          textClassName={textClassName}
         />
       ))}
     </div>
@@ -396,6 +504,7 @@ function StaticBoard({ rows }: { rows: readonly string[] }) {
             <StaticCharacter
               key={`${rowIndex}-${slotIndex}`}
               character={character}
+              density="display"
             />
           ))}
         </div>
@@ -464,6 +573,158 @@ export function SplitFlapBoard({
       ) : (
         <StaticBoard rows={rows} />
       )}
+    </div>
+  );
+}
+
+export interface SplitFlapAccordionItem {
+  id: string;
+  label: string;
+  accessibleLabel: string;
+  panel: ReactNode;
+}
+
+export interface SplitFlapAccordionBoardProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onToggle"> {
+  items: readonly SplitFlapAccordionItem[];
+  openItemId: string | null;
+  onToggle: (itemId: string) => void;
+}
+
+export function SplitFlapAccordionBoard({
+  items,
+  openItemId,
+  onToggle,
+  className,
+  ...props
+}: SplitFlapAccordionBoardProps) {
+  const visibilityRef = useRef<HTMLDivElement>(null);
+  const { phase, sessionId } = useVisibilitySession(visibilityRef);
+  const { isVisible: isDocumentVisible, resumeId } =
+    useDocumentVisibility();
+  const shouldReduceMotion = useReducedMotion() ?? false;
+  const shouldRenderScramble =
+    phase !== "final" && isDocumentVisible && !shouldReduceMotion;
+  const isScrambleRunning =
+    phase === "running" && isDocumentVisible && !shouldReduceMotion;
+  const runId =
+    (Math.imul(sessionId + 1, 0x9e3779b1) ^
+      Math.imul(resumeId + 1, 0x85ebca6b)) >>>
+    0;
+  const rows = useMemo(() => items.map((item) => item.label), [items]);
+  const plansByRow = useMemo(
+    () =>
+      rows.map((row, rowIndex) => createRowPlans(row, rowIndex, runId)),
+    [rows, runId],
+  );
+  const closedBoardHeight = `calc(${items.length} * 2.75rem + ${Math.max(
+    items.length - 1,
+    0,
+  )} * 0.28125rem)`;
+
+  return (
+    <div
+      className={cn("relative w-full", className)}
+      {...props}
+    >
+      <div
+        ref={visibilityRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0"
+        style={{ height: closedBoardHeight }}
+      />
+
+      <div className="relative flex flex-col gap-[0.28125rem]">
+        {items.map((item, rowIndex) => {
+          const isOpen = openItemId === item.id;
+          const contentId = `split-flap-panel-${item.id}`;
+          const triggerId = `split-flap-trigger-${item.id}`;
+          const textClassName = isOpen
+            ? "text-brand transition-colors duration-200 motion-reduce:transition-none"
+            : "text-white transition-colors duration-200 motion-reduce:transition-none";
+
+          return (
+            <article key={item.id}>
+              <button
+                id={triggerId}
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={contentId}
+                aria-label={item.accessibleLabel}
+                onClick={() => onToggle(item.id)}
+                className="block min-h-11 w-full touch-manipulation rounded-[0.25rem] py-px text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              >
+                <div
+                  key={`${runId}-${item.id}`}
+                  aria-hidden="true"
+                >
+                  {shouldRenderScramble ? (
+                    <SplitFlapRow
+                      row={item.label}
+                      plans={plansByRow[rowIndex]}
+                      isRunning={isScrambleRunning}
+                      density="compact"
+                      textClassName={textClassName}
+                    />
+                  ) : (
+                    <div
+                      className="grid w-full gap-[0.09375rem]"
+                      style={{
+                        gridTemplateColumns: `repeat(${item.label.length}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {Array.from(item.label).map(
+                        (character, slotIndex) => (
+                          <StaticCharacter
+                            key={`${item.id}-${slotIndex}`}
+                            character={character}
+                            density="compact"
+                            textClassName={textClassName}
+                          />
+                        ),
+                      )}
+                    </div>
+                  )}
+                </div>
+              </button>
+
+              {shouldReduceMotion ? (
+                isOpen ? (
+                  <div
+                    id={contentId}
+                    role="region"
+                    aria-labelledby={triggerId}
+                  >
+                    {item.panel}
+                  </div>
+                ) : null
+              ) : (
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="panel"
+                      id={contentId}
+                      role="region"
+                      aria-labelledby={triggerId}
+                      className="overflow-hidden"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{
+                        height: 0,
+                        opacity: 0,
+                        transition: collapseTransition,
+                      }}
+                      transition={expandTransition}
+                    >
+                      {item.panel}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -21,6 +21,7 @@ const links = [
 ];
 
 const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
+const SCROLL_THRESHOLD_ROUTES = new Set(["/challenges"]);
 
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";
@@ -179,6 +180,49 @@ function HeroHeaderBackground({
   );
 }
 
+interface ScrollThresholdHeaderBackgroundProps {
+  isOpen: boolean;
+  reduce: boolean | null;
+}
+
+function ScrollThresholdHeaderBackground({
+  isOpen,
+  reduce,
+}: ScrollThresholdHeaderBackgroundProps) {
+  const [hasPassedThreshold, setHasPassedThreshold] = useState(false);
+
+  useEffect(() => {
+    let frameId: number | null = null;
+
+    const update = () => {
+      frameId = null;
+      setHasPassedThreshold(window.scrollY >= window.innerHeight * 0.1);
+    };
+
+    const scheduleUpdate = () => {
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, []);
+
+  return (
+    <HeaderBackground
+      visible={isOpen || hasPassedThreshold}
+      reduce={reduce}
+    />
+  );
+}
+
 export function Nav() {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
@@ -212,6 +256,12 @@ export function Nav() {
           <HeroHeaderBackground
             key={pathname}
             headerRef={headerRef}
+            isOpen={isOpen}
+            reduce={reduce}
+          />
+        ) : SCROLL_THRESHOLD_ROUTES.has(pathname) ? (
+          <ScrollThresholdHeaderBackground
+            key={pathname}
             isOpen={isOpen}
             reduce={reduce}
           />
