@@ -20,6 +20,8 @@ const links = [
   { label: "Locations", href: "/locations" },
 ];
 
+const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
+
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";
 const BAR_GAP = "gap-[4.667px]";
@@ -110,17 +112,17 @@ function HeaderBackground({ visible, reduce }: HeaderBackgroundProps) {
   );
 }
 
-interface HomeHeaderBackgroundProps {
+interface HeroHeaderBackgroundProps {
   headerRef: RefObject<HTMLElement | null>;
   isOpen: boolean;
   reduce: boolean | null;
 }
 
-function HomeHeaderBackground({
+function HeroHeaderBackground({
   headerRef,
   isOpen,
   reduce,
-}: HomeHeaderBackgroundProps) {
+}: HeroHeaderBackgroundProps) {
   const [hasPassedHero, setHasPassedHero] = useState(false);
 
   useEffect(() => {
@@ -206,8 +208,9 @@ export function Nav() {
         ref={headerRef}
         className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white"
       >
-        {pathname === "/" ? (
-          <HomeHeaderBackground
+        {TRANSPARENT_HERO_ROUTES.has(pathname) ? (
+          <HeroHeaderBackground
+            key={pathname}
             headerRef={headerRef}
             isOpen={isOpen}
             reduce={reduce}
@@ -232,7 +235,7 @@ export function Nav() {
             aria-label={isOpen ? "Close menu" : "Open menu"}
             onClick={() => setIsOpen((value) => !value)}
             className="-my-[calc(1.041625rem/2)] flex size-11 shrink-0 items-center justify-center"
-            whileTap={reduce ? undefined : { scale: 0.97 }}
+            whileTap={{ scale: reduce ? 1 : 0.97 }}
             transition={{ duration: 0.12, ease: MOTION_EASE }}
           >
             <span
