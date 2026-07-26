@@ -259,6 +259,73 @@ function useVisibilitySession(ref: RefObject<Element | null>) {
   return session;
 }
 
+function useInitialVisibilitySession(ref: RefObject<Element | null>) {
+  const hasStartedRef = useRef(false);
+  const [session, setSession] = useState<{
+    phase: VisibilityPhase;
+    sessionId: number;
+  }>({ phase: "final", sessionId: 0 });
+
+  useEffect(() => {
+    const finishSessionWhenHidden = () => {
+      if (document.visibilityState !== "hidden") return;
+
+      setSession((currentSession) =>
+        currentSession.phase === "running"
+          ? { ...currentSession, phase: "final" }
+          : currentSession,
+      );
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      finishSessionWhenHidden,
+    );
+
+    return () =>
+      document.removeEventListener(
+        "visibilitychange",
+        finishSessionWhenHidden,
+      );
+  }, []);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          !entry ||
+          document.visibilityState !== "visible" ||
+          entry.intersectionRatio < SESSION_ENTER_VISIBILITY
+        ) {
+          return;
+        }
+
+        setSession((currentSession) => {
+          if (hasStartedRef.current || currentSession.sessionId > 0) {
+            return currentSession;
+          }
+
+          hasStartedRef.current = true;
+
+          return {
+            phase: "running",
+            sessionId: currentSession.sessionId + 1,
+          };
+        });
+      },
+      { threshold: [SESSION_ENTER_VISIBILITY] },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return session;
+}
+
 function useDocumentVisibility() {
   const [visibility, setVisibility] = useState({
     isVisible: true,
@@ -828,18 +895,15 @@ export function SplitFlapAccordionBoard({
   ...props
 }: SplitFlapAccordionBoardProps) {
   const visibilityRef = useRef<HTMLDivElement>(null);
-  const { phase, sessionId } = useVisibilitySession(visibilityRef);
-  const { isVisible: isDocumentVisible, resumeId } =
-    useDocumentVisibility();
+  const { isVisible: isDocumentVisible } = useDocumentVisibility();
+  const { phase, sessionId } =
+    useInitialVisibilitySession(visibilityRef);
   const shouldReduceMotion = useReducedMotion() ?? false;
   const shouldRenderScramble =
     phase !== "final" && isDocumentVisible && !shouldReduceMotion;
   const isScrambleRunning =
     phase === "running" && isDocumentVisible && !shouldReduceMotion;
-  const runId =
-    (Math.imul(sessionId + 1, 0x9e3779b1) ^
-      Math.imul(resumeId + 1, 0x85ebca6b)) >>>
-    0;
+  const runId = Math.imul(sessionId + 1, 0x9e3779b1) >>> 0;
   const rowsKey = items.map((item) => item.label).join("\u0000");
   const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(
