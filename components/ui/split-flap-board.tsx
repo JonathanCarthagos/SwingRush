@@ -449,10 +449,170 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
   );
 });
 
+interface ClockedSplitFlapCharacterProps {
+  target: string;
+  plan: FlapPlan;
+  isRunning: boolean;
+  elapsedMs: number;
+  density?: SplitFlapDensity;
+  textClassName?: string;
+}
+
+// The compact engine turns the scheduling gap from the original per-step
+// React loop into an explicit visual hold, preserving the approved cadence
+// without making completion time depend on the device.
+function getClockedCycleDuration(plan: FlapPlan) {
+  return plan.stepDurationMs + STEP_SCHEDULING_BUDGET_MS;
+}
+
+function getClockedStepIndex(plan: FlapPlan, elapsedMs: number) {
+  const cycleDurationMs = getClockedCycleDuration(plan);
+
+  return Math.min(
+    Math.floor(elapsedMs / cycleDurationMs),
+    plan.totalSteps,
+  );
+}
+
+function getClockedPlanDuration(plan: FlapPlan) {
+  return getClockedCycleDuration(plan) * plan.totalSteps;
+}
+
+const ClockedSplitFlapCharacter = memo(
+  function ClockedSplitFlapCharacter({
+    target,
+    plan,
+    isRunning,
+    elapsedMs,
+    density = "compact",
+    textClassName = "text-white",
+  }: ClockedSplitFlapCharacterProps) {
+    const flapRef = useRef<HTMLSpanElement>(null);
+    const cycleDurationMs = getClockedCycleDuration(plan);
+    const stepIndex = getClockedStepIndex(plan, elapsedMs);
+    const isComplete = stepIndex >= plan.totalSteps;
+    const currentDeckIndex =
+      (plan.startIndex + stepIndex) % FLAP_DECK.length;
+    const nextDeckIndex = (currentDeckIndex + 1) % FLAP_DECK.length;
+    const currentCharacter = normalizeCharacter(
+      FLAP_DECK[currentDeckIndex],
+    );
+    const nextCharacter = normalizeCharacter(FLAP_DECK[nextDeckIndex]);
+
+    useLayoutEffect(() => {
+      const flap = flapRef.current;
+      if (!isRunning || !flap || plan.totalSteps === 0) return;
+
+      const flipEndOffset = plan.stepDurationMs / cycleDurationMs;
+      const animation = flap.animate(
+        [
+          { transform: "rotateX(0deg)", offset: 0 },
+          {
+            transform: "rotateX(-180deg)",
+            offset: flipEndOffset,
+          },
+          { transform: "rotateX(-180deg)", offset: 1 },
+        ],
+        {
+          duration: cycleDurationMs,
+          iterations: plan.totalSteps,
+          easing: "linear",
+          fill: "both",
+        },
+      );
+
+      return () => animation.cancel();
+    }, [
+      cycleDurationMs,
+      isRunning,
+      plan.stepDurationMs,
+      plan.totalSteps,
+    ]);
+
+    if (isComplete || plan.totalSteps === 0) {
+      return (
+        <StaticCharacter
+          character={target}
+          density={density}
+          textClassName={textClassName}
+        />
+      );
+    }
+
+    return (
+      <div className={slotClasses[density]}>
+        <span className={cn(halfClass, "top-0")}>
+          <span
+            className={cn(
+              glyphClasses[density],
+              "top-0",
+              textClassName,
+            )}
+          >
+            {nextCharacter}
+          </span>
+        </span>
+
+        <span className={cn(halfClass, "bottom-0")}>
+          <span
+            className={cn(
+              glyphClasses[density],
+              "bottom-0",
+              textClassName,
+            )}
+          >
+            {currentCharacter}
+          </span>
+        </span>
+
+        <span
+          ref={flapRef}
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1/2 origin-bottom [transform-style:preserve-3d]"
+        >
+          <span className={faceClass}>
+            <span
+              className={cn(
+                glyphClasses[density],
+                "top-0",
+                textClassName,
+              )}
+            >
+              {currentCharacter}
+            </span>
+          </span>
+
+          <span className={cn(faceClass, "[transform:rotateX(180deg)]")}>
+            <span
+              className={cn(
+                glyphClasses[density],
+                "bottom-0",
+                textClassName,
+              )}
+            >
+              {nextCharacter}
+            </span>
+          </span>
+        </span>
+
+        <span className={foldLineClasses[density]} />
+      </div>
+    );
+  },
+  (previous, next) =>
+    previous.target === next.target &&
+    previous.plan === next.plan &&
+    previous.isRunning === next.isRunning &&
+    previous.density === next.density &&
+    previous.textClassName === next.textClassName &&
+    getClockedStepIndex(previous.plan, previous.elapsedMs) ===
+      getClockedStepIndex(next.plan, next.elapsedMs),
+);
+
 interface SplitFlapRowProps {
   row: string;
   plans: readonly FlapPlan[];
   isRunning: boolean;
+  elapsedMs?: number;
   density?: SplitFlapDensity;
   textClassName?: string;
 }
@@ -461,6 +621,7 @@ function SplitFlapRow({
   row,
   plans,
   isRunning,
+  elapsedMs,
   density = "display",
   textClassName = "text-white",
 }: SplitFlapRowProps) {
@@ -481,18 +642,86 @@ function SplitFlapRow({
           : undefined
       }
     >
-      {Array.from(row).map((character, slotIndex) => (
-        <SplitFlapCharacter
-          key={slotIndex}
-          target={character}
-          plan={plans[slotIndex]}
-          isRunning={isRunning}
-          density={density}
-          textClassName={textClassName}
-        />
-      ))}
+      {Array.from(row).map((character, slotIndex) =>
+        elapsedMs === undefined ? (
+          <SplitFlapCharacter
+            key={slotIndex}
+            target={character}
+            plan={plans[slotIndex]}
+            isRunning={isRunning}
+            density={density}
+            textClassName={textClassName}
+          />
+        ) : (
+          <ClockedSplitFlapCharacter
+            key={slotIndex}
+            target={character}
+            plan={plans[slotIndex]}
+            isRunning={isRunning}
+            elapsedMs={elapsedMs}
+            density={density}
+            textClassName={textClassName}
+          />
+        ),
+      )}
     </div>
   );
+}
+
+function useClockedTimeline(
+  isRunning: boolean,
+  runId: number,
+  maxDurationMs: number,
+) {
+  const [timeline, setTimeline] = useState({
+    runId: -1,
+    hasStarted: false,
+    elapsedMs: 0,
+  });
+
+  useEffect(() => {
+    if (!isRunning) return;
+
+    let animationFrameId = 0;
+    let startedAt: number | null = null;
+
+    const updateTimeline = (timestamp: number) => {
+      if (startedAt === null) {
+        startedAt = timestamp;
+        setTimeline({
+          runId,
+          hasStarted: true,
+          elapsedMs: 0,
+        });
+        animationFrameId = requestAnimationFrame(updateTimeline);
+        return;
+      }
+
+      const elapsedMs = Math.min(
+        timestamp - startedAt,
+        maxDurationMs,
+      );
+      setTimeline({
+        runId,
+        hasStarted: true,
+        elapsedMs,
+      });
+
+      if (elapsedMs < maxDurationMs) {
+        animationFrameId = requestAnimationFrame(updateTimeline);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateTimeline);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isRunning, maxDurationMs, runId]);
+
+  if (!isRunning || timeline.runId !== runId) {
+    return { hasStarted: false, elapsedMs: 0 };
+  }
+
+  return timeline;
 }
 
 function StaticBoard({ rows }: { rows: readonly string[] }) {
@@ -611,11 +840,27 @@ export function SplitFlapAccordionBoard({
     (Math.imul(sessionId + 1, 0x9e3779b1) ^
       Math.imul(resumeId + 1, 0x85ebca6b)) >>>
     0;
-  const rows = useMemo(() => items.map((item) => item.label), [items]);
+  const rowsKey = items.map((item) => item.label).join("\u0000");
+  const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(
     () =>
       rows.map((row, rowIndex) => createRowPlans(row, rowIndex, runId)),
     [rows, runId],
+  );
+  const maxDurationMs = useMemo(
+    () =>
+      Math.max(
+        0,
+        ...plansByRow.flatMap((plans) =>
+          plans.map(getClockedPlanDuration),
+        ),
+      ),
+    [plansByRow],
+  );
+  const timeline = useClockedTimeline(
+    isScrambleRunning,
+    runId,
+    maxDurationMs,
   );
   const closedBoardHeight = `calc(${items.length} * 2.75rem + ${Math.max(
     items.length - 1,
@@ -662,7 +907,10 @@ export function SplitFlapAccordionBoard({
                     <SplitFlapRow
                       row={item.label}
                       plans={plansByRow[rowIndex]}
-                      isRunning={isScrambleRunning}
+                      isRunning={
+                        isScrambleRunning && timeline.hasStarted
+                      }
+                      elapsedMs={timeline.elapsedMs}
                       density="compact"
                       textClassName={textClassName}
                     />
