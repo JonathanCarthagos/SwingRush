@@ -186,15 +186,20 @@ export function ChallengesPageSection({
 }: ChallengesPageSectionProps) {
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const boardItems = useMemo<SplitFlapAccordionItem[]>(() => {
-    const labels = items.map(
+    const baseLabels = items.map(
       (item) =>
-        `${item.number.padStart(2, "0")}  ${item.title.toUpperCase()}`,
+        `${item.number.padStart(2, "0")} ${item.title.toUpperCase()}`,
     );
-    const columnCount = Math.max(...labels.map((label) => label.length), 1);
+    const contentColumnCount = Math.max(
+      ...baseLabels.map((label) => label.length),
+      17,
+    );
 
     return items.map((item, index) => ({
       id: item.id,
-      label: labels[index].padEnd(columnCount, " "),
+      label: `${baseLabels[index].padEnd(contentColumnCount, " ")}${
+        openItemId === item.id ? "v" : ">"
+      }`,
       accessibleLabel: `${
         openItemId === item.id ? "Close" : "Open"
       } challenge ${item.number}: ${item.title}`,
@@ -205,16 +210,16 @@ export function ChallengesPageSection({
   return (
     <section
       className={cn(
-        "bg-black px-gutter-x pb-16 pt-nav-offset text-white",
+        "bg-black px-4 pb-16 pt-nav-offset text-white",
         className,
       )}
       {...props}
     >
-      <div className="mx-auto w-full max-w-[25.125rem] pt-[3.75rem]">
+      <div className="mx-auto w-full max-w-[25.125rem] pt-10">
         <DisplayHeading
           as="h1"
           text="CHALLENGES"
-          className="box-border max-w-full px-[0.08em] font-display text-[clamp(3rem,14vw,3.75rem)] uppercase leading-[0.88] [text-wrap:balance]"
+          className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance]"
         />
         <p className="mt-3 max-w-[23.125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body">
           {INTRO_COPY}
@@ -229,10 +234,10 @@ export function ChallengesPageSection({
                 current === itemId ? null : itemId,
               )
             }
-            className="mt-10"
+            className="mt-8"
           />
         ) : (
-          <p className="mt-10 font-body text-[1.0625rem] leading-[1.3] tracking-body">
+          <p className="mt-8 font-body text-[1.0625rem] leading-[1.3] tracking-body">
             Challenge details are coming soon.
           </p>
         )}
@@ -250,19 +255,25 @@ function ChallengeDetails({ item }: { item: ChallengeItem }) {
           alt={item.imageAlt}
           fill
           sizes="(max-width: 767px) calc(100vw - 2rem), 0px"
-          className="object-contain"
+          className="scale-[1.1] object-contain"
         />
       </div>
 
-      <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 text-white">
-        <ChallengeDatum label="Club" value={item.club} />
-        <ChallengeDatum
-          label="Target Height"
-          value={`OPEN = ${item.targetHeight.open}\nELITE = ${item.targetHeight.elite}`}
-        />
-        <ChallengeDatum label="Shot" value={item.shot} />
-        <ChallengeDatum label="Time Limit" value={item.timeLimit} />
-        <ChallengeDatum label="Distance" value={item.distance} />
+      <dl className="mt-8 grid grid-cols-2 gap-x-6 text-white">
+        <div className="min-w-0">
+          <ChallengeDatum label="Club" value={item.club} />
+          <ChallengeDatum label="Shot" value={item.shot} />
+          <ChallengeDatum label="Distance" value={item.distance} />
+        </div>
+
+        <div className="min-w-0 space-y-5">
+          <ChallengeDatum
+            label="Target Height"
+            value={`OPEN = ${item.targetHeight.open}\nELITE = ${item.targetHeight.elite}`}
+          />
+          <ChallengeDatum label="Time Limit" value={item.timeLimit} />
+        </div>
+
         <ChallengeDatum
           label="Description"
           value={item.description}

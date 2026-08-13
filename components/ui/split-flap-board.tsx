@@ -27,7 +27,7 @@ const MIN_FLIP_MS = 51;
 const MAX_FLIP_MS = 66;
 const SETTLE_JITTER_MS = 48;
 const STEP_SCHEDULING_BUDGET_MS = 20;
-const FLAP_DECK = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const FLAP_DECK = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789>v";
 
 const MOTION_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
 const MOTION_EASE_IN: [number, number, number, number] = [0.76, 0, 0.24, 1];
