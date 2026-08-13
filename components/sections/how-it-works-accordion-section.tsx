@@ -42,7 +42,7 @@ export const HOW_IT_WORKS_ACCORDION_ITEMS: AccordionItem[] = [
     id: "challenges",
     title: "The Challenges",
     content:
-      "One by one, you must navigate a gauntlet of 10 one-of-a-kind golf challenges. Each checkpoint puts a different skill under pressure as you race toward the finish line.",
+      "Swingrush features two divisions: an open division for recreational golfers and an elite division for competitive golfers.\n\nIf you have a golf handicap under 10, the elite division is for you. Elite division targets are smaller and, thus, more difficult. Only elite division golfers are eligible to be crowned champions of their respective categories.\n\nThe open division challenges recreational golfers to complete all 10 challenges in under 60 minutes. Those who do will take their place in our winners circle and be crowned a Swingrusher.",
   },
   {
     id: "tee-times",
