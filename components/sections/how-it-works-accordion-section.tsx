@@ -7,7 +7,6 @@ import {
   useReducedMotion,
   type Transition,
 } from "framer-motion";
-import { IoChevronForward } from "react-icons/io5";
 
 import { cn } from "@/lib/utils";
 
@@ -22,10 +21,6 @@ const collapseTransition: Transition = {
   duration: 0.38,
   ease: MOTION_EASE_IN,
 };
-const arrowTransition: Transition = {
-  duration: 0.3,
-  ease: MOTION_EASE,
-};
 
 const INTRO_COPY =
   "Swingrush combines the thrill of competing under arena spotlights with the adrenaline of sinking your favorite clutch golf shots. This is your chance to test all of your golf skills and see if you have what it takes to complete a golf gauntlet packed with 10 one-of-a-kind skills challenges. Feel the pressure and experience the thrill of victory or the agony of defeat.";
@@ -34,6 +29,12 @@ export interface AccordionItem {
   id: string;
   title: string;
   content: string;
+  sections?: AccordionContentSection[];
+}
+
+export interface AccordionContentSection {
+  heading: string;
+  body: string;
 }
 
 export const HOW_IT_WORKS_ACCORDION_ITEMS: AccordionItem[] = [
@@ -47,13 +48,13 @@ export const HOW_IT_WORKS_ACCORDION_ITEMS: AccordionItem[] = [
     id: "tee-times",
     title: "Tee Times",
     content:
-      "Choose an available tee time and arrive ready to compete. Your scheduled start keeps the arena moving and gives every golfer their moment under the spotlights.",
+      "Swingrush takes place over the course of several days for a limited time only in each location. The world's biggest and best indoor venues are transformed into an arena-style golf course that is open from 9am to 9pm, with tee times starting every 15 minutes.",
   },
   {
     id: "scoring",
     title: "Scoring",
     content:
-      "Time is your scorecard. Complete every challenge, cross the finish line and compare your result with the fastest Swingrushers on the leaderboard.",
+      "No counting strokes here. Time is your new scorecard, and your challenge is to complete all skills checkpoints throughout the gauntlet and cross the finish line as fast as possible. The fastest times will top our leaderboard.",
   },
   {
     id: "divisions",
@@ -65,7 +66,21 @@ export const HOW_IT_WORKS_ACCORDION_ITEMS: AccordionItem[] = [
     id: "categories",
     title: "Categories",
     content:
-      "Compete as a single player or enter the arena with a team. Each category has its own leaderboard, so you can chase the glory yourself or share it with your friends.",
+      "Swingrush features the following categories:",
+    sections: [
+      {
+        heading: "Men's/Women's Singles",
+        body: "Each golfer must complete each challenge before advancing to the next one.\nAvailable in Elite and Amateur divisions.",
+      },
+      {
+        heading: "Men's/Women's/Mixed Doubles",
+        body: "Each golfer must complete each challenge before advancing to the next one.\nAvailable in Elite and Amateur divisions.",
+      },
+      {
+        heading: "Men's/Women's/Mixed Foursomes",
+        body: "Golfers take turns hitting shots and advance as soon as one completes the challenge.\nOnly available in the Amateur division.",
+      },
+    ],
   },
 ];
 
@@ -87,17 +102,17 @@ export function HowItWorksAccordionSection({
   return (
     <section
       className={cn(
-        "bg-black px-gutter-x pb-16 pt-12 text-white",
+        "bg-black pb-16 pt-12 text-white",
         className,
       )}
       {...props}
     >
-      <div className="mx-auto w-full max-w-[25.125rem]">
+      <div className="w-full px-4">
         <p className="max-w-[23.125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body">
           {intro}
         </p>
 
-        <div className="mt-10 border-t border-white/70">
+        <div className="mt-[2.6875rem] border-t border-white">
           {items.map((item) => {
             const isOpen = openItemId === item.id;
             const triggerId = `how-it-works-${item.id}-trigger`;
@@ -147,18 +162,24 @@ function AccordionRow({
       id={contentId}
       role="region"
       aria-labelledby={triggerId}
-      className="pb-5"
+      className="pb-7"
     >
-      <div className="space-y-5 pr-7 font-body text-[1.0625rem] leading-[1.3] tracking-body text-white">
+      <div className="space-y-[1.375rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white">
         {item.content.split("\n\n").map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
+        ))}
+        {item.sections?.map((section) => (
+          <div key={section.heading}>
+            <h3 className="font-bold">{section.heading}</h3>
+            <p className="whitespace-pre-line">{section.body}</p>
+          </div>
         ))}
       </div>
     </div>
   );
 
   return (
-    <article className="border-b border-white/70">
+    <article className="border-b border-white">
       <button
         id={triggerId}
         type="button"
@@ -166,19 +187,11 @@ function AccordionRow({
         aria-controls={contentId}
         onClick={onToggle}
         className={cn(
-          "flex min-h-14 w-full items-center justify-between gap-4 py-3 text-left font-body text-[1.0625rem] font-bold leading-[1.1] tracking-body transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none",
+          "flex h-[5.6875rem] w-full touch-manipulation items-center text-left font-display text-[3.125rem] uppercase leading-[2.625rem] transition-colors duration-200 hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none",
           isOpen ? "text-brand" : "text-white",
         )}
       >
-        <span>{item.title}</span>
-        <motion.span
-          aria-hidden="true"
-          className="shrink-0 text-[1.25rem]"
-          animate={{ rotate: isOpen ? 90 : 0 }}
-          transition={reduceMotion ? { duration: 0 } : arrowTransition}
-        >
-          <IoChevronForward />
-        </motion.span>
+        <span className="min-w-0 break-words">{item.title}</span>
       </button>
 
       {reduceMotion ? (
