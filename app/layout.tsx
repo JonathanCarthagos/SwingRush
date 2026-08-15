@@ -44,7 +44,7 @@ export default async function RootLayout({
       className={`${fontDisplay.variable} ${fontBody.variable} ${fontNav.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground font-body">
-        <div className="flex min-h-full flex-1 flex-col md:hidden">
+        <div className="flex min-h-full flex-1 flex-col min-[480px]:hidden">
           <Nav />
           {children}
         </div>

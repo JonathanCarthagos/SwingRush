@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 
+import { Footer } from "@/components/sections/footer";
+import { LocationsPageSection } from "@/components/sections/locations-page-section";
+import { LOCATIONS_PAGE_CONTENT } from "@/data/locations";
+
 export const metadata: Metadata = {
   title: "Locations | SwingRush",
   description: "Explore SwingRush events across cities.",
@@ -7,13 +11,11 @@ export const metadata: Metadata = {
 
 export default function LocationsPage() {
   return (
-    <main className="flex-1 px-gutter-x pb-gutter-y pt-nav-offset">
-      <div className="mx-auto w-full max-w-6xl py-gutter-y">
-        <h1 className="font-display text-h1">Locations</h1>
-        <p className="mt-4 max-w-2xl text-base text-foreground/70 md:text-lg">
-          City listing scaffold. Dynamic city pages live at /locations/[slug].
-        </p>
-      </div>
-    </main>
+    <>
+      <main className="flex-1 overflow-x-hidden bg-black">
+        <LocationsPageSection pageContent={LOCATIONS_PAGE_CONTENT} />
+      </main>
+      <Footer />
+    </>
   );
 }

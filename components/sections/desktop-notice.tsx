@@ -2,7 +2,7 @@ import { LogoLockup } from "@/components/ui/logo-lockup";
 
 export function DesktopNotice() {
   return (
-    <div className="hidden min-h-dvh w-full flex-col items-center justify-center gap-6 bg-black px-8 text-center md:flex">
+    <div className="hidden min-h-dvh w-full flex-col items-center justify-center gap-6 bg-black px-8 text-center min-[480px]:flex">
       <LogoLockup className="h-8 w-auto text-white" />
       <p className="max-w-md font-body text-base text-white/80">
         SwingRush is currently built mobile-first only. Tablet and desktop

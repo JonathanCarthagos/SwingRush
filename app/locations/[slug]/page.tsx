@@ -1,95 +1,76 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { CITY_PAGE_QUERY, CITY_PAGE_SLUGS_QUERY } from "@/sanity/lib/queries";
-import { sanityFetch } from "@/sanity/lib/live";
-import { isSanityConfigured } from "@/sanity/env";
-import type { CityPage } from "@/types";
+import { Footer } from "@/components/sections/footer";
+import {
+  LocationComingSoon,
+  LocationDetailPage,
+} from "@/components/sections/location-detail-page";
+import { getLocationDetailMock } from "@/data/location-details";
+import { LOCATIONS_PAGE_CONTENT } from "@/data/locations";
 
-interface CityPageProps {
+interface LocationPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  if (!isSanityConfigured) {
-    return [];
-  }
+function getLocationSummary(slug: string) {
+  return LOCATIONS_PAGE_CONTENT.locations.find(
+    (location) => location.slug === slug,
+  );
+}
 
-  const { data } = await sanityFetch({
-    query: CITY_PAGE_SLUGS_QUERY,
-    perspective: "published",
-    stega: false,
-  });
-
-  const slugs = (data ?? []) as Array<{ slug: string }>;
-
-  return slugs.map(({ slug }) => ({ slug }));
+export function generateStaticParams() {
+  return LOCATIONS_PAGE_CONTENT.locations.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
-}: CityPageProps): Promise<Metadata> {
+}: LocationPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const detail = getLocationDetailMock(slug);
 
-  if (!isSanityConfigured) {
+  if (detail) {
     return {
-      title: "City | SwingRush",
+      title: detail.seo.title,
+      description: detail.seo.description,
     };
   }
 
-  const { data } = await sanityFetch({
-    query: CITY_PAGE_QUERY,
-    params: { slug },
-    stega: false,
-  });
+  const location = getLocationSummary(slug);
 
-  const city = data as CityPage | null;
-
-  if (!city) {
-    return {
-      title: "City Not Found | SwingRush",
-    };
+  if (!location) {
+    return { title: "Location Not Found" };
   }
 
   return {
-    title: `${city.title} | SwingRush`,
-    description: city.heroDescription ?? `SwingRush events in ${city.title}.`,
+    title: location.city,
+    description: `SwingRush event details for ${location.city} are coming soon.`,
   };
 }
 
-export default async function CityPageRoute({ params }: CityPageProps) {
+export default async function LocationPage({ params }: LocationPageProps) {
   const { slug } = await params;
+  const detail = getLocationDetailMock(slug);
 
-  if (!isSanityConfigured) {
-    notFound();
+  if (detail) {
+    return (
+      <>
+        <LocationDetailPage content={detail} />
+        <Footer />
+      </>
+    );
   }
 
-  const { data } = await sanityFetch({
-    query: CITY_PAGE_QUERY,
-    params: { slug },
-  });
+  const location = getLocationSummary(slug);
 
-  const city = data as CityPage | null;
-
-  if (!city) {
+  if (!location) {
     notFound();
   }
 
   return (
-    <main className="flex-1 px-gutter-x pb-gutter-y pt-nav-offset">
-      <div className="mx-auto w-full max-w-6xl py-gutter-y">
-        <p className="text-sm uppercase tracking-wide text-foreground/60">
-          City Page
-        </p>
-        <h1 className="mt-2 font-display text-h1">
-          {city.heroHeadline ?? city.title}
-        </h1>
-        {city.heroDescription ? (
-          <p className="mt-4 max-w-2xl text-base text-foreground/70 md:text-lg">
-            {city.heroDescription}
-          </p>
-        ) : null}
-      </div>
-    </main>
+    <>
+      <LocationComingSoon location={location} />
+      <Footer />
+    </>
   );
 }

@@ -20,8 +20,12 @@ const links = [
   { label: "Locations", href: "/locations" },
 ];
 
-const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
-const SCROLL_THRESHOLD_ROUTES = new Set(["/challenges"]);
+const TRANSPARENT_HERO_ROUTES = new Set([
+  "/",
+  "/how-it-works",
+  "/locations/new-york-city",
+]);
+const SCROLL_THRESHOLD_ROUTES = new Set(["/challenges", "/locations"]);
 
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";
