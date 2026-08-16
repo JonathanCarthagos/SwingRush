@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 
 import { LogoLockup } from "@/components/ui/logo-lockup";
 
@@ -20,11 +20,7 @@ const links = [
   { label: "Locations", href: "/locations" },
 ];
 
-const TRANSPARENT_HERO_ROUTES = new Set([
-  "/",
-  "/how-it-works",
-  "/locations/new-york-city",
-]);
+const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
 const SCROLL_THRESHOLD_ROUTES = new Set(["/challenges", "/locations"]);
 
 const BAR_W = "w-[23.907px]";
@@ -231,9 +227,26 @@ export function Nav() {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [hasLocationHero, setHasLocationHero] = useState(false);
   const reduce = useReducedMotion();
 
   const iconMotion = reduce ? { duration: 0 } : iconTransition;
+  const isHeroRoute =
+    TRANSPARENT_HERO_ROUTES.has(pathname) || hasLocationHero;
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+
+    function sync() {
+      setHasLocationHero(root.dataset.locationHero === "true");
+    }
+
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-location-hero"] });
+
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -256,7 +269,7 @@ export function Nav() {
         ref={headerRef}
         className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white"
       >
-        {TRANSPARENT_HERO_ROUTES.has(pathname) ? (
+        {isHeroRoute ? (
           <HeroHeaderBackground
             key={pathname}
             headerRef={headerRef}

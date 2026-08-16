@@ -5,24 +5,33 @@ import { useReducedMotion } from "framer-motion";
 import { useSyncExternalStore } from "react";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { HOW_IT_WORKS_PAGE_CONTENT } from "@/data/how-it-works";
 import { cn } from "@/lib/utils";
 
 const subscribeToHydration = () => () => undefined;
 const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
 
+const FALLBACK_HERO = HOW_IT_WORKS_PAGE_CONTENT.hero;
+
 export interface HowItWorksHeroProps
   extends React.HTMLAttributes<HTMLElement> {
   webmSrc?: string;
   videoSrc?: string;
   poster?: string;
+  heading?: string;
+  arenaHeading?: string;
+  arenaDescription?: string;
 }
 
 export function HowItWorksHero({
   className,
-  webmSrc = "/videos/Sizzzle%20one.webm",
-  videoSrc = "/videos/Sizzzle%20one.mp4",
-  poster = "/images/hero-poster.jpg",
+  webmSrc = FALLBACK_HERO.webmSrc,
+  videoSrc = FALLBACK_HERO.mp4Src,
+  poster = FALLBACK_HERO.posterSrc,
+  heading = FALLBACK_HERO.heading,
+  arenaHeading = FALLBACK_HERO.arenaHeading,
+  arenaDescription = FALLBACK_HERO.arenaDescription,
   ...props
 }: HowItWorksHeroProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -78,7 +87,7 @@ export function HowItWorksHero({
         <div className="absolute inset-0 flex items-center justify-center px-gutter-x pt-nav-offset">
           <DisplayHeading
             as="h1"
-            text="HOW IT WORKS"
+            text={heading}
             className="box-border max-w-[calc(100vw-2rem)] whitespace-nowrap px-[0.08em] text-center font-display text-[clamp(3.75rem,17.5vw,5.25rem)] leading-[0.86] text-white"
           />
         </div>
@@ -88,12 +97,11 @@ export function HowItWorksHero({
         <div className="flex flex-col items-center gap-[0.834rem]">
           <DisplayHeading
             as="h2"
-            text={"THE ARENA\nGOLF GAUNTLET"}
+            text={arenaHeading}
             className="box-border max-w-[calc(100vw-4rem)] whitespace-pre-line px-[0.08em] font-display text-[clamp(3rem,14.5vw,3.75rem)] leading-[0.86] text-white [text-wrap:balance]"
           />
           <p className="max-w-[18rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white">
-            Do you have the skills to complete each golf challenge as fast as
-            you can and become a Swingrusher?
+            {arenaDescription}
           </p>
         </div>
       </div>

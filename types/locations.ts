@@ -1,3 +1,5 @@
+import type { SeoContent } from "@/types/seo";
+
 export type LocationSlug = string;
 
 export type LocationHref = `/locations/${string}`;
@@ -25,4 +27,9 @@ export interface LocationsPageContent {
   introduction: string;
   emptyState: string;
   locations: readonly LocationListItem[];
+}
+
+export interface LocationsPageDocument {
+  seo: SeoContent;
+  content: LocationsPageContent;
 }

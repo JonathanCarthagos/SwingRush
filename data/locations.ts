@@ -3,6 +3,12 @@ import type {
   LocationListItem,
   LocationsPageContent,
 } from "@/types/locations";
+import type { SeoContent } from "@/types/seo";
+
+export const LOCATIONS_PAGE_SEO = {
+  title: "Locations | SwingRush",
+  description: "Explore SwingRush events across cities.",
+} as const satisfies SeoContent;
 
 const APRIL_DATES = {
   startDate: "2027-04-08",

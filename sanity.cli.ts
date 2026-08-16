@@ -10,4 +10,9 @@ export default defineCliConfig({
   },
   studioHost: process.env.SANITY_STUDIO_HOSTNAME,
   autoUpdates: true,
+  typegen: {
+    path: "./{app,sanity,lib,components}/**/*.{ts,tsx}",
+    schema: "./schema.json",
+    generates: "./sanity.types.ts",
+  },
 });

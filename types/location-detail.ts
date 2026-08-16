@@ -91,6 +91,6 @@ export interface LocationDetailPageContent {
   importantInformation: {
     title: string;
     blocks: readonly LocationInformationBlock[];
-    volunteer: LocationVolunteerInformation;
+    volunteer?: LocationVolunteerInformation;
   };
 }

@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { HOME_PAGE_CONTENT } from "@/data/home";
 import { cn } from "@/lib/utils";
 
 const CUE_INITIAL_DELAY_MS = 2000;
@@ -144,10 +145,10 @@ function HeroScrollCue({ reduce }: HeroScrollCueProps) {
 
 export function Hero({
   className,
-  webmSrc = "/videos/Sizzzle%20one.webm",
-  videoSrc = "/videos/Sizzzle%20one.mp4",
-  poster = "/images/hero-poster.jpg",
-  heading = "READY\nSET\nGOLF",
+  webmSrc = HOME_PAGE_CONTENT.hero.webmSrc,
+  videoSrc = HOME_PAGE_CONTENT.hero.mp4Src,
+  poster = HOME_PAGE_CONTENT.hero.posterSrc,
+  heading = HOME_PAGE_CONTENT.hero.heading,
   ...props
 }: HeroProps) {
   const shouldReduceMotion = useReducedMotion();

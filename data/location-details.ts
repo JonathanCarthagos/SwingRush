@@ -43,44 +43,7 @@ export const NEW_YORK_LOCATION_DETAIL = {
     label: "Join Waitlist",
     href: "#ticket-info",
   },
-  features: [
-    {
-      id: "ten-challenges",
-      title: "10 Challenges",
-      description:
-        "Step into the arena and navigate a golf gauntlet featuring 10 one-of-a-kind skills challenges. From driver accuracy to iron precision to putter touch, all of your golf skills will be put to the test.",
-      image: {
-        src: "/images/locations/new-york/ten-challenges.jpg",
-        alt: "Golfer taking a shot inside the illuminated SwingRush arena",
-        width: 742,
-        height: 495,
-      },
-    },
-    {
-      id: "hundreds-of-golfers",
-      title: "100’s of Golfers",
-      description:
-        "Each day will feature multiple tee times where golfers will choose to play in the open division or compete in the elite division. The elite division challenges feature a higher degree of difficulty with smaller holes and targets.",
-      image: {
-        src: "/images/locations/new-york/hundreds-of-golfers.jpg",
-        alt: "Golfers carrying their bags through the SwingRush arena",
-        width: 742,
-        height: 495,
-      },
-    },
-    {
-      id: "finish-line",
-      title: "1 Finish Line",
-      description:
-        "Open division participants must complete all 10 challenges and cross the finish line in under 60 minutes to stand in the winner's circle and be named a Swingrusher. Elite competitors will race to have the fastest time through all 10 challenges in order to be crowned the most skilled golfers in their categories.",
-      image: {
-        src: "/images/locations/new-york/finish-line.jpg",
-        alt: "Competitors entering the SwingRush Elite Snyder finish line",
-        width: 742,
-        height: 495,
-      },
-    },
-  ],
+  features: [],
   schedule: {
     title: "Schedule",
     days: [

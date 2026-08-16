@@ -5,12 +5,3 @@ export interface RsvpFormData {
   guestCount?: number;
   message?: string;
 }
-
-export interface CityPage {
-  _id: string;
-  title: string;
-  slug: string;
-  heroHeadline?: string;
-  heroDescription?: string;
-  isPublished?: boolean;
-}

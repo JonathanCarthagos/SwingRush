@@ -88,6 +88,8 @@ function LocationFeatures({
 }: {
   features: readonly LocationFeature[];
 }) {
+  if (features.length === 0) return null;
+
   return (
     <section aria-label="What to expect" className="mt-[3.375rem] space-y-[1.875rem]">
       {features.map((feature) => (
@@ -119,6 +121,8 @@ function LocationSchedule({
   title: string;
   days: readonly LocationScheduleDay[];
 }) {
+  if (days.length === 0) return null;
+
   return (
     <section aria-labelledby="schedule-title" className="mt-10">
       <DisplayHeading
@@ -162,6 +166,8 @@ function LocationTicketInfo({
 }: {
   ticketInfo: LocationDetailPageContent["ticketInfo"];
 }) {
+  if (ticketInfo.releases.length === 0) return null;
+
   return (
     <section
       id={ticketInfo.id}
@@ -208,6 +214,10 @@ function LocationImportantInformation({
 }: {
   information: LocationDetailPageContent["importantInformation"];
 }) {
+  const { volunteer } = information;
+
+  if (information.blocks.length === 0 && !volunteer) return null;
+
   return (
     <section aria-labelledby="important-info-title" className="mt-10">
       <DisplayHeading
@@ -220,24 +230,26 @@ function LocationImportantInformation({
         {information.blocks.map((block) => (
           <InformationBlock key={block.id} block={block} />
         ))}
-        <div
-          id="volunteer"
-          className={`scroll-mt-nav-offset ${bodyClass}`}
-        >
-          <h3 className="font-medium">{information.volunteer.title}</h3>
-          <p>{information.volunteer.description}</p>
-          <ul className="list-disc pl-6">
-            {information.volunteer.benefits.map((benefit) => (
-              <li key={benefit}>{benefit}</li>
-            ))}
-          </ul>
-          <a
-            href={information.volunteer.action.href}
-            className={`${textLinkClass} mt-2`}
+        {volunteer ? (
+          <div
+            id="volunteer"
+            className={`scroll-mt-nav-offset ${bodyClass}`}
           >
-            {information.volunteer.action.label}
-          </a>
-        </div>
+            <h3 className="font-medium">{volunteer.title}</h3>
+            <p>{volunteer.description}</p>
+            <ul className="list-disc pl-6">
+              {volunteer.benefits.map((benefit) => (
+                <li key={benefit}>{benefit}</li>
+              ))}
+            </ul>
+            <a
+              href={volunteer.action.href}
+              className={`${textLinkClass} mt-2`}
+            >
+              {volunteer.action.label}
+            </a>
+          </div>
+        ) : null}
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { HOME_PAGE_CONTENT } from "@/data/home";
 import { cn } from "@/lib/utils";
 
 export interface ArenaProps extends React.HTMLAttributes<HTMLElement> {
@@ -8,8 +9,8 @@ export interface ArenaProps extends React.HTMLAttributes<HTMLElement> {
 
 export function Arena({
   className,
-  heading = "THE ARENA\nGOLF GAUNTLET",
-  description = "Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?",
+  heading = HOME_PAGE_CONTENT.arena.heading,
+  description = HOME_PAGE_CONTENT.arena.description,
   ...props
 }: ArenaProps) {
   return (
