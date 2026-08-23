@@ -267,7 +267,7 @@ export function Nav() {
     <>
       <header
         ref={headerRef}
-        className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white"
+        className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-24 min-[768px]:px-tablet-gutter min-[768px]:py-[1.3125rem] min-[1280px]:px-desktop-gutter"
       >
         {isHeroRoute ? (
           <HeroHeaderBackground
@@ -286,13 +286,13 @@ export function Nav() {
           <HeaderBackground visible reduce={reduce} />
         )}
 
-        <div className="relative z-10 flex h-nav-bar-inner-h items-center justify-between">
+        <div className="relative z-10 flex h-nav-bar-inner-h items-center justify-between min-[768px]:h-[3.375rem]">
           <Link
             href="/"
             aria-label="SwingRush home"
             onClick={() => setIsOpen(false)}
           >
-            <LogoLockup className="h-nav-logo-h w-auto" />
+            <LogoLockup className="h-nav-logo-h w-auto min-[768px]:h-auto min-[768px]:w-[clamp(11.25rem,20vw,14rem)] min-[1280px]:h-[2.1123rem] min-[1280px]:w-[16.25rem]" />
           </Link>
 
           <motion.button
@@ -301,7 +301,7 @@ export function Nav() {
             aria-controls="site-menu"
             aria-label={isOpen ? "Close menu" : "Open menu"}
             onClick={() => setIsOpen((value) => !value)}
-            className="-my-[calc(1.041625rem/2)] flex size-11 shrink-0 items-center justify-center"
+            className="-my-[calc(1.041625rem/2)] flex size-11 shrink-0 items-center justify-center min-[768px]:size-12 min-[768px]:touch-manipulation min-[1280px]:hidden"
             whileTap={{ scale: reduce ? 1 : 0.97 }}
             transition={{ duration: 0.12, ease: MOTION_EASE }}
           >
@@ -338,6 +338,19 @@ export function Nav() {
               />
             </span>
           </motion.button>
+
+          <nav aria-label="Desktop main" className="hidden items-center gap-10 min-[1280px]:flex">
+            <div className="flex items-center gap-10 font-body text-xl font-medium uppercase leading-[1.3] tracking-[0.08em]">
+              {links.slice(1).map((link) => (
+                <Link key={link.href} href={link.href} className="whitespace-nowrap transition-opacity duration-150 hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            <button type="button" aria-disabled="true" tabIndex={-1} className="inline-flex h-[2.125rem] cursor-default items-center justify-center rounded-full border border-white bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand">
+              Sign Up
+            </button>
+          </nav>
         </div>
       </header>
 

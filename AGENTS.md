@@ -9,3 +9,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - During the current home-page phase, do not attach Sanity live/visual editing globally in `app/layout.tsx`.
 - Keep Sanity runtime integrations scoped to `locations` and `studio` until the team explicitly decides to expand CMS usage across the rest of the site.
 - If full-site Sanity support is needed later, reintroduce it intentionally from this rule rather than by accident.
+- The Home mobile experience below 768px is client-approved and locked. Do not change its base styles, DOM structure, content, navigation/drawer behavior, or spacing without explicit client approval.
+- Home responsive work must be additive: use tablet variants from 768px through 1279px and desktop variants from 1280px upward. Every Home change must include visual regression checks at 375px and 480px.

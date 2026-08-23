@@ -19,6 +19,7 @@ const CUE_REST_STATE = {
   opacity: 1,
   transform: "translate3d(0, 0, 0)",
 } as const;
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
   webmSrc?: string;
@@ -152,44 +153,73 @@ export function Hero({
   ...props
 }: HeroProps) {
   const shouldReduceMotion = useReducedMotion();
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+
+    const updatePlayback = () => {
+      if (mediaQuery.matches) {
+        videoRef.current?.pause();
+        return;
+      }
+
+      void videoRef.current?.play().catch(() => undefined);
+    };
+
+    updatePlayback();
+    mediaQuery.addEventListener("change", updatePlayback);
+
+    return () => mediaQuery.removeEventListener("change", updatePlayback);
+  }, []);
 
   return (
     <section
       className={cn(
-        "relative left-1/2 right-1/2 -mx-[50vw] flex h-svh w-screen items-center justify-center overflow-hidden bg-black",
+        "relative flex h-svh w-full items-center justify-center overflow-hidden bg-black",
         className,
       )}
       {...props}
       data-nav-hero=""
     >
-      {shouldReduceMotion ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={poster}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-cover [object-position:50%_44%]"
-        />
-      ) : (
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={poster}
-          className="absolute inset-0 h-full w-full object-cover [object-position:50%_44%]"
-        >
-          <source src={webmSrc} type="video/webm" />
-          <source src={videoSrc} type="video/mp4" />
-        </video>
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={poster}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 hidden h-full w-full object-cover [object-position:50%_44%] motion-reduce:block"
+      />
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={poster}
+        className="absolute inset-0 h-full w-full object-cover [object-position:50%_44%] motion-reduce:hidden"
+      >
+        <source src={webmSrc} type="video/webm" />
+        <source src={videoSrc} type="video/mp4" />
+      </video>
 
       <DisplayHeading
         as="h1"
         text={heading}
-        className="relative z-10 box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-hero leading-[0.84] text-white"
+        className="relative z-10 box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-hero leading-[0.84] text-white min-[768px]:hidden"
       />
+
+      <div className="absolute inset-0 z-10 hidden flex-col items-center justify-center gap-[clamp(1.25rem,2.27vw,1.8125rem)] min-[768px]:flex">
+        <DisplayHeading
+          as="h1"
+          text={heading}
+          className="box-border max-w-[calc(100vw-4rem)] whitespace-pre-line px-[0.08em] text-center font-display text-[clamp(7rem,12.5vw,10rem)] leading-[0.84] text-white min-[1280px]:max-w-none min-[1280px]:whitespace-normal min-[1280px]:text-[clamp(8.75rem,calc(-15.25rem+30vw),16.25rem)]"
+          lineClassName="min-[1280px]:mr-[0.18em] min-[1280px]:inline-block min-[1280px]:last:mr-0"
+        />
+        <span className="inline-flex h-[2.125rem] items-center justify-center rounded-full bg-white/30 px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-white">
+          Sign Up
+        </span>
+      </div>
 
       <HeroScrollCue reduce={shouldReduceMotion} />
 

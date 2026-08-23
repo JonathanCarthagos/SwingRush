@@ -43,13 +43,13 @@ type SplitFlapDensity = "display" | "compact";
 // denser station-board rows used by the Challenges page.
 const slotClasses: Record<SplitFlapDensity, string> = {
   display:
-    "relative h-[5.375rem] w-10 shrink-0 overflow-hidden rounded-[0.5625rem] bg-[#3f3f3f] [perspective:1000px]",
+    "relative h-[var(--split-flap-display-slot-height,5.375rem)] w-[var(--split-flap-display-slot-width,2.5rem)] shrink-0 overflow-hidden rounded-[0.5625rem] bg-[#3f3f3f] [perspective:1000px]",
   compact:
     "relative h-[2.625rem] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:600px]",
 };
 const glyphClasses: Record<SplitFlapDensity, string> = {
   display:
-    "absolute inset-x-0 flex h-[5.375rem] items-center justify-center font-nav text-[4rem] leading-none",
+    "absolute inset-x-0 flex h-[var(--split-flap-display-slot-height,5.375rem)] items-center justify-center font-nav text-[length:var(--split-flap-display-glyph-size,4rem)] leading-none",
   compact:
     "absolute inset-x-0 flex h-[2.625rem] items-center justify-center font-nav text-[clamp(1.625rem,8.3vw,2.125rem)] leading-none",
 };

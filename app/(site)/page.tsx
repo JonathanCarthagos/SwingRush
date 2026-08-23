@@ -43,7 +43,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <main className="flex-1 bg-[#000000] px-gutter-x min-h-dvh">
+      <main className="min-h-dvh flex-1 overflow-x-clip bg-[#000000]">
         <Hero
           heading={hero.heading}
           webmSrc={hero.webmSrc}
@@ -54,10 +54,9 @@ export default async function HomePage() {
         <Challenges stories={stories} />
         <Cta
           variant="inverted"
-          heading={cta.heading}
+          heading={"JUMP INTO\nTHE ARENA"}
           description={cta.description}
-          ctaLabel={cta.ctaLabel}
-          ctaHref={cta.ctaHref}
+          ctaLabel="Sign Up"
         />
       </main>
       <Footer />
