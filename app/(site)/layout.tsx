@@ -1,5 +1,6 @@
 import { draftMode } from "next/headers";
 
+import { Footer } from "@/components/sections/footer";
 import { Nav } from "@/components/sections/nav";
 
 export default async function SiteLayout({
@@ -17,8 +18,9 @@ export default async function SiteLayout({
           : "flex min-h-full flex-1 flex-col"
       }
     >
-        <Nav />
-        {children}
+      <Nav />
+      {children}
+      <Footer />
     </div>
   );
 }

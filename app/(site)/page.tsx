@@ -4,7 +4,6 @@ import { CmsLive } from "@/components/cms/cms-live";
 import { Arena } from "@/components/sections/arena";
 import { Challenges } from "@/components/sections/challenges";
 import { Cta } from "@/components/sections/cta";
-import { Footer } from "@/components/sections/footer";
 import { Hero } from "@/components/sections/hero";
 import { getHomePage } from "@/lib/cms/home";
 
@@ -59,7 +58,6 @@ export default async function HomePage() {
           ctaLabel="Sign Up"
         />
       </main>
-      <Footer />
       <CmsLive />
     </>
   );

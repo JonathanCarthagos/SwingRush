@@ -1,6 +1,10 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from "react-icons/si";
 
+import {
+  FooterSocialIcon,
+  type FooterSocialIconName,
+} from "@/components/ui/footer-social-icon";
 import { LogoMark } from "@/components/ui/logo-mark";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +25,10 @@ const footerVariants = cva(
 );
 
 const navLinkClass = "font-nav text-nav uppercase tracking-nav";
+const desktopNavLinkClass = cn(
+  navLinkClass,
+  "text-footer-nav-desktop focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current",
+);
 
 interface FooterLink {
   label: string;
@@ -42,11 +50,16 @@ const footerLinks: FooterLink[] = [
 ];
 
 const socialLinks = [
-  { Icon: SiFacebook, label: "Facebook", href: "#" },
-  { Icon: SiInstagram, label: "Instagram", href: "#" },
-  { Icon: SiTiktok, label: "TikTok", href: "#" },
-  { Icon: SiYoutube, label: "YouTube", href: "#" },
-];
+  { Icon: SiFacebook, desktopIcon: "facebook", label: "Facebook", href: "#" },
+  { Icon: SiInstagram, desktopIcon: "instagram", label: "Instagram", href: "#" },
+  { Icon: SiTiktok, desktopIcon: "tiktok", label: "TikTok", href: "#" },
+  { Icon: SiYoutube, desktopIcon: "youtube", label: "YouTube", href: "#" },
+] satisfies Array<{
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  desktopIcon: FooterSocialIconName;
+  label: string;
+  href: string;
+}>;
 
 export interface FooterProps
   extends React.HTMLAttributes<HTMLElement>,
@@ -73,25 +86,46 @@ export function Footer({ className, variant, ...props }: FooterProps) {
         ))}
       </nav>
 
-      <nav aria-label="Footer desktop" className="order-2 hidden w-[31.5625rem] justify-end gap-10 min-[1280px]:flex">
-        <div className="flex flex-1 flex-col gap-2.5">
+      <nav aria-label="Footer desktop" className="order-2 hidden w-[31.5625rem] grid-cols-2 gap-10 min-[1280px]:grid">
+        <div className="flex min-w-0 flex-col gap-2.5">
           {footerLinks.map((link) => (
-            <a key={link.label} href={link.href} className={navLinkClass}>
+            <a key={link.label} href={link.href} className={desktopNavLinkClass}>
               {link.label}
             </a>
           ))}
         </div>
-        <a href="/challenges" className={cn(navLinkClass, "h-fit underline underline-offset-2")}>
-          Register
-        </a>
+        <div className="flex h-[10.375rem] min-w-0 flex-col items-start">
+          <a
+            href="/challenges"
+            className={cn(
+              desktopNavLinkClass,
+              "h-fit whitespace-nowrap underline decoration-[7%] underline-offset-2",
+            )}
+          >
+            Register
+          </a>
+        </div>
       </nav>
 
-      <div className="flex w-full flex-col gap-11 min-[768px]:order-1 min-[768px]:h-full min-[768px]:justify-between min-[1280px]:h-[38.4375rem] min-[1280px]:w-[11.27475rem]">
-        <LogoMark className="h-[5.4219rem] w-[7.1848rem] min-[768px]:h-auto min-[768px]:w-[clamp(8.5rem,14vw,10rem)] min-[1280px]:h-[8.5079rem] min-[1280px]:w-[11.27475rem]" />
+      <div className="flex w-full flex-col gap-11 min-[768px]:order-1 min-[768px]:h-full min-[768px]:justify-between min-[1280px]:h-[38.4375rem] min-[1280px]:w-[11.27475rem] min-[1280px]:justify-start min-[1280px]:gap-[28.125rem]">
+        <LogoMark className="h-[5.4219rem] w-[7.1848rem] min-[768px]:h-auto min-[768px]:w-[clamp(8.5rem,14vw,10rem)] min-[1280px]:h-[8.5079rem] min-[1280px]:w-[11.27475rem] min-[1280px]:shrink-0" />
         <div className="flex items-center gap-[1.3406rem]">
-          {socialLinks.map(({ Icon, label, href }) => (
-            <a key={label} href={href} aria-label={label}>
-              <Icon className="size-7" aria-hidden="true" focusable="false" />
+          {socialLinks.map(({ Icon, desktopIcon, label, href }) => (
+            <a
+              key={label}
+              href={href}
+              aria-label={label}
+              className="min-[1280px]:block min-[1280px]:h-[1.82325rem] min-[1280px]:w-[1.769625rem] min-[1280px]:focus-visible:outline-2 min-[1280px]:focus-visible:outline-offset-4 min-[1280px]:focus-visible:outline-current"
+            >
+              <Icon
+                className="size-7 min-[1280px]:hidden"
+                aria-hidden="true"
+                focusable="false"
+              />
+              <FooterSocialIcon
+                name={desktopIcon}
+                className="hidden min-[1280px]:block"
+              />
             </a>
           ))}
         </div>

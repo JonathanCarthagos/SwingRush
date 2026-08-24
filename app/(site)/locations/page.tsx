@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { Footer } from "@/components/sections/footer";
 import { LocationsPageSection } from "@/components/sections/locations-page-section";
 import { getLocationsPage } from "@/lib/cms/locations";
 
@@ -30,7 +29,6 @@ export default async function LocationsPage() {
       <main className="flex-1 overflow-x-hidden bg-black">
         <LocationsPageSection pageContent={content} />
       </main>
-      <Footer />
     </>
   );
 }

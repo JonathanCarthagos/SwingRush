@@ -31,6 +31,10 @@ const config: Config = {
           { lineHeight: "1.05" },
         ],
         nav: "0.9375rem",
+        "footer-nav-desktop": [
+          "1.375rem",
+          { lineHeight: "1.3", letterSpacing: "0.03em" },
+        ],
         // Challenges tablet scale: 768px -> 1280px. These tokens are only
         // consumed behind the tablet media query so the approved mobile type
         // scale remains untouched.

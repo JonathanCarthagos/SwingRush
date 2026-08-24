@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import {
   AnimatePresence,
@@ -24,6 +25,8 @@ const collapseTransition: Transition = {
   ease: MOTION_EASE_IN,
 };
 
+const DESKTOP_MEDIA_SRC = "/images/how-it-works-arena.jpg";
+
 export interface HowItWorksAccordionSectionProps
   extends React.HTMLAttributes<HTMLElement> {
   items?: readonly AccordionItem[];
@@ -42,12 +45,12 @@ export function HowItWorksAccordionSection({
   return (
     <section
       className={cn(
-        "bg-black pb-16 pt-12 text-white",
+        "bg-black pb-16 pt-12 text-white min-[1280px]:pb-36 min-[1280px]:pt-[4.625rem]",
         className,
       )}
       {...props}
     >
-      <div className="w-full px-4">
+      <div className="w-full px-4 min-[1280px]:hidden">
         <p className="max-w-[23.125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body">
           {intro}
         </p>
@@ -76,7 +79,68 @@ export function HowItWorksAccordionSection({
           })}
         </div>
       </div>
+
+      <div className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter min-[1280px]:block">
+        <p className="w-[48rem] max-w-full font-body text-[1.875rem] leading-[1.3] tracking-body">
+          {intro}
+        </p>
+
+        <div className="mt-[6.25rem] flex flex-col gap-[5.125rem]">
+          {items.map((item) => (
+            <article
+              key={item.id}
+              className="grid w-full grid-cols-[minmax(0,32.455%)_minmax(0,49.293%)] items-start justify-between"
+            >
+              <h2 className="font-display text-[4.6875rem] uppercase leading-[0.85] text-white">
+                {item.title}
+              </h2>
+
+              <div className="flex min-w-0 flex-col gap-7">
+                <div className="relative aspect-[3/2] w-full overflow-hidden bg-black">
+                  <div className="pointer-events-none absolute left-[-6.7%] top-[-14.7%] size-[119.77%]">
+                    <Image
+                      src={DESKTOP_MEDIA_SRC}
+                      alt=""
+                      aria-hidden
+                      fill
+                      sizes="(min-width: 1680px) 767px, (min-width: 1280px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+
+                <ItemContent
+                  item={item}
+                  className="space-y-[1.95rem] font-body text-2xl leading-[1.3] tracking-body text-white"
+                />
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
     </section>
+  );
+}
+
+function ItemContent({
+  item,
+  className,
+}: {
+  item: AccordionItem;
+  className: string;
+}) {
+  return (
+    <div className={className}>
+      {item.content.split("\n\n").map((paragraph) => (
+        <p key={paragraph}>{paragraph}</p>
+      ))}
+      {item.sections?.map((section) => (
+        <div key={section.heading}>
+          <h3 className="font-bold">{section.heading}</h3>
+          <p className="whitespace-pre-line">{section.body}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -104,17 +168,10 @@ function AccordionRow({
       aria-labelledby={triggerId}
       className="pb-7"
     >
-      <div className="space-y-[1.375rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white">
-        {item.content.split("\n\n").map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-        {item.sections?.map((section) => (
-          <div key={section.heading}>
-            <h3 className="font-bold">{section.heading}</h3>
-            <p className="whitespace-pre-line">{section.body}</p>
-          </div>
-        ))}
-      </div>
+      <ItemContent
+        item={item}
+        className="space-y-[1.375rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white"
+      />
     </div>
   );
 

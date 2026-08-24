@@ -11,3 +11,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - If full-site Sanity support is needed later, reintroduce it intentionally from this rule rather than by accident.
 - The Home mobile experience below 768px is client-approved and locked. Do not change its base styles, DOM structure, content, navigation/drawer behavior, or spacing without explicit client approval.
 - Home responsive work must be additive: use tablet variants from 768px through 1279px and desktop variants from 1280px upward. Every Home change must include visual regression checks at 375px and 480px.
+- Public-site breakpoints are global: mobile is below 768px, tablet is 768px through 1279px, and desktop begins at 1280px. Do not introduce page-specific desktop breakpoints.
+- The existing How It Works mobile and tablet layouts below 1280px are locked. Desktop work on that page must be additive from 1280px upward unless the client explicitly approves a lower-breakpoint change.

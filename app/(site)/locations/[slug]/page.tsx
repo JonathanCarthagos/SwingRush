@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { LocationHeroNavFlag } from "@/components/cms/location-hero-nav-flag";
-import { Footer } from "@/components/sections/footer";
 import {
   LocationComingSoon,
   LocationDetailPage,
@@ -54,7 +53,6 @@ export default async function LocationPage({ params }: LocationPageProps) {
       <>
         <LocationHeroNavFlag />
         <LocationDetailPage content={route.detail} />
-        <Footer />
       </>
     );
   }
@@ -62,7 +60,6 @@ export default async function LocationPage({ params }: LocationPageProps) {
   return (
     <>
       <LocationComingSoon location={route.summary} />
-      <Footer />
     </>
   );
 }

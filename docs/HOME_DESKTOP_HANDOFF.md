@@ -5,6 +5,7 @@ Este documento reúne o contexto necessário para continuar o desenvolvimento da
 ## Fonte visual
 
 - Figma: [Hackaton — Home](https://www.figma.com/design/98BC7yEVdl4GKwe66XBvv1/Hackaton?node-id=1712-6043&t=wsCuyt6ruXQjuOSA-1)
+- Footer desktop: nó `1751:6087`.
 - Frame desktop de referência: `1712:6043`.
 - A referência pixel-perfect do desktop é o frame de 1680 px.
 - Não existe referência específica de tablet no Figma; tablet é uma interpolação fluida entre mobile e desktop.
@@ -53,6 +54,8 @@ O escopo atual é a seção preta com quatro histórias: Big Breaker, Ellie Snyd
 - Arena e CTA mantêm conteúdo, cores e contratos atuais.
 - CTA final da Home não recebe `ctaHref`; o botão é visual e não navega.
 - Footer possui variantes mobile, tablet e desktop; não reabrir essa composição durante o trabalho de Challenges.
+- O Footer desktop usa 739 px de altura, gutter de 62 px, navegação de 505 px em duas colunas iguais com gap de 40 px e Forma DJR Mono em 22 px/1.3/3%.
+- Os ícones sociais desktop usam os vetores exportados do Figma; mobile e tablet preservam os ícones e a composição aprovados.
 
 ## Arquitetura e limites técnicos
 

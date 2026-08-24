@@ -46,13 +46,13 @@ export function HowItWorksHero({
   return (
     <section
       className={cn(
-        "relative w-full overflow-hidden bg-black text-white",
+        "relative w-full overflow-hidden bg-black text-white min-[1280px]:h-svh",
         className,
       )}
       {...props}
       data-nav-hero=""
     >
-      <div className="relative h-[clamp(24rem,64svh,33.5rem)] overflow-hidden bg-black">
+      <div className="relative h-[clamp(24rem,64svh,33.5rem)] overflow-hidden bg-black min-[1280px]:h-svh">
         <Image
           src={poster}
           alt=""
@@ -84,16 +84,24 @@ export function HowItWorksHero({
           className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25"
         />
 
-        <div className="absolute inset-0 flex items-center justify-center px-gutter-x pt-nav-offset">
+        <div className="absolute inset-0 flex items-center justify-center px-gutter-x pt-nav-offset min-[1280px]:hidden">
           <DisplayHeading
             as="h1"
             text={heading}
             className="box-border max-w-[calc(100vw-2rem)] whitespace-nowrap px-[0.08em] text-center font-display text-[clamp(3.75rem,17.5vw,5.25rem)] leading-[0.86] text-white"
           />
         </div>
+
+        <div className="absolute inset-0 z-10 hidden items-center justify-center min-[1280px]:flex">
+          <DisplayHeading
+            as="h1"
+            text={heading}
+            className="box-border max-w-none whitespace-normal px-[0.08em] text-center font-display text-[clamp(8.75rem,calc(-15.25rem+30vw),16.25rem)] leading-[0.84] text-white"
+          />
+        </div>
       </div>
 
-      <div className="relative z-10 mx-gutter-x -mt-[3.25rem] flex min-h-[16.5rem] items-center justify-center bg-brand px-4 py-10 text-center">
+      <div className="relative z-10 mx-gutter-x -mt-[3.25rem] flex min-h-[16.5rem] items-center justify-center bg-brand px-4 py-10 text-center min-[1280px]:hidden">
         <div className="flex flex-col items-center gap-[0.834rem]">
           <DisplayHeading
             as="h2"

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 
 import { CmsLive } from "@/components/cms/cms-live";
 import { ChallengesPageSection } from "@/components/sections/challenges-page-section";
-import { Footer } from "@/components/sections/footer";
 import { getChallengesPage } from "@/lib/cms/challenges";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,7 +35,6 @@ export default async function ChallengesPage() {
           items={items}
         />
       </main>
-      <Footer />
       <CmsLive />
     </>
   );

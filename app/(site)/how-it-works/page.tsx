@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { CmsLive } from "@/components/cms/cms-live";
-import { Footer } from "@/components/sections/footer";
+import { Cta } from "@/components/sections/cta";
 import { HowItWorksAccordionSection } from "@/components/sections/how-it-works-accordion-section";
 import { HowItWorksHero } from "@/components/sections/how-it-works-hero";
 import { getHowItWorksPage } from "@/lib/cms/how-it-works";
@@ -38,9 +38,16 @@ export default async function HowItWorksPage() {
           arenaHeading={hero.arenaHeading}
           arenaDescription={hero.arenaDescription}
         />
+        <Cta
+          id="how-it-works-arena"
+          variant="inverted"
+          heading={hero.arenaHeading}
+          description={hero.arenaDescription}
+          ctaLabel="Sign Up"
+          className="hidden min-[1280px]:flex min-[1280px]:[&_h2]:whitespace-nowrap"
+        />
         <HowItWorksAccordionSection intro={introduction} items={items} />
       </main>
-      <Footer />
       <CmsLive />
     </>
   );
