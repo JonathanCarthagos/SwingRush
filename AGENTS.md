@@ -14,3 +14,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Public-site breakpoints are global: mobile is below 768px, tablet is 768px through 1279px, and desktop begins at 1280px. Do not introduce page-specific desktop breakpoints.
 - The existing How It Works mobile and tablet layouts below 1280px are locked. Desktop work on that page must be additive from 1280px upward unless the client explicitly approves a lower-breakpoint change.
 - The existing Challenges accordion below 1280px is locked. Desktop navigation and content work must remain additive from 1280px upward unless the client explicitly approves a mobile or tablet change.
+- The existing Locations layout below 1280px is locked. Desktop work on the Locations index must remain additive from 1280px upward unless the client explicitly approves a mobile or tablet change.

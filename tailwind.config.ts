@@ -50,6 +50,22 @@ const config: Config = {
           "clamp(1.0625rem, calc(0.78125rem + 0.5859375vw), 1.25rem)",
           { lineHeight: "1.3" },
         ],
+        "locations-title-desktop": [
+          "clamp(4.5rem, calc(-1.1rem + 7vw), 6.25rem)",
+          { lineHeight: "0.84502" },
+        ],
+        "locations-intro-desktop": [
+          "clamp(1.5rem, calc(0.3rem + 1.5vw), 1.875rem)",
+          { lineHeight: "1.3", letterSpacing: "0.03em" },
+        ],
+        "location-city-desktop": [
+          "clamp(3.5rem, calc(-0.3rem + 4.75vw), 4.6875rem)",
+          { lineHeight: "1.04956" },
+        ],
+        "location-meta-desktop": [
+          "clamp(1.25rem, calc(0.45rem + 1vw), 1.5rem)",
+          { lineHeight: "1.3", letterSpacing: "0.03em" },
+        ],
       },
       letterSpacing: {
         // 0.03em matches Figma's true 3% tracking (was 0.51px / 0.45px at fixed sizes).
@@ -80,6 +96,16 @@ const config: Config = {
           "clamp(5rem, calc(2rem + 6.25vw), 7rem)",
         "challenge-tablet-pb":
           "clamp(6rem, calc(1.5rem + 9.375vw), 9rem)",
+        "locations-desktop-gap":
+          "clamp(7.9375rem, calc(-0.6569rem + 10.743vw), 10.62325rem)",
+        "locations-desktop-pb":
+          "clamp(7.5rem, calc(0.8468rem + 8.3165vw), 9.579125rem)",
+        "location-row-h":
+          "clamp(7.5484375rem, calc(0.70725rem + 8.5515vw), 9.6863125rem)",
+        "location-row-py":
+          "clamp(0.9375rem, calc(0.1891rem + 0.9355vw), 1.171375rem)",
+        "location-row-gap":
+          "clamp(0.375rem, calc(0.0756rem + 0.37425vw), 0.4685625rem)",
         // Section interpolation: 455px at 768px -> 600px at 1280px.
         "tablet-band":
           "clamp(28.4375rem, calc(14.84375rem + 28.3203125vw), 37.5rem)",

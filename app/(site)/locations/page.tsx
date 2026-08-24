@@ -26,7 +26,7 @@ export default async function LocationsPage() {
 
   return (
     <>
-      <main className="flex-1 overflow-x-hidden bg-black">
+      <main className="flex-1 overflow-x-hidden bg-black min-[1280px]:overflow-x-clip">
         <LocationsPageSection pageContent={content} />
       </main>
     </>
