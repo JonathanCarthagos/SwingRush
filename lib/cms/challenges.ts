@@ -41,7 +41,6 @@ function adaptChallenges(
     if (!title) return [];
 
     const position = challenge.sortOrder ?? index + 1;
-
     return [
       {
         id: text(challenge.slug) ?? challenge._id,

@@ -37,7 +37,7 @@ const collapseTransition: Transition = {
   ease: MOTION_EASE_IN,
 };
 
-type SplitFlapDensity = "display" | "compact";
+type SplitFlapDensity = "display" | "compact" | "navigation";
 
 // Display metrics preserve the Home board. Compact metrics reproduce the
 // denser station-board rows used by the Challenges page.
@@ -46,12 +46,16 @@ const slotClasses: Record<SplitFlapDensity, string> = {
     "relative h-[var(--split-flap-display-slot-height,5.375rem)] w-[var(--split-flap-display-slot-width,2.5rem)] shrink-0 overflow-hidden rounded-[0.5625rem] bg-[#3f3f3f] [perspective:1000px]",
   compact:
     "relative h-[2.625rem] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:600px]",
+  navigation:
+    "relative h-[var(--split-flap-navigation-row-height,4.684rem)] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:800px]",
 };
 const glyphClasses: Record<SplitFlapDensity, string> = {
   display:
     "absolute inset-x-0 flex h-[var(--split-flap-display-slot-height,5.375rem)] items-center justify-center font-nav text-[length:var(--split-flap-display-glyph-size,4rem)] leading-none",
   compact:
     "absolute inset-x-0 flex h-[2.625rem] items-center justify-center font-nav text-[clamp(1.625rem,8.3vw,2.125rem)] leading-none",
+  navigation:
+    "absolute inset-x-0 flex h-[var(--split-flap-navigation-row-height,4.684rem)] items-center justify-center font-nav text-[length:var(--split-flap-navigation-glyph-size,3.5rem)] leading-none",
 };
 const halfClass =
   "pointer-events-none absolute inset-x-0 h-1/2 overflow-hidden bg-[#3f3f3f]";
@@ -61,6 +65,8 @@ const foldLineClasses: Record<SplitFlapDensity, string> = {
   display:
     "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-[0.09375rem] -translate-y-1/2 bg-black/60",
   compact:
+    "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-px -translate-y-1/2 bg-black/70",
+  navigation:
     "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-px -translate-y-1/2 bg-black/70",
 };
 
@@ -692,17 +698,17 @@ function SplitFlapRow({
   density = "display",
   textClassName = "text-white",
 }: SplitFlapRowProps) {
-  const isCompact = density === "compact";
+  const isGridDensity = density !== "display";
 
   return (
     <div
       className={cn(
-        isCompact
+        isGridDensity
           ? "grid w-full gap-[0.09375rem]"
           : "flex w-max gap-0.5",
       )}
       style={
-        isCompact
+        isGridDensity
           ? {
               gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
             }
@@ -1038,5 +1044,188 @@ export function SplitFlapAccordionBoard({
         })}
       </div>
     </div>
+  );
+}
+
+export interface SplitFlapNavigationItem {
+  id: string;
+  label: string;
+  accessibleLabel: string;
+  tabId: string;
+  controlsId: string;
+}
+
+export type SplitFlapSelectionSource = "pointer" | "keyboard";
+
+export interface SplitFlapNavigationBoardProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSelect"> {
+  items: readonly SplitFlapNavigationItem[];
+  activeItemId: string | null;
+  animateSelection?: boolean;
+  onSelect: (
+    itemId: string,
+    source: SplitFlapSelectionSource,
+  ) => void;
+}
+
+export function SplitFlapNavigationBoard({
+  items,
+  activeItemId,
+  animateSelection = false,
+  onSelect,
+  className,
+  ...props
+}: SplitFlapNavigationBoardProps) {
+  const visibilityRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef(new Map<string, HTMLButtonElement>());
+  const { isVisible: isDocumentVisible } = useDocumentVisibility();
+  const { phase, sessionId } =
+    useInitialVisibilitySession(visibilityRef);
+  const shouldReduceMotion = useReducedMotion() ?? false;
+  const shouldRenderScramble =
+    phase !== "final" && isDocumentVisible && !shouldReduceMotion;
+  const isScrambleRunning =
+    phase === "running" && isDocumentVisible && !shouldReduceMotion;
+  const runId = Math.imul(sessionId + 1, 0x9e3779b1) >>> 0;
+  const rowsKey = items.map((item) => item.label).join("\u0000");
+  const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
+  const plansByRow = useMemo(
+    () =>
+      rows.map((row, rowIndex) => createRowPlans(row, rowIndex, runId)),
+    [rows, runId],
+  );
+  const maxDurationMs = useMemo(
+    () =>
+      Math.max(
+        0,
+        ...plansByRow.flatMap((plans) =>
+          plans.map(getClockedPlanDuration),
+        ),
+      ),
+    [plansByRow],
+  );
+  const timeline = useClockedTimeline(
+    isScrambleRunning,
+    runId,
+    maxDurationMs,
+  );
+
+  const selectFromKeyboard = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    itemIndex: number,
+  ) => {
+    let targetIndex: number | null = null;
+
+    if (event.key === "ArrowDown") {
+      targetIndex = (itemIndex + 1) % items.length;
+    } else if (event.key === "ArrowUp") {
+      targetIndex = (itemIndex - 1 + items.length) % items.length;
+    } else if (event.key === "Home") {
+      targetIndex = 0;
+    } else if (event.key === "End") {
+      targetIndex = items.length - 1;
+    }
+
+    if (targetIndex === null) return;
+
+    event.preventDefault();
+    const targetItem = items[targetIndex];
+    tabRefs.current.get(targetItem.id)?.focus();
+    onSelect(targetItem.id, "keyboard");
+  };
+
+  return (
+    <nav
+      role="tablist"
+      aria-label="Challenges"
+      aria-orientation="vertical"
+      className={cn("relative w-full", className)}
+      {...props}
+    >
+      <div
+        ref={visibilityRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[var(--split-flap-navigation-row-height,4.684rem)]"
+      />
+
+      <div className="relative flex flex-col">
+        {items.map((item, rowIndex) => {
+          const isActive = activeItemId === item.id;
+          const textClassName = isActive
+            ? cn(
+                "text-brand",
+                animateSelection
+                  ? "transition-colors duration-[160ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]"
+                  : "transition-none",
+              )
+            : cn(
+                "text-white",
+                animateSelection
+                  ? "transition-colors duration-[160ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]"
+                  : "transition-none",
+              );
+
+          return (
+            <button
+              key={item.id}
+              ref={(element) => {
+                if (element) tabRefs.current.set(item.id, element);
+                else tabRefs.current.delete(item.id);
+              }}
+              type="button"
+              id={item.tabId}
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={item.controlsId}
+              aria-label={item.accessibleLabel}
+              tabIndex={isActive ? 0 : -1}
+              onClick={(event) =>
+                onSelect(
+                  item.id,
+                  event.detail === 0 ? "keyboard" : "pointer",
+                )
+              }
+              onKeyDown={(event) =>
+                selectFromKeyboard(event, rowIndex)
+              }
+              className="block w-full touch-manipulation rounded-[0.25rem] text-left focus-visible:relative focus-visible:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              <div key={`${runId}-${item.id}`} aria-hidden="true">
+                {shouldRenderScramble ? (
+                  <SplitFlapRow
+                    row={item.label}
+                    plans={plansByRow[rowIndex]}
+                    isRunning={
+                      isScrambleRunning && timeline.hasStarted
+                    }
+                    elapsedMs={timeline.elapsedMs}
+                    density="navigation"
+                    textClassName={textClassName}
+                  />
+                ) : (
+                  <div
+                    className="grid w-full gap-[0.09375rem]"
+                    style={{
+                      gridTemplateColumns: `repeat(${item.label.length}, minmax(0, 1fr))`,
+                    }}
+                  >
+                    {Array.from(item.label).map(
+                      (character, slotIndex) => (
+                        <StaticCharacter
+                          key={`${item.id}-${slotIndex}`}
+                          character={character}
+                          density="navigation"
+                          textClassName={textClassName}
+                        />
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

@@ -27,7 +27,7 @@ export default async function ChallengesPage() {
 
   return (
     <>
-      <main className="flex-1 overflow-x-hidden bg-black">
+      <main className="flex-1 overflow-x-clip bg-black">
         <ChallengesPageSection
           title={title}
           introduction={introduction}

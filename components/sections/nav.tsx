@@ -277,11 +277,19 @@ export function Nav() {
             reduce={reduce}
           />
         ) : SCROLL_THRESHOLD_ROUTES.has(pathname) ? (
-          <ScrollThresholdHeaderBackground
-            key={pathname}
-            isOpen={isOpen}
-            reduce={reduce}
-          />
+          <>
+            <ScrollThresholdHeaderBackground
+              key={pathname}
+              isOpen={isOpen}
+              reduce={reduce}
+            />
+            {pathname === "/challenges" && (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 hidden bg-brand min-[1280px]:block"
+              />
+            )}
+          </>
         ) : (
           <HeaderBackground visible reduce={reduce} />
         )}
