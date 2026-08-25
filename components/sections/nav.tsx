@@ -21,8 +21,6 @@ const links = [
 ];
 
 const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
-const SCROLL_THRESHOLD_ROUTES = new Set(["/challenges", "/locations"]);
-const DESKTOP_SOLID_HEADER_ROUTES = new Set(["/challenges", "/locations"]);
 
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";
@@ -277,22 +275,12 @@ export function Nav() {
             isOpen={isOpen}
             reduce={reduce}
           />
-        ) : SCROLL_THRESHOLD_ROUTES.has(pathname) ? (
-          <>
-            <ScrollThresholdHeaderBackground
-              key={pathname}
-              isOpen={isOpen}
-              reduce={reduce}
-            />
-            {DESKTOP_SOLID_HEADER_ROUTES.has(pathname) && (
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 hidden bg-brand min-[1280px]:block"
-              />
-            )}
-          </>
         ) : (
-          <HeaderBackground visible reduce={reduce} />
+          <ScrollThresholdHeaderBackground
+            key={pathname}
+            isOpen={isOpen}
+            reduce={reduce}
+          />
         )}
 
         <div className="relative z-10 flex h-nav-bar-inner-h items-center justify-between min-[768px]:h-[3.375rem]">
