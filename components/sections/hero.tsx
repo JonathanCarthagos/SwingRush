@@ -8,6 +8,7 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { HOME_PAGE_CONTENT } from "@/data/home";
 import { cn } from "@/lib/utils";
@@ -21,10 +22,15 @@ const CUE_REST_STATE = {
 } as const;
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
+const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
+
 export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
   webmSrc?: string;
   videoSrc?: string;
   poster?: string;
+  mobileWebmSrc?: string;
+  mobileVideoSrc?: string;
+  mobilePoster?: string;
   heading?: string;
 }
 
@@ -149,6 +155,9 @@ export function Hero({
   webmSrc = HOME_PAGE_CONTENT.hero.webmSrc,
   videoSrc = HOME_PAGE_CONTENT.hero.mp4Src,
   poster = HOME_PAGE_CONTENT.hero.posterSrc,
+  mobileWebmSrc = HOME_PAGE_CONTENT.hero.mobileWebmSrc,
+  mobileVideoSrc = HOME_PAGE_CONTENT.hero.mobileMp4Src,
+  mobilePoster = HOME_PAGE_CONTENT.hero.mobilePosterSrc,
   heading = HOME_PAGE_CONTENT.hero.heading,
   ...props
 }: HeroProps) {
@@ -156,22 +165,63 @@ export function Hero({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+    const video = videoRef.current;
+    if (!video) return;
 
-    const updatePlayback = () => {
-      if (mediaQuery.matches) {
-        videoRef.current?.pause();
+    const desktopQuery = window.matchMedia(DESKTOP_MEDIA_QUERY);
+    const reducedQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+    const sources = video.querySelectorAll("source");
+    const webmSource = sources[0];
+    const mp4Source = sources[1];
+
+    let cancelPendingPlay = () => {};
+
+    const applySource = () => {
+      const desktop = desktopQuery.matches;
+      const nextVariant = desktop ? "desktop" : "mobile";
+      const nextWebm = desktop ? webmSrc : mobileWebmSrc;
+      const nextMp4 = desktop ? videoSrc : mobileVideoSrc;
+      const nextPoster = desktop ? poster : mobilePoster;
+      const sourceChanged = video.dataset.variant !== nextVariant;
+      video.dataset.variant = nextVariant;
+
+      if (webmSource) webmSource.src = nextWebm;
+      if (mp4Source) mp4Source.src = nextMp4;
+      video.poster = nextPoster;
+
+      const playOrPause = () => {
+        if (reducedQuery.matches) {
+          video.pause();
+          return;
+        }
+
+        void video.play().catch(() => undefined);
+      };
+
+      cancelPendingPlay();
+
+      if (!sourceChanged) {
+        playOrPause();
         return;
       }
 
-      void videoRef.current?.play().catch(() => undefined);
+      video.addEventListener("loadeddata", playOrPause, { once: true });
+      cancelPendingPlay = () => video.removeEventListener("loadeddata", playOrPause);
+      video.load();
     };
 
-    updatePlayback();
-    mediaQuery.addEventListener("change", updatePlayback);
+    applySource();
+    desktopQuery.addEventListener("change", applySource);
+    reducedQuery.addEventListener("change", applySource);
+    window.addEventListener("resize", applySource);
 
-    return () => mediaQuery.removeEventListener("change", updatePlayback);
-  }, []);
+    return () => {
+      cancelPendingPlay();
+      desktopQuery.removeEventListener("change", applySource);
+      reducedQuery.removeEventListener("change", applySource);
+      window.removeEventListener("resize", applySource);
+    };
+  }, [mobilePoster, mobileVideoSrc, mobileWebmSrc, poster, videoSrc, webmSrc]);
 
   return (
     <section
@@ -184,10 +234,17 @@ export function Hero({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        src={mobilePoster}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 hidden h-full w-full object-cover object-center motion-reduce:block min-[768px]:motion-reduce:hidden"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src={poster}
         alt=""
         aria-hidden
-        className="absolute inset-0 hidden h-full w-full object-cover [object-position:50%_44%] motion-reduce:block"
+        className="absolute inset-0 hidden h-full w-full object-cover object-center min-[768px]:motion-reduce:block"
       />
       <video
         ref={videoRef}
@@ -197,26 +254,30 @@ export function Hero({
         playsInline
         preload="metadata"
         poster={poster}
-        className="absolute inset-0 h-full w-full object-cover [object-position:50%_44%] motion-reduce:hidden"
+        className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
       >
-        <source src={webmSrc} type="video/webm" />
-        <source src={videoSrc} type="video/mp4" />
+        <source type="video/webm" />
+        <source type="video/mp4" />
       </video>
 
-      <DisplayHeading
-        as="h1"
-        text={heading}
-        className="relative z-10 box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-hero leading-[0.84] text-white min-[768px]:hidden"
-      />
-
-      <div className="absolute inset-0 z-10 hidden flex-col items-center justify-center gap-[clamp(1.25rem,2.27vw,1.8125rem)] min-[768px]:flex">
+      <div className="relative z-10 flex flex-col items-center gap-[1.9375rem] px-4 text-center min-[1280px]:gap-[1.8125rem]">
         <DisplayHeading
           as="h1"
           text={heading}
-          className="box-border max-w-[calc(100vw-4rem)] whitespace-pre-line px-[0.08em] text-center font-display text-[clamp(7rem,12.5vw,10rem)] leading-[0.84] text-white min-[1280px]:max-w-none min-[1280px]:whitespace-normal min-[1280px]:text-[clamp(8.75rem,calc(-15.25rem+30vw),16.25rem)]"
-          lineClassName="min-[1280px]:mr-[0.18em] min-[1280px]:inline-block min-[1280px]:last:mr-0"
+          className="box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(7rem,12.5vw,10rem)] min-[1280px]:hidden"
         />
-        <span className="inline-flex h-[2.125rem] items-center justify-center rounded-full bg-white/30 px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-white">
+        <DisplayHeading
+          as="h1"
+          text={heading.replace(/\s+/g, " ")}
+          className="box-border hidden max-w-none px-[0.08em] font-display leading-[0.84] text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
+        />
+        <span
+          className={buttonVariants({
+            variant: "glass",
+            className:
+              "min-[1280px]:h-[2.125rem] min-[1280px]:bg-white/30 min-[1280px]:px-[1.35rem] min-[1280px]:py-0 min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
+          })}
+        >
           Sign Up
         </span>
       </div>

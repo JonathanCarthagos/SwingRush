@@ -266,7 +266,7 @@ export function Nav() {
     <>
       <header
         ref={headerRef}
-        className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-24 min-[768px]:px-tablet-gutter min-[768px]:py-[1.3125rem] min-[1280px]:px-desktop-gutter"
+        className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:px-[clamp(0.9791875rem,calc(-3.36453125rem+9.0494140625vw),3.875rem)] min-[768px]:py-[clamp(0.8333125rem,calc(0.11453125rem+1.4974609375vw),1.3125rem)] min-[1280px]:h-24 min-[1280px]:px-desktop-gutter min-[1280px]:py-[1.3125rem]"
       >
         {isHeroRoute ? (
           <HeroHeaderBackground
@@ -283,13 +283,13 @@ export function Nav() {
           />
         )}
 
-        <div className="relative z-10 flex h-nav-bar-inner-h items-center justify-between min-[768px]:h-[3.375rem]">
+        <div className="relative z-10 flex h-nav-bar-inner-h items-center justify-between min-[768px]:h-[clamp(1.708375rem,calc(-0.791625rem+5.208203125vw),3.375rem)] min-[1280px]:h-[3.375rem]">
           <Link
             href="/"
             aria-label="SwingRush home"
             onClick={() => setIsOpen(false)}
           >
-            <LogoLockup className="h-nav-logo-h w-auto min-[768px]:h-auto min-[768px]:w-[clamp(11.25rem,20vw,14rem)] min-[1280px]:h-[2.1123rem] min-[1280px]:w-[16.25rem]" />
+            <LogoLockup className="h-nav-logo-h w-auto min-[768px]:h-[clamp(1.6789375rem,calc(1.02889375rem+1.3542578125vw),2.1123rem)] min-[768px]:w-auto min-[1280px]:h-[2.1123rem] min-[1280px]:w-[16.25rem]" />
           </Link>
 
           <motion.button
@@ -344,7 +344,7 @@ export function Nav() {
                 </Link>
               ))}
             </div>
-            <button type="button" aria-disabled="true" tabIndex={-1} className="inline-flex h-[2.125rem] cursor-default items-center justify-center rounded-full border border-white bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand">
+            <button type="button" aria-disabled="true" tabIndex={-1} className="inline-flex h-[2.125rem] cursor-default items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-black">
               Sign Up
             </button>
           </nav>

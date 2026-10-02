@@ -83,9 +83,8 @@ export type HomeStory = {
   _type: "homeStory";
   title: string;
   subtitle: string;
-  body: string;
-  media: "image" | "scoreboard";
-  image?: ContentImage;
+  image: ContentImage;
+  link: ActionLink;
 };
 
 export type CtaBlock = {
@@ -286,6 +285,11 @@ export type HomePage = {
   _updatedAt: string;
   _rev: string;
   hero?: VideoHero;
+  clubs?: Array<
+    {
+      _key: string;
+    } & HomeStory
+  >;
   arena?: HeadlineBlock;
   stories?: Array<
     {
@@ -518,8 +522,10 @@ export type HOME_PAGE_QUERY_RESULT =
         _key: string;
         title: string;
         subtitle: string;
-        body: string;
-        media: "image" | "scoreboard";
+        link: {
+          label: string;
+          href: string;
+        } | null;
         image: {
           src: string | null;
           alt: string;
@@ -847,7 +853,7 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      body,\n      media,\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_id == "howItWorksPage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;

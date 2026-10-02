@@ -13,8 +13,7 @@ interface RawStory {
   _key: string;
   title?: string | null;
   subtitle?: string | null;
-  body?: string | null;
-  media?: string | null;
+  link?: { label?: string | null; href?: string | null } | null;
   image?: RawImage | null;
 }
 
@@ -26,6 +25,7 @@ interface RawHomePage {
     webmSrc?: string | null;
     mp4Src?: string | null;
   } | null;
+  clubs?: RawStory[] | null;
   arena?: { heading?: string | null; description?: string | null } | null;
   stories?: RawStory[] | null;
   cta?: {
@@ -38,46 +38,21 @@ interface RawHomePage {
 function adaptStories(stories: RawStory[] | null | undefined): HomeStory[] {
   if (!stories?.length) return [];
 
-  const fallbackById = new Map<string, (typeof HOME_PAGE_CONTENT.stories)[number]>(
-    HOME_PAGE_CONTENT.stories.map((story) => [story.id, story]),
-  );
-
   return stories.flatMap((story) => {
     const title = text(story.title);
     const subtitle = text(story.subtitle);
-    const body = text(story.body);
-    if (!title || !subtitle || !body) return [];
-
-    const media = story.media === "scoreboard" ? "scoreboard" : "image";
+    const href = text(story.link?.href);
     const src = text(story.image?.src);
-    const fallback = fallbackById.get(story._key);
-
-    if (media === "image" && !src) {
-      if (fallback?.media === "image" && fallback.image) {
-        return [
-          {
-            id: story._key,
-            title,
-            subtitle,
-            body,
-            media: "image",
-            image: fallback.image,
-          },
-        ];
-      }
-      return [];
-    }
+    if (!title || !subtitle || !href || !src) return [];
 
     return [
       {
         id: story._key,
         title,
         subtitle,
-        body,
-        media,
-        ...(media === "image" && src
-          ? { image: { src, alt: text(story.image?.alt) ?? "" } }
-          : {}),
+        linkLabel: text(story.link?.label) ?? "Learn More",
+        href,
+        image: { src, alt: text(story.image?.alt) ?? "" },
       },
     ];
   });
@@ -87,6 +62,7 @@ function adaptHomePage(raw: RawHomePage | null): HomePageContent {
   const fallback = HOME_PAGE_CONTENT;
   if (!raw) return fallback;
 
+  const clubs = adaptStories(raw.clubs);
   const stories = adaptStories(raw.stories);
 
   return {
@@ -99,7 +75,11 @@ function adaptHomePage(raw: RawHomePage | null): HomePageContent {
       webmSrc: text(raw.hero?.webmSrc) ?? fallback.hero.webmSrc,
       mp4Src: text(raw.hero?.mp4Src) ?? fallback.hero.mp4Src,
       posterSrc: text(raw.hero?.posterSrc) ?? fallback.hero.posterSrc,
+      mobileWebmSrc: fallback.hero.mobileWebmSrc,
+      mobileMp4Src: fallback.hero.mobileMp4Src,
+      mobilePosterSrc: fallback.hero.mobilePosterSrc,
     },
+    clubs: clubs.length > 0 ? clubs : fallback.clubs,
     arena: {
       heading: text(raw.arena?.heading) ?? fallback.arena.heading,
       description: text(raw.arena?.description) ?? fallback.arena.description,

@@ -20,32 +20,18 @@ export const homeStory = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "body",
-      title: "Body",
-      type: "text",
-      rows: 5,
-      description: "Revealed when the visitor taps “Learn More”.",
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
-      name: "media",
-      title: "Media",
-      type: "string",
-      initialValue: "image",
-      options: {
-        list: [
-          { title: "Image", value: "image" },
-          { title: "Animated scoreboard", value: "scoreboard" },
-        ],
-        layout: "radio",
-      },
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
       name: "image",
       title: "Image",
       type: "contentImage",
-      hidden: ({ parent }) => parent?.media !== "image",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "link",
+      title: "Learn more",
+      type: "actionLink",
+      description: "The underlined link under the subtitle.",
+      initialValue: { label: "Learn More", href: "/how-it-works" },
+      validation: (rule) => rule.required(),
     }),
   ],
   preview: {

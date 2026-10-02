@@ -20,6 +20,14 @@ export const homePage = defineType({
       group: "content",
     }),
     defineField({
+      name: "clubs",
+      title: "Clubs",
+      type: "array",
+      group: "content",
+      of: [defineArrayMember({ type: "homeStory" })],
+      description: "The photo cards between the hero and the arena block.",
+    }),
+    defineField({
       name: "arena",
       title: "Arena",
       type: "headlineBlock",
@@ -32,7 +40,7 @@ export const homePage = defineType({
       group: "content",
       of: [defineArrayMember({ type: "homeStory" })],
       description:
-        "The tap-to-expand cards between the arena block and the closing call to action.",
+        "The photo cards between the arena block and the closing call to action.",
     }),
     defineField({
       name: "cta",

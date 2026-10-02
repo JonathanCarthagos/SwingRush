@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { LocationVideoHero } from "@/components/sections/location-video-hero";
 import { AnchorScrollLink } from "@/components/ui/anchor-scroll-link";
+import { buttonVariants } from "@/components/ui/button";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import {
   formatLocationDate,
@@ -104,7 +105,7 @@ function DesktopLocationMeta({
         </p>
         <AnchorScrollLink
           href={content.primaryAction.href}
-          className="inline-flex h-[2.125rem] items-center justify-center rounded-full border border-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-white transition-colors duration-150 hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:transition-none"
+          className={buttonVariants({ variant: "outline-white" })}
         >
           {content.primaryAction.label}
         </AnchorScrollLink>
@@ -358,7 +359,7 @@ function LocationIntroduction({
         </p>
         <a
           href={content.primaryAction.href}
-          className="inline-flex min-h-11 touch-manipulation items-center justify-center rounded-full border border-white px-4 font-body text-[1.0625rem] font-medium leading-none tracking-body transition-colors duration-150 [-webkit-tap-highlight-color:transparent] hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand active:bg-white/15 motion-reduce:transition-none"
+          className={buttonVariants({ variant: "outline-white" })}
         >
           {content.primaryAction.label}
         </a>

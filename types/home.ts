@@ -5,6 +5,9 @@ export interface HomeHeroContent {
   webmSrc: string;
   mp4Src: string;
   posterSrc: string;
+  mobileWebmSrc: string;
+  mobileMp4Src: string;
+  mobilePosterSrc: string;
 }
 
 export interface HomeArenaContent {
@@ -21,9 +24,9 @@ export interface HomeStory {
   id: string;
   title: string;
   subtitle: string;
-  body: string;
-  media: "image" | "scoreboard";
-  image?: HomeStoryImage;
+  linkLabel: string;
+  href: string;
+  image: HomeStoryImage;
 }
 
 export interface HomeCtaContent {
@@ -36,6 +39,7 @@ export interface HomeCtaContent {
 export interface HomePageContent {
   seo: SeoContent;
   hero: HomeHeroContent;
+  clubs: readonly HomeStory[];
   arena: HomeArenaContent;
   stories: readonly HomeStory[];
   cta: HomeCtaContent;

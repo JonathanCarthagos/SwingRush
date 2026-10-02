@@ -1,15 +1,14 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { SiFacebook, SiInstagram, SiTiktok, SiYoutube } from "react-icons/si";
+import Link from "next/link";
 
 import {
   FooterSocialIcon,
   type FooterSocialIconName,
 } from "@/components/ui/footer-social-icon";
-import { LogoMark } from "@/components/ui/logo-mark";
 import { cn } from "@/lib/utils";
 
 const footerVariants = cva(
-  "flex w-full flex-col items-start gap-[3.6875rem] pl-2.5 pr-2 py-8 min-[768px]:grid min-[768px]:min-h-[36rem] min-[768px]:grid-cols-2 min-[768px]:gap-x-16 min-[768px]:gap-y-0 min-[768px]:px-tablet-gutter min-[768px]:py-12 min-[1280px]:flex min-[1280px]:h-[46.1857rem] min-[1280px]:min-h-0 min-[1280px]:flex-row min-[1280px]:justify-between min-[1280px]:px-desktop-gutter min-[1280px]:py-[3.875rem]",
+  "flex w-full flex-col items-center gap-5 pt-[1.5rem] pr-2 pb-4 pl-2.5 min-[768px]:gap-[clamp(1.25rem,calc(0.3125rem+1.953125vw),1.875rem)] min-[768px]:px-[clamp(0.625rem,calc(-4.25rem+10.15625vw),3.875rem)] min-[768px]:pt-[clamp(1.5rem,3.125vw,2.5rem)] min-[768px]:pb-[clamp(1rem,calc(-1.25rem+4.6875vw),2.5rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:px-desktop-gutter min-[1280px]:py-10",
   {
     variants: {
       variant: {
@@ -24,39 +23,21 @@ const footerVariants = cva(
   },
 );
 
-const navLinkClass = "font-nav text-nav uppercase tracking-nav";
-const desktopNavLinkClass = cn(
-  navLinkClass,
-  "text-footer-nav-desktop focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current",
-);
+const legalLinkClass =
+  "font-nav text-[0.875rem] uppercase leading-[1.3] tracking-nav focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current min-[768px]:text-[clamp(0.875rem,calc(0.125rem+1.5625vw),1.375rem)] min-[1280px]:text-footer-nav-desktop";
 
-interface FooterLink {
-  label: string;
-  href: string;
-  secondaryLabel?: string;
-  secondaryHref?: string;
-}
-
-const footerLinks: FooterLink[] = [
-  {
-    label: "Challenges",
-    href: "/challenges",
-    secondaryLabel: "Register Now",
-    secondaryHref: "/challenges",
-  },
-  { label: "Locations", href: "/locations" },
-  { label: "How It Works", href: "/how-it-works" },
+const legalLinks = [
   { label: "Privacy Policy", href: "/privacy-policy" },
-];
+  { label: "Terms & Conditions", href: "/terms" },
+] as const;
 
 const socialLinks = [
-  { Icon: SiFacebook, desktopIcon: "facebook", label: "Facebook", href: "#" },
-  { Icon: SiInstagram, desktopIcon: "instagram", label: "Instagram", href: "#" },
-  { Icon: SiTiktok, desktopIcon: "tiktok", label: "TikTok", href: "#" },
-  { Icon: SiYoutube, desktopIcon: "youtube", label: "YouTube", href: "#" },
-] satisfies Array<{
-  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  desktopIcon: FooterSocialIconName;
+  { name: "facebook", label: "Facebook", href: "#" },
+  { name: "instagram", label: "Instagram", href: "#" },
+  { name: "tiktok", label: "TikTok", href: "#" },
+  { name: "youtube", label: "YouTube", href: "#" },
+] as const satisfies ReadonlyArray<{
+  name: FooterSocialIconName;
   label: string;
   href: string;
 }>;
@@ -68,68 +49,29 @@ export interface FooterProps
 export function Footer({ className, variant, ...props }: FooterProps) {
   return (
     <footer className={cn(footerVariants({ variant, className }))} {...props}>
-      <nav aria-label="Footer" className="order-1 flex w-full flex-col gap-1 min-[768px]:order-2 min-[768px]:gap-3 min-[768px]:[&_a]:text-base min-[1280px]:hidden">
-        {footerLinks.map((link) => (
-          <div key={link.label} className="flex w-full items-center justify-between">
-            <a href={link.href} className={navLinkClass}>
-              {link.label}
-            </a>
-            {link.secondaryLabel && link.secondaryHref && (
-              <a
-                href={link.secondaryHref}
-                className={cn(navLinkClass, "underline underline-offset-2")}
-              >
-                {link.secondaryLabel}
-              </a>
-            )}
-          </div>
+      <div className="flex items-center justify-center gap-[0.36025rem]">
+        {socialLinks.map(({ name, label, href }) => (
+          <a
+            key={name}
+            href={href}
+            aria-label={label}
+            className="inline-flex size-11 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+          >
+            <FooterSocialIcon name={name} />
+          </a>
+        ))}
+      </div>
+
+      <nav
+        aria-label="Footer"
+        className="flex items-center justify-center gap-5 min-[768px]:gap-[clamp(1.25rem,calc(-1.46875rem+5.6640625vw),3.0625rem)] min-[1280px]:gap-12.25"
+      >
+        {legalLinks.map((link) => (
+          <Link key={link.href} href={link.href} className={legalLinkClass}>
+            {link.label}
+          </Link>
         ))}
       </nav>
-
-      <nav aria-label="Footer desktop" className="order-2 hidden w-[31.5625rem] grid-cols-2 gap-10 min-[1280px]:grid">
-        <div className="flex min-w-0 flex-col gap-2.5">
-          {footerLinks.map((link) => (
-            <a key={link.label} href={link.href} className={desktopNavLinkClass}>
-              {link.label}
-            </a>
-          ))}
-        </div>
-        <div className="flex h-[10.375rem] min-w-0 flex-col items-start">
-          <a
-            href="/challenges"
-            className={cn(
-              desktopNavLinkClass,
-              "h-fit whitespace-nowrap underline decoration-[7%] underline-offset-2",
-            )}
-          >
-            Register
-          </a>
-        </div>
-      </nav>
-
-      <div className="flex w-full flex-col gap-11 min-[768px]:order-1 min-[768px]:h-full min-[768px]:justify-between min-[1280px]:h-[38.4375rem] min-[1280px]:w-[11.27475rem] min-[1280px]:justify-start min-[1280px]:gap-[28.125rem]">
-        <LogoMark className="h-[5.4219rem] w-[7.1848rem] min-[768px]:h-auto min-[768px]:w-[clamp(8.5rem,14vw,10rem)] min-[1280px]:h-[8.5079rem] min-[1280px]:w-[11.27475rem] min-[1280px]:shrink-0" />
-        <div className="flex items-center gap-[1.3406rem]">
-          {socialLinks.map(({ Icon, desktopIcon, label, href }) => (
-            <a
-              key={label}
-              href={href}
-              aria-label={label}
-              className="min-[1280px]:block min-[1280px]:h-[1.82325rem] min-[1280px]:w-[1.769625rem] min-[1280px]:focus-visible:outline-2 min-[1280px]:focus-visible:outline-offset-4 min-[1280px]:focus-visible:outline-current"
-            >
-              <Icon
-                className="size-7 min-[1280px]:hidden"
-                aria-hidden="true"
-                focusable="false"
-              />
-              <FooterSocialIcon
-                name={desktopIcon}
-                className="hidden min-[1280px]:block"
-              />
-            </a>
-          ))}
-        </div>
-      </div>
     </footer>
   );
 }

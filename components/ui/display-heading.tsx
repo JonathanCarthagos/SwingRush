@@ -8,6 +8,7 @@ export interface DisplayHeadingProps
   text: string;
   lineClassName?: string;
   wordClassName?: string;
+  wrap?: boolean;
 }
 
 export function DisplayHeading({
@@ -16,6 +17,7 @@ export function DisplayHeading({
   className,
   lineClassName,
   wordClassName,
+  wrap = false,
   ...props
 }: DisplayHeadingProps) {
   const lines = text.split(/\r?\n/).map((line) => line.trim());
@@ -33,7 +35,12 @@ export function DisplayHeading({
           className={cn("block", lineClassName)}
           aria-hidden="true"
         >
-          <span className="relative inline-block align-bottom">
+          <span
+            className={cn(
+              "relative",
+              wrap ? "block" : "inline-block align-bottom",
+            )}
+          >
             <span className={cn("relative z-0", wordClassName)}>{line}</span>
           </span>
         </span>

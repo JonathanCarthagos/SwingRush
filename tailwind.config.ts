@@ -8,6 +8,7 @@ const config: Config = {
         brand: {
           DEFAULT: "#f92524",
           dark: "#920909",
+          deep: "#730707",
         },
       },
       fontFamily: {

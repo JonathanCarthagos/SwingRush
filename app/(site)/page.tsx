@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { CmsLive } from "@/components/cms/cms-live";
 import { Arena } from "@/components/sections/arena";
 import { Challenges } from "@/components/sections/challenges";
+import { Clubs } from "@/components/sections/clubs";
 import { Cta } from "@/components/sections/cta";
 import { Hero } from "@/components/sections/hero";
 import { getHomePage } from "@/lib/cms/home";
@@ -38,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const { hero, arena, stories, cta } = await getHomePage();
+  const { hero, clubs, arena, stories, cta } = await getHomePage();
 
   return (
     <>
@@ -48,7 +49,24 @@ export default async function HomePage() {
           webmSrc={hero.webmSrc}
           videoSrc={hero.mp4Src}
           poster={hero.posterSrc}
+          mobileWebmSrc={hero.mobileWebmSrc}
+          mobileVideoSrc={hero.mobileMp4Src}
+          mobilePoster={hero.mobilePosterSrc}
         />
+        <Cta
+          variant="inverted"
+          keepBreaks
+          heading={"10 CHALLENGES\n1 FINISH LINE"}
+          description="The world’s first arena golf experience"
+          ctaLabel="Learn More"
+          ctaHref="/how-it-works"
+        />
+        <Cta
+          variant="solid"
+          heading="CONQUER THE SKILLS GAUNTLET"
+          description="Do you have what it takes to complete all ten skills challenges?"
+        />
+        <Clubs clubs={clubs} />
         <Arena heading={arena.heading} description={arena.description} />
         <Challenges stories={stories} />
         <Cta

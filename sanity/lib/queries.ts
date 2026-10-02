@@ -9,13 +9,19 @@ export const HOME_PAGE_QUERY = defineQuery(`
       "webmSrc": webm.asset->url,
       "mp4Src": mp4.asset->url
     },
+    clubs[]{
+      _key,
+      title,
+      subtitle,
+      link{label, href},
+      "image": image{"src": asset->url, alt}
+    },
     arena{heading, description},
     stories[]{
       _key,
       title,
       subtitle,
-      body,
-      media,
+      link{label, href},
       "image": image{"src": asset->url, alt}
     },
     cta{
