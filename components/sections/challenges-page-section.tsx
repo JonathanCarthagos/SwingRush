@@ -13,7 +13,6 @@ import {
   type CSSProperties,
 } from "react";
 
-import { DisplayHeading } from "@/components/ui/display-heading";
 import {
   SplitFlapAccordionBoard,
   SplitFlapNavigationBoard,
@@ -69,14 +68,12 @@ const panelVariants: Variants = {
 
 export interface ChallengesPageSectionProps
   extends React.HTMLAttributes<HTMLElement> {
-  title?: string;
   introduction?: string;
   emptyState?: string;
   items?: readonly ChallengeItem[];
 }
 
 export function ChallengesPageSection({
-  title = CHALLENGES_PAGE_CONTENT.title,
   introduction = CHALLENGES_PAGE_CONTENT.introduction,
   emptyState = CHALLENGES_PAGE_CONTENT.emptyState,
   items = CHALLENGES_PAGE_CONTENT.items,
@@ -109,18 +106,13 @@ export function ChallengesPageSection({
   return (
     <section
       className={cn(
-        "bg-black px-4 pb-16 pt-nav-offset text-white min-[1280px]:px-0 min-[1280px]:pb-0 min-[1280px]:pt-0",
+        "bg-black px-4 pb-16 text-white min-[1280px]:px-0 min-[1280px]:pb-0",
         className,
       )}
       {...props}
     >
       <div className="mx-auto w-full max-w-[25.125rem] pt-10 min-[1280px]:hidden">
-        <DisplayHeading
-          as="h1"
-          text={title}
-          className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance]"
-        />
-        <p className="mt-3 max-w-[23.125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body">
+        <p className="max-w-[23.125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body">
           {introduction}
         </p>
 
@@ -143,7 +135,6 @@ export function ChallengesPageSection({
       </div>
 
       <DesktopChallenges
-        title={title}
         introduction={introduction}
         emptyState={emptyState}
         items={items}
@@ -153,14 +144,12 @@ export function ChallengesPageSection({
 }
 
 interface DesktopChallengesProps {
-  title: string;
   introduction: string;
   emptyState: string;
   items: readonly ChallengeItem[];
 }
 
 function DesktopChallenges({
-  title,
   introduction,
   emptyState,
   items,
@@ -230,14 +219,9 @@ function DesktopChallenges({
   return (
     <div
       data-challenges-desktop
-      className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter pb-[9.125rem] pt-[10.9375rem] min-[1280px]:block"
+      className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter pb-[9.125rem] pt-10 min-[1280px]:block"
     >
-      <header className="flex w-full max-w-[46.625rem] flex-col gap-[2.125rem]">
-        <DisplayHeading
-          as="h1"
-          text={title}
-          className="box-border max-w-[43.7597rem] px-[0.08em] font-display text-[6.25rem] uppercase leading-[5.281375rem]"
-        />
+      <header className="flex w-full max-w-[46.625rem] flex-col">
         <p className="font-body text-[1.875rem] leading-[1.3] tracking-body">
           {introduction}
         </p>

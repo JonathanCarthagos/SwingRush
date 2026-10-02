@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CmsLive } from "@/components/cms/cms-live";
+import { ChallengesHero } from "@/components/sections/challenges-hero";
 import { ChallengesPageSection } from "@/components/sections/challenges-page-section";
 import { getChallengesPage } from "@/lib/cms/challenges";
 
@@ -28,8 +29,8 @@ export default async function ChallengesPage() {
   return (
     <>
       <main className="flex-1 overflow-x-clip bg-black">
+        <ChallengesHero title={title} />
         <ChallengesPageSection
-          title={title}
           introduction={introduction}
           emptyState={emptyState}
           items={items}

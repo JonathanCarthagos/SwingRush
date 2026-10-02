@@ -151,7 +151,7 @@ export const CHALLENGES_PAGE_CONTENT = {
     title: "Challenges | SwingRush",
     description: "Take on ten one-of-a-kind SwingRush golf skills challenges.",
   },
-  title: "CHALLENGES",
+  title: "SKILLS CHALLENGES",
   introduction:
     "One by one, you must navigate a gauntlet of ten golf challenges. Each will test a specific skill to see if you have what it takes to stand in the winners circle and be crowned a Swingrusher.",
   emptyState: "Challenge details are coming soon.",
