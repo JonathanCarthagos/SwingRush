@@ -1,7 +1,10 @@
 "use client";
 
 import {
+  createContext,
   memo,
+  useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -27,6 +30,9 @@ const MIN_FLIP_MS = 51;
 const MAX_FLIP_MS = 66;
 const SETTLE_JITTER_MS = 48;
 const STEP_SCHEDULING_BUDGET_MS = 20;
+const PREPARE_ROOT_MARGIN = "0px 0px 100% 0px";
+// Same seed the clocked boards used for their first started session.
+const CLOCKED_RUN_ID = Math.imul(2, 0x9e3779b1) >>> 0;
 const FLAP_DECK = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789>v";
 
 const MOTION_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
@@ -265,71 +271,75 @@ function useVisibilitySession(ref: RefObject<Element | null>) {
   return session;
 }
 
-function useInitialVisibilitySession(ref: RefObject<Element | null>) {
-  const hasStartedRef = useRef(false);
-  const [session, setSession] = useState<{
-    phase: VisibilityPhase;
-    sessionId: number;
-  }>({ phase: "final", sessionId: 0 });
-
-  useEffect(() => {
-    const finishSessionWhenHidden = () => {
-      if (document.visibilityState !== "hidden") return;
-
-      setSession((currentSession) =>
-        currentSession.phase === "running"
-          ? { ...currentSession, phase: "final" }
-          : currentSession,
-      );
-    };
-
-    document.addEventListener(
-      "visibilitychange",
-      finishSessionWhenHidden,
-    );
-
-    return () =>
-      document.removeEventListener(
-        "visibilitychange",
-        finishSessionWhenHidden,
-      );
-  }, []);
+function usePreparedVisibilitySession(ref: RefObject<Element | null>) {
+  const [phase, setPhase] = useState<VisibilityPhase>("final");
+  const preparedRef = useRef(false);
+  const runningRef = useRef(false);
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    const observer = new IntersectionObserver(
+    let prepareFrame = 0;
+    let enterFrame = 0;
+
+    const commitPrepared = () => {
+      setPhase((currentPhase) =>
+        currentPhase === "running" ? currentPhase : "prepared",
+      );
+    };
+
+    const prepare = () => {
+      if (preparedRef.current || runningRef.current) return;
+      preparedRef.current = true;
+      prepareFrame = requestAnimationFrame(commitPrepared);
+    };
+
+    const run = () => {
+      if (runningRef.current) return;
+      runningRef.current = true;
+      cancelAnimationFrame(prepareFrame);
+      preparedRef.current = true;
+      commitPrepared();
+      enterFrame = requestAnimationFrame(() => {
+        setPhase("running");
+      });
+    };
+
+    const prepareObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        prepare();
+      },
+      { rootMargin: PREPARE_ROOT_MARGIN, threshold: 0 },
+    );
+
+    const enterObserver = new IntersectionObserver(
       ([entry]) => {
         if (
           !entry ||
-          document.visibilityState !== "visible" ||
           entry.intersectionRatio < SESSION_ENTER_VISIBILITY
         ) {
           return;
         }
 
-        setSession((currentSession) => {
-          if (hasStartedRef.current || currentSession.sessionId > 0) {
-            return currentSession;
-          }
-
-          hasStartedRef.current = true;
-
-          return {
-            phase: "running",
-            sessionId: currentSession.sessionId + 1,
-          };
-        });
+        run();
       },
       { threshold: [SESSION_ENTER_VISIBILITY] },
     );
 
-    observer.observe(element);
-    return () => observer.disconnect();
+    prepareObserver.observe(element);
+    enterObserver.observe(element);
+
+    return () => {
+      cancelAnimationFrame(prepareFrame);
+      cancelAnimationFrame(enterFrame);
+      prepareObserver.disconnect();
+      enterObserver.disconnect();
+    };
   }, [ref]);
 
-  return session;
+  return phase;
 }
 
 function useDocumentVisibility() {
@@ -525,15 +535,28 @@ const SplitFlapCharacter = memo(function SplitFlapCharacter({
 interface ClockedSplitFlapCharacterProps {
   target: string;
   plan: FlapPlan;
-  isRunning: boolean;
-  elapsedMs: number;
   density?: SplitFlapDensity;
   textClassName?: string;
 }
 
-// The compact engine turns the scheduling gap from the original per-step
-// React loop into an explicit visual hold, preserving the approved cadence
-// without making completion time depend on the device.
+interface FlapGlyphNodes {
+  topNext: HTMLSpanElement;
+  bottomCurrent: HTMLSpanElement;
+  flapCurrent: HTMLSpanElement;
+  flapNext: HTMLSpanElement;
+  flap: HTMLSpanElement;
+}
+
+interface FlapDriver {
+  plan: FlapPlan;
+  nodes: FlapGlyphNodes;
+  step: number;
+  animation: Animation | null;
+}
+
+// The hold after each flip keeps the approved cadence. The clock writes the
+// next pair only when the step index changes, and never on the finished hold:
+// that face is already the target letter.
 function getClockedCycleDuration(plan: FlapPlan) {
   return plan.stepDurationMs + STEP_SCHEDULING_BUDGET_MS;
 }
@@ -551,58 +574,229 @@ function getClockedPlanDuration(plan: FlapPlan) {
   return getClockedCycleDuration(plan) * plan.totalSteps;
 }
 
+function glyphsForStep(plan: FlapPlan, step: number) {
+  const currentDeckIndex =
+    (plan.startIndex + step) % FLAP_DECK.length;
+  const nextDeckIndex = (currentDeckIndex + 1) % FLAP_DECK.length;
+
+  return {
+    current: normalizeCharacter(FLAP_DECK[currentDeckIndex] ?? " "),
+    next: normalizeCharacter(FLAP_DECK[nextDeckIndex] ?? " "),
+  };
+}
+
+function writeStep(driver: FlapDriver, step: number) {
+  const glyphs = glyphsForStep(driver.plan, step);
+  driver.nodes.bottomCurrent.textContent = glyphs.current;
+  driver.nodes.flapCurrent.textContent = glyphs.current;
+  driver.nodes.topNext.textContent = glyphs.next;
+  driver.nodes.flapNext.textContent = glyphs.next;
+  driver.step = step;
+}
+
+function startFlip(driver: FlapDriver) {
+  if (driver.plan.totalSteps === 0 || driver.animation) return;
+
+  const cycleDurationMs = getClockedCycleDuration(driver.plan);
+  const flipEndOffset = driver.plan.stepDurationMs / cycleDurationMs;
+  driver.animation = driver.nodes.flap.animate(
+    [
+      { transform: "rotateX(0deg)", offset: 0 },
+      { transform: "rotateX(-180deg)", offset: flipEndOffset },
+      { transform: "rotateX(-180deg)", offset: 1 },
+    ],
+    {
+      duration: cycleDurationMs,
+      iterations: driver.plan.totalSteps,
+      easing: "linear",
+      fill: "both",
+    },
+  );
+}
+
+const FlapClockContext = createContext<
+  ((driver: FlapDriver) => () => void) | null
+>(null);
+
+function useDomClock(isRunning: boolean, onComplete: () => void) {
+  const driversRef = useRef(new Set<FlapDriver>());
+  const onCompleteRef = useRef(onComplete);
+
+  useLayoutEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  const register = useCallback((driver: FlapDriver) => {
+    driversRef.current.add(driver);
+
+    return () => {
+      driver.animation?.cancel();
+      driver.animation = null;
+      driversRef.current.delete(driver);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isRunning) return;
+
+    let cancelled = false;
+    let frame = 0;
+    let startedAt: number | null = null;
+    const drivers = driversRef.current;
+
+    const tick = (now: number) => {
+      if (cancelled) return;
+
+      if (startedAt === null) {
+        startedAt = now;
+        for (const driver of drivers) startFlip(driver);
+      }
+
+      const elapsedMs = now - startedAt;
+      let pending = false;
+
+      for (const driver of drivers) {
+        if (driver.plan.totalSteps === 0) continue;
+        if (!driver.animation) startFlip(driver);
+
+        if (elapsedMs < getClockedPlanDuration(driver.plan)) pending = true;
+
+        const step = getClockedStepIndex(driver.plan, elapsedMs);
+        if (step !== driver.step && step < driver.plan.totalSteps) {
+          writeStep(driver, step);
+        }
+      }
+
+      if (pending) {
+        frame = requestAnimationFrame(tick);
+        return;
+      }
+
+      onCompleteRef.current();
+    };
+
+    frame = requestAnimationFrame(tick);
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+
+      for (const driver of drivers) {
+        driver.animation?.cancel();
+        driver.animation = null;
+      }
+    };
+  }, [isRunning]);
+
+  return register;
+}
+
+function useClockedBoardSession(ref: RefObject<Element | null>) {
+  const visibilityPhase = usePreparedVisibilitySession(ref);
+  const { isVisible: isDocumentVisible } = useDocumentVisibility();
+  const shouldReduceMotion = useReducedMotion() ?? false;
+  const [settled, setSettled] = useState(false);
+  const visibilityPhaseRef = useRef(visibilityPhase);
+
+  useLayoutEffect(() => {
+    visibilityPhaseRef.current = visibilityPhase;
+  }, [visibilityPhase]);
+
+  useEffect(() => {
+    const finishWhenHidden = () => {
+      if (document.visibilityState !== "hidden") return;
+      if (visibilityPhaseRef.current !== "running") return;
+      setSettled(true);
+    };
+
+    document.addEventListener("visibilitychange", finishWhenHidden);
+    return () =>
+      document.removeEventListener("visibilitychange", finishWhenHidden);
+  }, []);
+
+  const phase: VisibilityPhase = settled ? "final" : visibilityPhase;
+  const shouldRenderScramble = phase !== "final" && !shouldReduceMotion;
+  const isScrambleRunning =
+    phase === "running" && isDocumentVisible && !shouldReduceMotion;
+  const settle = useCallback(() => {
+    setSettled(true);
+  }, []);
+  const register = useDomClock(isScrambleRunning, settle);
+
+  return {
+    shouldRenderScramble,
+    isScrambleRunning,
+    register,
+    shouldReduceMotion,
+  };
+}
+
 const ClockedSplitFlapCharacter = memo(
   function ClockedSplitFlapCharacter({
     target,
     plan,
-    isRunning,
-    elapsedMs,
     density = "compact",
     textClassName = "text-white",
   }: ClockedSplitFlapCharacterProps) {
+    const register = useContext(FlapClockContext);
+    const topNextRef = useRef<HTMLSpanElement>(null);
+    const bottomCurrentRef = useRef<HTMLSpanElement>(null);
+    const flapCurrentRef = useRef<HTMLSpanElement>(null);
+    const flapNextRef = useRef<HTMLSpanElement>(null);
     const flapRef = useRef<HTMLSpanElement>(null);
-    const cycleDurationMs = getClockedCycleDuration(plan);
-    const stepIndex = getClockedStepIndex(plan, elapsedMs);
-    const isComplete = stepIndex >= plan.totalSteps;
-    const currentDeckIndex =
-      (plan.startIndex + stepIndex) % FLAP_DECK.length;
-    const nextDeckIndex = (currentDeckIndex + 1) % FLAP_DECK.length;
-    const currentCharacter = normalizeCharacter(
-      FLAP_DECK[currentDeckIndex],
-    );
-    const nextCharacter = normalizeCharacter(FLAP_DECK[nextDeckIndex]);
+    const driverRef = useRef<FlapDriver | null>(null);
+    const planRef = useRef(plan);
+    const canFlip = plan.totalSteps > 0;
+    const initialGlyphs = glyphsForStep(plan, 0);
 
     useLayoutEffect(() => {
+      planRef.current = plan;
+    }, [plan]);
+
+    useLayoutEffect(() => {
+      if (!canFlip) return;
+
+      const topNext = topNextRef.current;
+      const bottomCurrent = bottomCurrentRef.current;
+      const flapCurrent = flapCurrentRef.current;
+      const flapNext = flapNextRef.current;
       const flap = flapRef.current;
-      if (!isRunning || !flap || plan.totalSteps === 0) return;
+      if (
+        !register ||
+        !topNext ||
+        !bottomCurrent ||
+        !flapCurrent ||
+        !flapNext ||
+        !flap
+      ) {
+        return;
+      }
 
-      const flipEndOffset = plan.stepDurationMs / cycleDurationMs;
-      const animation = flap.animate(
-        [
-          { transform: "rotateX(0deg)", offset: 0 },
-          {
-            transform: "rotateX(-180deg)",
-            offset: flipEndOffset,
-          },
-          { transform: "rotateX(-180deg)", offset: 1 },
-        ],
-        {
-          duration: cycleDurationMs,
-          iterations: plan.totalSteps,
-          easing: "linear",
-          fill: "both",
-        },
-      );
+      const driver: FlapDriver = {
+        plan: planRef.current,
+        nodes: { topNext, bottomCurrent, flapCurrent, flapNext, flap },
+        step: 0,
+        animation: null,
+      };
+      driverRef.current = driver;
+      writeStep(driver, 0);
 
-      return () => animation.cancel();
-    }, [
-      cycleDurationMs,
-      isRunning,
-      plan.stepDurationMs,
-      plan.totalSteps,
-    ]);
+      const unregister = register(driver);
+      return () => {
+        unregister();
+        if (driverRef.current === driver) driverRef.current = null;
+      };
+    }, [canFlip, register]);
 
-    if (isComplete || plan.totalSteps === 0) {
+    useLayoutEffect(() => {
+      const driver = driverRef.current;
+      if (!driver) return;
+      driver.plan = planRef.current;
+      if (driver.step >= driver.plan.totalSteps) return;
+      writeStep(driver, driver.step);
+    });
+
+    if (plan.totalSteps === 0) {
       return (
         <StaticCharacter
           character={target}
@@ -616,25 +810,27 @@ const ClockedSplitFlapCharacter = memo(
       <div className={slotClasses[density]}>
         <span className={cn(halfClass, "top-0")}>
           <span
+            ref={topNextRef}
             className={cn(
               glyphClasses[density],
               "top-0",
               textClassName,
             )}
           >
-            {nextCharacter}
+            {initialGlyphs.next}
           </span>
         </span>
 
         <span className={cn(halfClass, "bottom-0")}>
           <span
+            ref={bottomCurrentRef}
             className={cn(
               glyphClasses[density],
               "bottom-0",
               textClassName,
             )}
           >
-            {currentCharacter}
+            {initialGlyphs.current}
           </span>
         </span>
 
@@ -644,25 +840,27 @@ const ClockedSplitFlapCharacter = memo(
         >
           <span className={faceClass}>
             <span
+              ref={flapCurrentRef}
               className={cn(
                 glyphClasses[density],
                 "top-0",
                 textClassName,
               )}
             >
-              {currentCharacter}
+              {initialGlyphs.current}
             </span>
           </span>
 
           <span className={cn(faceClass, "[transform:rotateX(180deg)]")}>
             <span
+              ref={flapNextRef}
               className={cn(
                 glyphClasses[density],
                 "bottom-0",
                 textClassName,
               )}
             >
-              {nextCharacter}
+              {initialGlyphs.next}
             </span>
           </span>
         </span>
@@ -674,18 +872,15 @@ const ClockedSplitFlapCharacter = memo(
   (previous, next) =>
     previous.target === next.target &&
     previous.plan === next.plan &&
-    previous.isRunning === next.isRunning &&
     previous.density === next.density &&
-    previous.textClassName === next.textClassName &&
-    getClockedStepIndex(previous.plan, previous.elapsedMs) ===
-      getClockedStepIndex(next.plan, next.elapsedMs),
+    previous.textClassName === next.textClassName,
 );
 
 interface SplitFlapRowProps {
   row: string;
   plans: readonly FlapPlan[];
   isRunning: boolean;
-  elapsedMs?: number;
+  clocked?: boolean;
   density?: SplitFlapDensity;
   textClassName?: string;
 }
@@ -694,7 +889,7 @@ function SplitFlapRow({
   row,
   plans,
   isRunning,
-  elapsedMs,
+  clocked = false,
   density = "display",
   textClassName = "text-white",
 }: SplitFlapRowProps) {
@@ -716,22 +911,20 @@ function SplitFlapRow({
       }
     >
       {Array.from(row).map((character, slotIndex) =>
-        elapsedMs === undefined ? (
+        clocked ? (
+          <ClockedSplitFlapCharacter
+            key={slotIndex}
+            target={character}
+            plan={plans[slotIndex]}
+            density={density}
+            textClassName={textClassName}
+          />
+        ) : (
           <SplitFlapCharacter
             key={slotIndex}
             target={character}
             plan={plans[slotIndex]}
             isRunning={isRunning}
-            density={density}
-            textClassName={textClassName}
-          />
-        ) : (
-          <ClockedSplitFlapCharacter
-            key={slotIndex}
-            target={character}
-            plan={plans[slotIndex]}
-            isRunning={isRunning}
-            elapsedMs={elapsedMs}
             density={density}
             textClassName={textClassName}
           />
@@ -741,60 +934,66 @@ function SplitFlapRow({
   );
 }
 
-function useClockedTimeline(
-  isRunning: boolean,
-  runId: number,
-  maxDurationMs: number,
-) {
-  const [timeline, setTimeline] = useState({
-    runId: -1,
-    hasStarted: false,
-    elapsedMs: 0,
-  });
-
-  useEffect(() => {
-    if (!isRunning) return;
-
-    let animationFrameId = 0;
-    let startedAt: number | null = null;
-
-    const updateTimeline = (timestamp: number) => {
-      if (startedAt === null) {
-        startedAt = timestamp;
-        setTimeline({
-          runId,
-          hasStarted: true,
-          elapsedMs: 0,
-        });
-        animationFrameId = requestAnimationFrame(updateTimeline);
-        return;
-      }
-
-      const elapsedMs = Math.min(
-        timestamp - startedAt,
-        maxDurationMs,
-      );
-      setTimeline({
-        runId,
-        hasStarted: true,
-        elapsedMs,
-      });
-
-      if (elapsedMs < maxDurationMs) {
-        animationFrameId = requestAnimationFrame(updateTimeline);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(updateTimeline);
-
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isRunning, maxDurationMs, runId]);
-
-  if (!isRunning || timeline.runId !== runId) {
-    return { hasStarted: false, elapsedMs: 0 };
-  }
-
-  return timeline;
+function ClockedOrStaticRow({
+  label,
+  plans,
+  density,
+  textClassName,
+  shouldRenderScramble,
+  isScrambleRunning,
+  rowKey,
+}: {
+  label: string;
+  plans: readonly FlapPlan[];
+  density: SplitFlapDensity;
+  textClassName?: string;
+  shouldRenderScramble: boolean;
+  isScrambleRunning: boolean;
+  rowKey: string;
+}) {
+  return (
+    <div className="grid w-full">
+      <div
+        className={cn(
+          "col-start-1 row-start-1",
+          isScrambleRunning && "invisible",
+        )}
+      >
+        <div
+          className="grid w-full gap-[0.09375rem]"
+          style={{
+            gridTemplateColumns: `repeat(${label.length}, minmax(0, 1fr))`,
+          }}
+        >
+          {Array.from(label).map((character, slotIndex) => (
+            <StaticCharacter
+              key={`${rowKey}-${slotIndex}`}
+              character={character}
+              density={density}
+              textClassName={textClassName}
+            />
+          ))}
+        </div>
+      </div>
+      {shouldRenderScramble ? (
+        <div
+          className={cn(
+            "col-start-1 row-start-1",
+            !isScrambleRunning && "invisible",
+          )}
+        >
+          <SplitFlapRow
+            row={label}
+            plans={plans}
+            isRunning={false}
+            clocked
+            density={density}
+            textClassName={textClassName}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function StaticBoard({ rows }: { rows: readonly string[] }) {
@@ -901,36 +1100,20 @@ export function SplitFlapAccordionBoard({
   ...props
 }: SplitFlapAccordionBoardProps) {
   const visibilityRef = useRef<HTMLDivElement>(null);
-  const { isVisible: isDocumentVisible } = useDocumentVisibility();
-  const { phase, sessionId } =
-    useInitialVisibilitySession(visibilityRef);
-  const shouldReduceMotion = useReducedMotion() ?? false;
-  const shouldRenderScramble =
-    phase !== "final" && isDocumentVisible && !shouldReduceMotion;
-  const isScrambleRunning =
-    phase === "running" && isDocumentVisible && !shouldReduceMotion;
-  const runId = Math.imul(sessionId + 1, 0x9e3779b1) >>> 0;
+  const {
+    shouldRenderScramble,
+    isScrambleRunning,
+    register,
+    shouldReduceMotion,
+  } = useClockedBoardSession(visibilityRef);
   const rowsKey = items.map((item) => item.label).join("\u0000");
   const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(
     () =>
-      rows.map((row, rowIndex) => createRowPlans(row, rowIndex, runId)),
-    [rows, runId],
-  );
-  const maxDurationMs = useMemo(
-    () =>
-      Math.max(
-        0,
-        ...plansByRow.flatMap((plans) =>
-          plans.map(getClockedPlanDuration),
-        ),
+      rows.map((row, rowIndex) =>
+        createRowPlans(row, rowIndex, CLOCKED_RUN_ID),
       ),
-    [plansByRow],
-  );
-  const timeline = useClockedTimeline(
-    isScrambleRunning,
-    runId,
-    maxDurationMs,
+    [rows],
   );
   const closedBoardHeight = `calc(${items.length} * 2.75rem + ${Math.max(
     items.length - 1,
@@ -938,6 +1121,7 @@ export function SplitFlapAccordionBoard({
   )} * 0.28125rem)`;
 
   return (
+    <FlapClockContext.Provider value={register}>
     <div
       className={cn("relative w-full", className)}
       {...props}
@@ -969,40 +1153,16 @@ export function SplitFlapAccordionBoard({
                 onClick={() => onToggle(item.id)}
                 className="block min-h-11 w-full touch-manipulation rounded-[0.25rem] py-px text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
-                <div
-                  key={`${runId}-${item.id}`}
-                  aria-hidden="true"
-                >
-                  {shouldRenderScramble ? (
-                    <SplitFlapRow
-                      row={item.label}
-                      plans={plansByRow[rowIndex]}
-                      isRunning={
-                        isScrambleRunning && timeline.hasStarted
-                      }
-                      elapsedMs={timeline.elapsedMs}
-                      density="compact"
-                      textClassName={textClassName}
-                    />
-                  ) : (
-                    <div
-                      className="grid w-full gap-[0.09375rem]"
-                      style={{
-                        gridTemplateColumns: `repeat(${item.label.length}, minmax(0, 1fr))`,
-                      }}
-                    >
-                      {Array.from(item.label).map(
-                        (character, slotIndex) => (
-                          <StaticCharacter
-                            key={`${item.id}-${slotIndex}`}
-                            character={character}
-                            density="compact"
-                            textClassName={textClassName}
-                          />
-                        ),
-                      )}
-                    </div>
-                  )}
+                <div aria-hidden="true">
+                  <ClockedOrStaticRow
+                    label={item.label}
+                    plans={plansByRow[rowIndex]}
+                    density="compact"
+                    textClassName={textClassName}
+                    shouldRenderScramble={shouldRenderScramble}
+                    isScrambleRunning={isScrambleRunning}
+                    rowKey={item.id}
+                  />
                 </div>
               </button>
 
@@ -1044,6 +1204,7 @@ export function SplitFlapAccordionBoard({
         })}
       </div>
     </div>
+    </FlapClockContext.Provider>
   );
 }
 
@@ -1078,36 +1239,16 @@ export function SplitFlapNavigationBoard({
 }: SplitFlapNavigationBoardProps) {
   const visibilityRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef(new Map<string, HTMLButtonElement>());
-  const { isVisible: isDocumentVisible } = useDocumentVisibility();
-  const { phase, sessionId } =
-    useInitialVisibilitySession(visibilityRef);
-  const shouldReduceMotion = useReducedMotion() ?? false;
-  const shouldRenderScramble =
-    phase !== "final" && isDocumentVisible && !shouldReduceMotion;
-  const isScrambleRunning =
-    phase === "running" && isDocumentVisible && !shouldReduceMotion;
-  const runId = Math.imul(sessionId + 1, 0x9e3779b1) >>> 0;
+  const { shouldRenderScramble, isScrambleRunning, register } =
+    useClockedBoardSession(visibilityRef);
   const rowsKey = items.map((item) => item.label).join("\u0000");
   const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(
     () =>
-      rows.map((row, rowIndex) => createRowPlans(row, rowIndex, runId)),
-    [rows, runId],
-  );
-  const maxDurationMs = useMemo(
-    () =>
-      Math.max(
-        0,
-        ...plansByRow.flatMap((plans) =>
-          plans.map(getClockedPlanDuration),
-        ),
+      rows.map((row, rowIndex) =>
+        createRowPlans(row, rowIndex, CLOCKED_RUN_ID),
       ),
-    [plansByRow],
-  );
-  const timeline = useClockedTimeline(
-    isScrambleRunning,
-    runId,
-    maxDurationMs,
+    [rows],
   );
 
   const selectFromKeyboard = (
@@ -1135,6 +1276,7 @@ export function SplitFlapNavigationBoard({
   };
 
   return (
+    <FlapClockContext.Provider value={register}>
     <nav
       role="tablist"
       aria-label="Challenges"
@@ -1190,42 +1332,22 @@ export function SplitFlapNavigationBoard({
               }
               className="block w-full touch-manipulation rounded-[0.25rem] text-left focus-visible:relative focus-visible:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
-              <div key={`${runId}-${item.id}`} aria-hidden="true">
-                {shouldRenderScramble ? (
-                  <SplitFlapRow
-                    row={item.label}
-                    plans={plansByRow[rowIndex]}
-                    isRunning={
-                      isScrambleRunning && timeline.hasStarted
-                    }
-                    elapsedMs={timeline.elapsedMs}
-                    density="navigation"
-                    textClassName={textClassName}
-                  />
-                ) : (
-                  <div
-                    className="grid w-full gap-[0.09375rem]"
-                    style={{
-                      gridTemplateColumns: `repeat(${item.label.length}, minmax(0, 1fr))`,
-                    }}
-                  >
-                    {Array.from(item.label).map(
-                      (character, slotIndex) => (
-                        <StaticCharacter
-                          key={`${item.id}-${slotIndex}`}
-                          character={character}
-                          density="navigation"
-                          textClassName={textClassName}
-                        />
-                      ),
-                    )}
-                  </div>
-                )}
+              <div aria-hidden="true">
+                <ClockedOrStaticRow
+                  label={item.label}
+                  plans={plansByRow[rowIndex]}
+                  density="navigation"
+                  textClassName={textClassName}
+                  shouldRenderScramble={shouldRenderScramble}
+                  isScrambleRunning={isScrambleRunning}
+                  rowKey={item.id}
+                />
               </div>
             </button>
           );
         })}
       </div>
     </nav>
+    </FlapClockContext.Provider>
   );
 }
