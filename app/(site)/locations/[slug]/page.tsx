@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { LocationHeroNavFlag } from "@/components/cms/location-hero-nav-flag";
 import {
   LocationComingSoon,
   LocationDetailPage,
@@ -49,12 +48,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
   }
 
   if (route.status === "complete") {
-    return (
-      <>
-        <LocationHeroNavFlag />
-        <LocationDetailPage content={route.detail} />
-      </>
-    );
+    return <LocationDetailPage content={route.detail} />;
   }
 
   return (

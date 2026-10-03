@@ -9,7 +9,7 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 
 import { LogoLockup } from "@/components/ui/logo-lockup";
 
@@ -232,27 +232,13 @@ export function Nav() {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [hasLocationHero, setHasLocationHero] = useState(false);
   const reduce = useReducedMotion();
 
   const iconMotion = reduce ? { duration: 0 } : iconTransition;
-  const isHeroRoute =
-    TRANSPARENT_HERO_ROUTES.has(pathname) || hasLocationHero;
-  const isSolidRoute = SOLID_NAV_ROUTES.has(pathname);
-
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-
-    function sync() {
-      setHasLocationHero(root.dataset.locationHero === "true");
-    }
-
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(root, { attributes: true, attributeFilter: ["data-location-hero"] });
-
-    return () => observer.disconnect();
-  }, [pathname]);
+  const isHeroRoute = TRANSPARENT_HERO_ROUTES.has(pathname);
+  // City pages (/locations/<slug>) use the same solid bar as the Locations index.
+  const isSolidRoute =
+    SOLID_NAV_ROUTES.has(pathname) || pathname.startsWith("/locations/");
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";

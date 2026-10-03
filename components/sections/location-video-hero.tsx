@@ -18,9 +18,9 @@ export function LocationVideoHero({ media, title }: LocationVideoHeroProps) {
     <section
       aria-label={media.ariaLabel}
       className="relative h-[20.4rem] w-full overflow-hidden bg-black min-[1280px]:h-[41.125rem]"
-      data-nav-hero=""
     >
-      <div className="absolute inset-x-0 bottom-0 top-[3.625rem] overflow-hidden bg-black min-[1280px]:top-24">
+      {/* Starts below the solid header: the inset follows the header height at every breakpoint. */}
+      <div className="absolute inset-x-0 bottom-0 top-[3.625rem] overflow-hidden bg-black min-[768px]:top-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:top-24">
         {shouldReduceMotion ? (
           <Image
             src={media.posterSrc}
@@ -54,12 +54,6 @@ export function LocationVideoHero({ media, title }: LocationVideoHeroProps) {
           className="box-border max-w-none whitespace-nowrap px-[0.08em] text-center font-display text-[12.5rem] uppercase leading-[0.845] text-white"
         />
       </div>
-
-      <span
-        aria-hidden="true"
-        data-nav-hero-boundary=""
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5"
-      />
     </section>
   );
 }
