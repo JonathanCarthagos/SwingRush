@@ -30,7 +30,6 @@ export function ChallengesHero({
     <section
       className={cn("relative h-svh overflow-hidden bg-brand text-white", className)}
       {...props}
-      data-nav-hero=""
     >
       <div aria-hidden="true" className="absolute inset-0 isolate">
         <Image
@@ -38,16 +37,18 @@ export function ChallengesHero({
           alt=""
           fill
           priority
+          quality={85}
           sizes="100vw"
-          className="object-cover object-center min-[768px]:hidden"
+          className="object-cover object-[32%_56px] min-[768px]:hidden"
         />
         <Image
           src={DESKTOP_HERO_IMAGE}
           alt=""
           fill
           priority
+          quality={85}
           sizes="100vw"
-          className="hidden object-cover object-[68%_72%] min-[768px]:block"
+          className="hidden object-cover object-[center_72px] min-[768px]:block"
         />
         <div className="absolute inset-0 bg-brand-dark mix-blend-screen" />
         <div className="absolute inset-0 bg-brand mix-blend-multiply" />
@@ -66,11 +67,6 @@ export function ChallengesHero({
         />
       </div>
 
-      <span
-        aria-hidden="true"
-        data-nav-hero-boundary=""
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5"
-      />
     </section>
   );
 }

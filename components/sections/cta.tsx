@@ -64,6 +64,7 @@ export interface CtaProps extends React.HTMLAttributes<HTMLElement> {
   heading?: string;
   keepBreaks?: boolean;
   description?: string;
+  mobileDescription?: string;
   ctaLabel?: string;
   ctaHref?: string;
 }
@@ -74,6 +75,7 @@ export function Cta({
   heading,
   keepBreaks = false,
   description = "Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?",
+  mobileDescription,
   ctaLabel = "Contact Us",
   ctaHref,
   ...props
@@ -121,11 +123,22 @@ export function Cta({
           <p
             className={cn(
               "max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)]",
+              mobileDescription && "min-[1280px]:hidden",
               styles.bodyClassName,
             )}
           >
-            {description}
+            {mobileDescription ?? description}
           </p>
+          {mobileDescription ? (
+            <p
+              className={cn(
+                "hidden max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:block",
+                styles.bodyClassName,
+              )}
+            >
+              {description}
+            </p>
+          ) : null}
         </div>
         {styles.buttonVariant ? (
           ctaHref ? (

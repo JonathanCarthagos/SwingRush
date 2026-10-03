@@ -20,7 +20,8 @@ const links = [
   { label: "Locations", href: "/locations" },
 ];
 
-const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works", "/challenges"]);
+const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
+const SOLID_NAV_ROUTES = new Set(["/challenges"]);
 
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";
@@ -92,17 +93,22 @@ const linkItemReduced: Variants = {
 interface HeaderBackgroundProps {
   visible: boolean;
   reduce: boolean | null;
+  immediate?: boolean;
 }
 
-function HeaderBackground({ visible, reduce }: HeaderBackgroundProps) {
+function HeaderBackground({
+  visible,
+  reduce,
+  immediate = false,
+}: HeaderBackgroundProps) {
   return (
     <motion.span
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 bg-brand"
-      initial={false}
+      initial={immediate ? { opacity: 1 } : false}
       animate={{ opacity: visible ? 1 : 0 }}
       transition={
-        reduce
+        immediate || reduce
           ? { duration: 0 }
           : visible
             ? { duration: 0.28, ease: HEADER_FADE_IN_EASE }
@@ -232,6 +238,7 @@ export function Nav() {
   const iconMotion = reduce ? { duration: 0 } : iconTransition;
   const isHeroRoute =
     TRANSPARENT_HERO_ROUTES.has(pathname) || hasLocationHero;
+  const isSolidRoute = SOLID_NAV_ROUTES.has(pathname);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -268,7 +275,9 @@ export function Nav() {
         ref={headerRef}
         className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:px-[clamp(0.9791875rem,calc(-3.36453125rem+9.0494140625vw),3.875rem)] min-[768px]:py-[clamp(0.8333125rem,calc(0.11453125rem+1.4974609375vw),1.3125rem)] min-[1280px]:h-24 min-[1280px]:px-desktop-gutter min-[1280px]:py-[1.3125rem]"
       >
-        {isHeroRoute ? (
+        {isSolidRoute ? (
+          <HeaderBackground visible immediate reduce={reduce} />
+        ) : isHeroRoute ? (
           <HeroHeaderBackground
             key={pathname}
             headerRef={headerRef}

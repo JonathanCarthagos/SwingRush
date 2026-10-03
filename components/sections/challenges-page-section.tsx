@@ -68,13 +68,11 @@ const panelVariants: Variants = {
 
 export interface ChallengesPageSectionProps
   extends React.HTMLAttributes<HTMLElement> {
-  introduction?: string;
   emptyState?: string;
   items?: readonly ChallengeItem[];
 }
 
 export function ChallengesPageSection({
-  introduction = CHALLENGES_PAGE_CONTENT.introduction,
   emptyState = CHALLENGES_PAGE_CONTENT.emptyState,
   items = CHALLENGES_PAGE_CONTENT.items,
   className,
@@ -106,16 +104,12 @@ export function ChallengesPageSection({
   return (
     <section
       className={cn(
-        "bg-black px-4 pb-16 text-white min-[1280px]:px-0 min-[1280px]:pb-0",
+        "bg-black px-4 py-16 text-white min-[1280px]:px-0",
         className,
       )}
       {...props}
     >
-      <div className="mx-auto w-full max-w-[25.125rem] pt-10 min-[1280px]:hidden">
-        <p className="max-w-[23.125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body">
-          {introduction}
-        </p>
-
+      <div className="mx-auto w-full max-w-[25.125rem] min-[1280px]:hidden">
         {boardItems.length > 0 ? (
           <SplitFlapAccordionBoard
             items={boardItems}
@@ -125,35 +119,25 @@ export function ChallengesPageSection({
                 current === itemId ? null : itemId,
               )
             }
-            className="mt-8"
           />
         ) : (
-          <p className="mt-8 font-body text-[1.0625rem] leading-[1.3] tracking-body">
+          <p className="font-body text-[1.0625rem] leading-[1.3] tracking-body">
             {emptyState}
           </p>
         )}
       </div>
 
-      <DesktopChallenges
-        introduction={introduction}
-        emptyState={emptyState}
-        items={items}
-      />
+      <DesktopChallenges emptyState={emptyState} items={items} />
     </section>
   );
 }
 
 interface DesktopChallengesProps {
-  introduction: string;
   emptyState: string;
   items: readonly ChallengeItem[];
 }
 
-function DesktopChallenges({
-  introduction,
-  emptyState,
-  items,
-}: DesktopChallengesProps) {
+function DesktopChallenges({ emptyState, items }: DesktopChallengesProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [selection, setSelection] = useState<{
     activeItemId: string | null;
@@ -219,16 +203,10 @@ function DesktopChallenges({
   return (
     <div
       data-challenges-desktop
-      className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter pb-[9.125rem] pt-10 min-[1280px]:block"
+      className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter min-[1280px]:block"
     >
-      <header className="flex w-full max-w-[46.625rem] flex-col">
-        <p className="font-body text-[1.875rem] leading-[1.3] tracking-body">
-          {introduction}
-        </p>
-      </header>
-
       {items.length > 0 ? (
-        <div className="mt-[2.3125rem] grid w-full grid-cols-[minmax(0,40.874%)_minmax(0,35.733%)] items-start gap-x-[18.188%]">
+        <div className="grid w-full grid-cols-[minmax(0,40.874%)_minmax(0,35.733%)] items-start gap-x-[18.188%]">
           <aside className="min-w-0">
             <SplitFlapNavigationBoard
               items={navigationItems}
@@ -267,7 +245,7 @@ function DesktopChallenges({
           </div>
         </div>
       ) : (
-        <p className="mt-16 font-body text-[1.875rem] leading-[1.3] tracking-body">
+        <p className="font-body text-[1.875rem] leading-[1.3] tracking-body">
           {emptyState}
         </p>
       )}
