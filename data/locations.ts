@@ -2,6 +2,7 @@ import type {
   LocationDateRange,
   LocationListItem,
   LocationsPageContent,
+  LocationStatus,
 } from "@/types/locations";
 import type { SeoContent } from "@/types/seo";
 
@@ -19,14 +20,16 @@ function createLocation(
   city: string,
   slug: string,
   dates: LocationDateRange,
+  status: LocationStatus = "waitlist",
 ): LocationListItem {
   return {
     id: slug,
     city,
     slug,
     dates,
+    status,
     cta: {
-      label: "Join Waitlist",
+      label: status === "register" ? "Register" : "Join Waitlist",
       href: `/locations/${slug}`,
     },
   };
@@ -38,15 +41,19 @@ export const LOCATIONS_PAGE_CONTENT = {
     "Sign up to compete in the elite division and be crowned the most skilled golfer in your city. Or sign up in the open division to see if you have what it takes to cross the finish line in under 60 minutes so you can call yourself a Swingrusher. Not sure where to start? Create a team and bring some friends.",
   emptyState: "New SwingRush locations are coming soon.",
   locations: [
-    createLocation("Boston", "boston", {
-      startDate: "2027-03-09",
-      endDate: "2027-03-14",
-    }),
-    createLocation("New York City", "new-york-city", {
-      startDate: "2027-02-18",
-      endDate: "2027-02-21",
-    }),
-    createLocation("Philadelphia", "philadelphia", APRIL_DATES),
+    createLocation(
+      "Boston",
+      "boston",
+      { startDate: "2027-03-09", endDate: "2027-03-14" },
+      "soldOut",
+    ),
+    createLocation(
+      "New York City",
+      "new-york-city",
+      { startDate: "2027-02-18", endDate: "2027-02-21" },
+      "register",
+    ),
+    createLocation("Philadelphia", "philadelphia", APRIL_DATES, "register"),
     createLocation("Atlanta", "atlanta", APRIL_DATES),
     createLocation("Detroit", "detroit", APRIL_DATES),
     createLocation("Chicago", "chicago", APRIL_DATES),

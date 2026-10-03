@@ -68,7 +68,8 @@ export const LOCATIONS_PAGE_QUERY = defineQuery(`
       city,
       "slug": slug.current,
       dates{startDate, endDate},
-      ctaLabel
+      ctaLabel,
+      registrationStatus
     }
   }
 `);
@@ -95,6 +96,7 @@ export const LOCATION_BY_SLUG_QUERY = defineQuery(`
     venueName,
     introduction,
     ctaLabel,
+    registrationStatus,
     dates{startDate, endDate},
     seo{title, description},
     hero{

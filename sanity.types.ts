@@ -655,7 +655,7 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
 
 // Source: sanity/lib/queries.ts
 // Variable: LOCATIONS_PAGE_QUERY
-// Query: {    "page": *[_id == "locationsPage"][0]{      title,      introduction,      emptyState,      seo{title, description}    },    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){      _id,      city,      "slug": slug.current,      dates{startDate, endDate},      ctaLabel    }  }
+// Query: {    "page": *[_id == "locationsPage"][0]{      title,      introduction,      emptyState,      seo{title, description}    },    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){      _id,      city,      "slug": slug.current,      dates{startDate, endDate},      ctaLabel,      registrationStatus    }  }
 export type LOCATIONS_PAGE_QUERY_RESULT = {
   page:
     | {
@@ -707,6 +707,7 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
       endDate: string;
     } | null;
     ctaLabel: string;
+    registrationStatus: null;
   }>;
 };
 
@@ -727,7 +728,7 @@ export type LOCATION_SITEMAP_QUERY_RESULT = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: LOCATION_BY_SLUG_QUERY
-// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current,    detailStatus,    venueName,    introduction,    ctaLabel,    dates{startDate, endDate},    seo{title, description},    hero{      ariaLabel,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    primaryAction{label, href},    features[]{      _key,      title,      description,      "image": image{        "src": asset->url,        alt,        "width": asset->metadata.dimensions.width,        "height": asset->metadata.dimensions.height      }    },    schedule{      title,      days[]{        _key,        date,        sessions[]{_key, category, startTime, endTime}      }    },    ticketInfo{      title,      releases[]{        _key,        title,        description,        releaseDate,        action{label, href}      }    },    importantInformation{      title,      blocks[]{_key, title, lines},      volunteer{        title,        description,        benefits,        action{label, href}      }    }  }
+// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current,    detailStatus,    venueName,    introduction,    ctaLabel,    registrationStatus,    dates{startDate, endDate},    seo{title, description},    hero{      ariaLabel,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    primaryAction{label, href},    features[]{      _key,      title,      description,      "image": image{        "src": asset->url,        alt,        "width": asset->metadata.dimensions.width,        "height": asset->metadata.dimensions.height      }    },    schedule{      title,      days[]{        _key,        date,        sessions[]{_key, category, startTime, endTime}      }    },    ticketInfo{      title,      releases[]{        _key,        title,        description,        releaseDate,        action{label, href}      }    },    importantInformation{      title,      blocks[]{_key, title, lines},      volunteer{        title,        description,        benefits,        action{label, href}      }    }  }
 export type LOCATION_BY_SLUG_QUERY_RESULT = {
   _id: string;
   city: string;
@@ -736,6 +737,7 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
   venueName: string | null;
   introduction: string | null;
   ctaLabel: string;
+  registrationStatus: null;
   dates: {
     startDate: string;
     endDate: string;
@@ -882,10 +884,10 @@ declare module "@sanity/client" {
   interface SanityQueries {
     '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_id == "howItWorksPage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
-    '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
+    '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel,\n      registrationStatus\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;
-    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;
+    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    registrationStatus,\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "challengesPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      "slug": slug.current,\n      sortOrder,\n      title,\n      club,\n      shot,\n      distance,\n      targetHeight{open, elite},\n      timeLimit,\n      description,\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': CHALLENGES_PAGE_QUERY_RESULT;
   }
 }

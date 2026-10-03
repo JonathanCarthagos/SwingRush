@@ -21,6 +21,7 @@ import type {
   LocationDateRange,
   LocationListItem,
   LocationsPageDocument,
+  LocationStatus,
 } from "@/types/locations";
 
 const TICKET_INFO_ANCHOR = "ticket-info";
@@ -41,6 +42,7 @@ interface RawLocationSummary {
   slug?: string | null;
   dates?: RawDates | null;
   ctaLabel?: string | null;
+  registrationStatus?: string | null;
 }
 
 interface RawLocationsPage {
@@ -132,6 +134,10 @@ function adaptDates(dates: RawDates | null | undefined) {
   return { startDate, endDate } satisfies LocationDateRange;
 }
 
+function adaptStatus(value: string | null | undefined): LocationStatus {
+  return value === "register" || value === "soldOut" ? value : "waitlist";
+}
+
 function adaptSummary(
   raw: RawLocationSummary,
 ): LocationListItem | undefined {
@@ -140,13 +146,17 @@ function adaptSummary(
   const dates = adaptDates(raw.dates);
   if (!city || !slug || !dates) return undefined;
 
+  const status = adaptStatus(raw.registrationStatus);
+
   return {
     id: slug,
     city,
     slug,
     dates,
+    status,
     cta: {
-      label: text(raw.ctaLabel) ?? "Join Waitlist",
+      label:
+        status === "register" ? "Register" : (text(raw.ctaLabel) ?? "Join Waitlist"),
       href: `/locations/${slug}`,
     },
   };

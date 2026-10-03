@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageHero } from "@/components/sections/page-hero";
 import { LocationsPageSection } from "@/components/sections/locations-page-section";
 import { getLocationsPage } from "@/lib/cms/locations";
 
@@ -27,6 +28,13 @@ export default async function LocationsPage() {
   return (
     <>
       <main className="flex-1 overflow-x-hidden bg-black min-[1280px]:overflow-x-clip">
+        <PageHero
+          title={content.title}
+          image={{
+            mobile: "/images/locations/hero-mobile.jpg",
+            desktop: "/images/locations/hero-desktop.jpg",
+          }}
+        />
         <LocationsPageSection pageContent={content} />
       </main>
     </>

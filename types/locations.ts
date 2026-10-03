@@ -9,6 +9,8 @@ export interface LocationDateRange {
   endDate: `${number}-${number}-${number}`;
 }
 
+export type LocationStatus = "waitlist" | "register" | "soldOut";
+
 export interface LocationCta {
   label: string;
   href: LocationHref;
@@ -20,6 +22,7 @@ export interface LocationListItem {
   slug: LocationSlug;
   dates: LocationDateRange;
   cta: LocationCta;
+  status: LocationStatus;
 }
 
 export interface LocationsPageContent {
