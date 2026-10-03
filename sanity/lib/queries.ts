@@ -48,7 +48,9 @@ export const HOW_IT_WORKS_PAGE_QUERY = defineQuery(`
       title,
       "slug": slug.current,
       content,
-      sections[]{_key, heading, body}
+      sections[]{_key, heading, body},
+      link{label, href},
+      "image": image{"src": asset->url, alt}
     }
   }
 `);

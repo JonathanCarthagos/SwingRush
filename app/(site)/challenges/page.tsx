@@ -32,6 +32,7 @@ export default async function ChallengesPage() {
       <main className="flex-1 overflow-x-clip bg-black">
         <PageHero
           title={title}
+          stackTitleOnMobile
           image={{
             mobile: "/images/challenges/hero-mobile.jpg",
             desktop: "/images/challenges/hero-desktop.jpg",

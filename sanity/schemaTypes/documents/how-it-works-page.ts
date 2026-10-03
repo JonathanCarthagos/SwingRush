@@ -35,7 +35,7 @@ export const howItWorksPage = defineType({
     }),
     defineField({
       name: "items",
-      title: "Accordion items",
+      title: "Items",
       type: "array",
       group: "content",
       of: [defineArrayMember({ type: "howItWorksItem" })],

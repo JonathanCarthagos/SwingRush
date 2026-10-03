@@ -26,7 +26,7 @@ export const howItWorksSection = defineType({
 
 export const howItWorksItem = defineType({
   name: "howItWorksItem",
-  title: "Accordion item",
+  title: "Item",
   type: "object",
   fields: [
     defineField({
@@ -40,7 +40,7 @@ export const howItWorksItem = defineType({
       title: "Anchor",
       type: "slug",
       description:
-        "Used as the accordion item id. Not a URL — How It Works is a single page.",
+        "Used as the item id (page anchor). Not a URL — How It Works is a single page.",
       options: { source: "title", maxLength: 60 },
       validation: (rule) => rule.required(),
     }),
@@ -57,6 +57,18 @@ export const howItWorksItem = defineType({
       title: "Sub-sections",
       type: "array",
       of: [defineArrayMember({ type: "howItWorksSection" })],
+    }),
+    defineField({
+      name: "image",
+      title: "Image",
+      type: "contentImage",
+      description: "Shown above the copy. Landscape 3:2 crops work best.",
+    }),
+    defineField({
+      name: "link",
+      title: "Link",
+      type: "actionLink",
+      description: "Optional underlined link below the copy.",
     }),
   ],
   preview: {

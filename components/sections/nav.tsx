@@ -20,8 +20,8 @@ const links = [
   { label: "Locations", href: "/locations" },
 ];
 
-const TRANSPARENT_HERO_ROUTES = new Set(["/", "/how-it-works"]);
-const SOLID_NAV_ROUTES = new Set(["/challenges"]);
+const TRANSPARENT_HERO_ROUTES = new Set(["/"]);
+const SOLID_NAV_ROUTES = new Set(["/challenges", "/how-it-works"]);
 
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";

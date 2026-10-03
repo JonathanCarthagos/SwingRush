@@ -24,13 +24,16 @@ export interface PageHeroProps
    * Omit it when the image is already graded, or the tint is applied twice.
    */
   tone?: PageHeroTone;
+  /** Breaks the title after its first word below 768px; it stays on one line from tablet up. */
+  stackTitleOnMobile?: boolean;
   imageClassName?: string;
 }
 
-// Mobile stacks the title after its first word; tablet and desktop join it back on one line.
-function stackedTitle(title: string) {
+function stackedTitle(title: string, stack: boolean) {
   const trimmed = title.trim().replace(/\s+/g, " ");
   const breakAt = trimmed.indexOf(" ");
+
+  if (!stack) return trimmed;
 
   if (breakAt === -1) return trimmed;
 
@@ -41,6 +44,7 @@ export function PageHero({
   title,
   image,
   tone,
+  stackTitleOnMobile = false,
   imageClassName = "object-center",
   className,
   ...props
@@ -85,7 +89,7 @@ export function PageHero({
 
       <DisplayHeading
         as="h1"
-        text={stackedTitle(title)}
+        text={stackedTitle(title, stackTitleOnMobile)}
         lineClassName="min-[768px]:inline min-[768px]:not-last:after:content-['\00a0']"
         className="relative z-10 box-border max-w-full px-[0.08em] font-display text-[4rem] leading-[3.375rem] text-white min-[768px]:whitespace-nowrap min-[768px]:text-[clamp(4rem,calc(100vw*200/1680),12.5rem)] min-[768px]:leading-[0.84]"
       />

@@ -77,6 +77,8 @@ export type HowItWorksItem = {
       _key: string;
     } & HowItWorksSection
   >;
+  image?: ContentImage;
+  link?: ActionLink;
 };
 
 export type HomeStory = {
@@ -451,11 +453,12 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: HOME_PAGE_QUERY
-// Query: *[_id == "homePage"][0]{    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{heading, description},    stories[]{      _key,      title,      subtitle,      body,      media,      "image": image{"src": asset->url, alt}    },    cta{      heading,      description,      action{label, href}    }  }
+// Query: *[_id == "homePage"][0]{    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    clubs[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    arena{heading, description},    stories[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    cta{      heading,      description,      action{label, href}    }  }
 export type HOME_PAGE_QUERY_RESULT =
   | {
       seo: null;
       hero: null;
+      clubs: null;
       arena: null;
       stories: null;
       cta: null;
@@ -466,6 +469,7 @@ export type HOME_PAGE_QUERY_RESULT =
         description: string;
       } | null;
       hero: null;
+      clubs: null;
       arena: null;
       stories: null;
       cta: null;
@@ -481,6 +485,7 @@ export type HOME_PAGE_QUERY_RESULT =
         webmSrc: string | null;
         mp4Src: string | null;
       } | null;
+      clubs: null;
       arena: null;
       stories: null;
       cta: null;
@@ -496,6 +501,7 @@ export type HOME_PAGE_QUERY_RESULT =
         webmSrc: string | null;
         mp4Src: string | null;
       } | null;
+      clubs: null;
       arena: {
         heading: string;
         description: string;
@@ -514,6 +520,19 @@ export type HOME_PAGE_QUERY_RESULT =
         webmSrc: string | null;
         mp4Src: string | null;
       } | null;
+      clubs: Array<{
+        _key: string;
+        title: string;
+        subtitle: string;
+        link: {
+          label: string;
+          href: string;
+        };
+        image: {
+          src: string | null;
+          alt: string;
+        };
+      }> | null;
       arena: {
         heading: string;
         description: string;
@@ -525,11 +544,11 @@ export type HOME_PAGE_QUERY_RESULT =
         link: {
           label: string;
           href: string;
-        } | null;
+        };
         image: {
           src: string | null;
           alt: string;
-        } | null;
+        };
       }> | null;
       cta: {
         heading: string;
@@ -544,7 +563,7 @@ export type HOME_PAGE_QUERY_RESULT =
 
 // Source: sanity/lib/queries.ts
 // Variable: HOW_IT_WORKS_PAGE_QUERY
-// Query: *[_id == "howItWorksPage"][0]{    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{heading, description},    introduction,    items[]{      _key,      title,      "slug": slug.current,      content,      sections[]{_key, heading, body}    }  }
+// Query: *[_id == "howItWorksPage"][0]{    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{heading, description},    introduction,    items[]{      _key,      title,      "slug": slug.current,      content,      sections[]{_key, heading, body},      link{label, href},      "image": image{"src": asset->url, alt}    }  }
 export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
   | {
       seo: null;
@@ -622,6 +641,14 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
           heading: string;
           body: string;
         }> | null;
+        link: {
+          label: string;
+          href: string;
+        } | null;
+        image: {
+          src: string | null;
+          alt: string;
+        } | null;
       }> | null;
     }
   | null;
@@ -853,8 +880,8 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
-    '\n  *[_id == "howItWorksPage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
+    '\n  *[_id == "howItWorksPage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;
