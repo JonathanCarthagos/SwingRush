@@ -1,4 +1,5 @@
 import type {
+  LocationStatus,
   LocationDateRange,
   LocationSlug,
 } from "@/types/locations";
@@ -78,6 +79,7 @@ export interface LocationDetailPageContent {
   };
   hero: LocationHeroMedia;
   primaryAction: LocationAction;
+  status: LocationStatus;
   features: readonly LocationFeature[];
   schedule: {
     title: string;

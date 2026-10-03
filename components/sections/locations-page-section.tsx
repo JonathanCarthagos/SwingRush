@@ -1,11 +1,14 @@
 import Link from "next/link";
 
 import { formatLocationDateRange } from "@/lib/format-location-date";
+import {
+  LOCATION_SOLD_OUT_CLASS_NAME,
+  locationActionClassName,
+} from "@/lib/location-action";
 import { cn } from "@/lib/utils";
 import type {
   LocationListItem as LocationListItemData,
   LocationsPageContent,
-  LocationStatus,
 } from "@/types/locations";
 
 export interface LocationsPageSectionProps
@@ -16,8 +19,6 @@ export interface LocationsPageSectionProps
 // Sizes ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
 const TEXT_DATE =
   "text-[1.0625rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:text-[1.5rem]";
-const TEXT_ACTION =
-  "text-[0.875rem] min-[768px]:text-[clamp(0.875rem,calc(0.3125rem+1.172vw),1.25rem)] min-[1280px]:text-[1.25rem]";
 
 export function LocationsPageSection({
   pageContent,
@@ -99,35 +100,19 @@ export function LocationListItem({ location }: LocationListItemProps) {
 
       <span className="flex shrink-0 flex-col items-end min-[1280px]:gap-[0.46856rem]">
         {location.status === "soldOut" ? (
-          <span className="font-body text-[0.875rem] font-medium uppercase leading-[1.7] tracking-[0.03em] text-brand min-[768px]:flex min-[768px]:h-[clamp(1.5rem,calc(3.516vw-0.1875rem),2.625rem)] min-[768px]:items-center min-[768px]:text-[clamp(0.875rem,calc(0.0625rem+1.5625vw),1.5rem)] min-[768px]:leading-[1.3] min-[1280px]:h-[2.625rem] min-[1280px]:text-[1.5rem]">
-            Sold out
-          </span>
+          <span className={LOCATION_SOLD_OUT_CLASS_NAME}>Sold out</span>
         ) : null}
-        <LocationAction status={location.status} label={location.cta.label} />
+        <span
+          className={cn(
+            locationActionClassName(location.status),
+            "mb-1.5 min-[768px]:mb-0",
+            location.status !== "register" &&
+              "group-hover:border-black group-hover:text-black",
+          )}
+        >
+          {location.cta.label}
+        </span>
       </span>
     </Link>
-  );
-}
-
-function LocationAction({
-  status,
-  label,
-}: {
-  status: LocationStatus;
-  label: string;
-}) {
-  return (
-    <span
-      className={cn(
-        TEXT_ACTION,
-        "mb-1.5 flex h-[2.0625rem] w-[8.5625rem] items-center justify-center whitespace-nowrap border font-body font-medium uppercase leading-[1.1] tracking-[0.08em] transition-colors duration-150 motion-reduce:transition-none",
-        "min-[768px]:mb-0 min-[768px]:h-[2.125rem] min-[768px]:w-[clamp(8.5625rem,calc(3.406rem+10.74vw),12rem)] min-[1280px]:w-[12rem] min-[1280px]:border-[1.08px]",
-        status === "register"
-          ? "border-brand bg-brand text-white"
-          : "border-white text-white group-hover:border-black group-hover:text-black",
-      )}
-    >
-      {label}
-    </span>
   );
 }

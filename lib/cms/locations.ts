@@ -283,9 +283,14 @@ function adaptDetail(
       posterSrc: text(raw.hero?.posterSrc) ?? DEFAULT_HERO_MEDIA.posterSrc,
     },
     primaryAction: {
-      label: text(raw.primaryAction?.label) ?? summary.cta.label,
+      // "Register" always follows the status, so a stale CMS label can't contradict it.
+      label:
+        summary.status === "register"
+          ? summary.cta.label
+          : (text(raw.primaryAction?.label) ?? summary.cta.label),
       href: text(raw.primaryAction?.href) ?? `#${TICKET_INFO_ANCHOR}`,
     },
+    status: summary.status,
     features: adaptFeatures(raw),
     schedule: {
       title: text(raw.schedule?.title) ?? "Schedule",

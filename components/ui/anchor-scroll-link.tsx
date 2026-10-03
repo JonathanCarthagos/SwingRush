@@ -5,10 +5,8 @@ import type { AnchorHTMLAttributes, MouseEvent } from "react";
 export type AnchorScrollLinkProps = AnchorHTMLAttributes<HTMLAnchorElement>;
 
 /**
- * The location-detail desktop layout renders a second copy of the
- * ticket-info/volunteer sections (see location-detail-page.tsx), so an
- * in-page hash link can match a hidden mobile node first. This resolves the
- * click to whichever same-id node is actually visible before scrolling.
+ * In-page hash link that scrolls to the first visible node with the target id,
+ * so a hidden duplicate (e.g. a breakpoint-only copy) can never win the match.
  */
 export function AnchorScrollLink({
   href,

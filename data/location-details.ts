@@ -1,4 +1,9 @@
+import { LOCATIONS_PAGE_CONTENT } from "@/data/locations";
 import type { LocationDetailPageContent } from "@/types/location-detail";
+
+const NEW_YORK_SUMMARY = LOCATIONS_PAGE_CONTENT.locations.find(
+  (location) => location.slug === "new-york-city",
+);
 
 const STANDARD_SESSIONS = [
   { startTime: "09:00", endTime: "12:00" },
@@ -40,9 +45,10 @@ export const NEW_YORK_LOCATION_DETAIL = {
     posterSrc: "/images/hero-poster.jpg",
   },
   primaryAction: {
-    label: "Join Waitlist",
+    label: NEW_YORK_SUMMARY?.cta.label ?? "Join Waitlist",
     href: "#ticket-info",
   },
+  status: NEW_YORK_SUMMARY?.status ?? "waitlist",
   features: [],
   schedule: {
     title: "Schedule",

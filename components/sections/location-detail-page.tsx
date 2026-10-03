@@ -1,9 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { LocationVideoHero } from "@/components/sections/location-video-hero";
 import { AnchorScrollLink } from "@/components/ui/anchor-scroll-link";
-import { buttonVariants } from "@/components/ui/button";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import {
   formatLocationDate,
@@ -11,21 +9,41 @@ import {
   formatScheduleDate,
   formatScheduleTime,
 } from "@/lib/format-location-date";
+import {
+  LOCATION_SOLD_OUT_CLASS_NAME,
+  locationActionClassName,
+} from "@/lib/location-action";
 import { cn } from "@/lib/utils";
 import type {
   LocationDetailPageContent,
-  LocationFeature,
   LocationInformationBlock,
   LocationScheduleDay,
   LocationTicketRelease,
 } from "@/types/location-detail";
 import type { LocationListItem } from "@/types/locations";
 
-const displayHeadingClass =
-  "font-display text-[2.5rem] uppercase leading-[2.625rem] [text-wrap:balance]";
+// Used by LocationComingSoon.
 const bodyClass = "font-body text-[1.0625rem] leading-[1.3] tracking-body";
 const textLinkClass =
   "inline-flex min-h-11 touch-manipulation items-start py-1 font-body text-[1.0625rem] font-medium leading-[1.1] underline underline-offset-2 [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
+
+// Type and spacing ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
+const TEXT_BODY =
+  "font-body text-[1.0625rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:text-[1.5rem]";
+const TEXT_SUBHEAD =
+  "font-body text-[1.0625rem] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:text-[1.875rem]";
+const SECTION_HEADING =
+  "font-display text-[2.5rem] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.85]";
+const TEXT_LINK =
+  "inline-flex min-h-[1.8045rem] touch-manipulation items-start font-bold leading-[1.1] underline decoration-[7%] underline-offset-2 [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[1280px]:h-[1.8045rem] min-[1280px]:leading-[1.3]";
+// Title above content below 1280px; title and content side by side (768 + 20 + 768 at 1680) from 1280px.
+const SPLIT_SECTION =
+  "flex flex-col min-[1280px]:grid min-[1280px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] min-[1280px]:items-start min-[1280px]:gap-x-5 min-[1280px]:gap-y-0";
+const SCROLL_MARGIN =
+  "scroll-mt-nav-offset min-[768px]:scroll-mt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:scroll-mt-24";
+// The time column is a share of the row (121.5px at 402, 243px at 1680) so long categories never clip.
+const SCHEDULE_ROW =
+  "grid h-[2.2269rem] grid-cols-[minmax(0,1fr)_33.49%] items-center gap-x-[0.894rem] pl-[0.4472rem] min-[768px]:h-[clamp(2.2269rem,calc(1.442rem+1.635vw),2.75rem)] min-[768px]:grid-cols-[minmax(0,1fr)_32.06%] min-[768px]:gap-x-[clamp(0.894rem,calc(0.359rem+1.113vw),1.25rem)] min-[768px]:pl-[clamp(0.4472rem,calc(0.18rem+0.557vw),0.625rem)] min-[1280px]:h-11 min-[1280px]:gap-x-5 min-[1280px]:pl-[0.625rem]";
 
 export interface LocationDetailPageProps {
   content: LocationDetailPageContent;
@@ -34,307 +52,25 @@ export interface LocationDetailPageProps {
 export function LocationDetailPage({ content }: LocationDetailPageProps) {
   return (
     <main className="flex-1 overflow-x-hidden bg-black text-white">
-      <div className="mx-auto w-full max-w-[25.125rem] min-[1280px]:max-w-none">
-        <LocationVideoHero media={content.hero} title={content.city} />
+      <LocationVideoHero media={content.hero} title={content.city} />
 
-        <div className="px-4 pb-24 pt-8 min-[1280px]:hidden">
+      <div className="mx-auto w-full max-w-[105rem] px-4 py-20 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(5rem,calc(1.25rem+7.8125vw),7.5rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.5rem]">
+        <div className="flex flex-col gap-[3.75rem] min-[768px]:mx-auto min-[768px]:max-w-challenge-tablet-copy min-[768px]:gap-[clamp(3.75rem,calc(13.67vw-2.8125rem),8.125rem)] min-[1280px]:max-w-none min-[1280px]:gap-[8.125rem]">
           <LocationIntroduction content={content} />
-          <LocationFeatures features={content.features} />
-          <LocationSchedule
-            title={content.schedule.title}
-            days={content.schedule.days}
-          />
-          <LocationTicketInfo ticketInfo={content.ticketInfo} />
-          <LocationImportantInformation
-            information={content.importantInformation}
-          />
+
+          <div className="flex flex-col gap-[3.75rem] min-[768px]:gap-[clamp(3.75rem,calc(11.72vw-1.875rem),7.5rem)] min-[1280px]:gap-[7.5rem]">
+            <LocationSchedule
+              title={content.schedule.title}
+              days={content.schedule.days}
+            />
+            <LocationTicketInfo ticketInfo={content.ticketInfo} />
+            <LocationImportantInformation
+              information={content.importantInformation}
+            />
+          </div>
         </div>
       </div>
-
-      <DesktopLocationDetail content={content} />
     </main>
-  );
-}
-
-const desktopHeadingClass =
-  "font-display text-[4.6875rem] uppercase leading-[0.85] text-white";
-const desktopBodyClass =
-  "font-body text-[1.5rem] leading-[1.3] tracking-body text-white";
-const desktopTextLinkClass =
-  "inline-flex font-bold underline decoration-[7%] underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
-
-function DesktopLocationDetail({
-  content,
-}: {
-  content: LocationDetailPageContent;
-}) {
-  return (
-    <div className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter min-[1280px]:block">
-      <div className="flex flex-col gap-[8.125rem] py-[8.125rem]">
-        <DesktopLocationMeta content={content} />
-        <DesktopLocationFeatures features={content.features} />
-        <div className="flex flex-col gap-[7.5rem]">
-          <DesktopLocationSchedule
-            title={content.schedule.title}
-            days={content.schedule.days}
-          />
-          <DesktopLocationTicketInfo ticketInfo={content.ticketInfo} />
-          <DesktopLocationImportantInformation
-            information={content.importantInformation}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DesktopLocationMeta({
-  content,
-}: {
-  content: LocationDetailPageContent;
-}) {
-  return (
-    <div className="flex max-w-[48rem] flex-col gap-6">
-      <div className="flex flex-col items-start gap-6">
-        <p className={desktopBodyClass}>
-          <span className="font-bold">
-            {formatLocationDateRange(content.dates)}
-          </span>
-          <br />
-          {content.venueName}
-        </p>
-        <AnchorScrollLink
-          href={content.primaryAction.href}
-          className={buttonVariants({ variant: "outline-white" })}
-        >
-          {content.primaryAction.label}
-        </AnchorScrollLink>
-      </div>
-      <p className={desktopBodyClass}>{content.introduction}</p>
-    </div>
-  );
-}
-
-function DesktopLocationFeatures({
-  features,
-}: {
-  features: readonly LocationFeature[];
-}) {
-  if (features.length === 0) return null;
-
-  return (
-    <div className="flex flex-col gap-[5.625rem]">
-      {features.map((feature, index) => (
-        <DesktopFeatureRow
-          key={feature.id}
-          feature={feature}
-          reverse={index % 2 === 1}
-        />
-      ))}
-    </div>
-  );
-}
-
-function DesktopFeatureRow({
-  feature,
-  reverse,
-}: {
-  feature: LocationFeature;
-  reverse: boolean;
-}) {
-  return (
-    <article className="grid grid-cols-2 items-center gap-x-16">
-      <div className={reverse ? "order-1" : "order-2"}>
-        <Image
-          src={feature.image.src}
-          alt={feature.image.alt}
-          width={feature.image.width}
-          height={feature.image.height}
-          sizes="(min-width: 1280px) 50vw, 100vw"
-          className="aspect-[3/2] w-full object-cover"
-        />
-      </div>
-      <div
-        className={cn(
-          "flex min-w-0 flex-col gap-[1.125rem]",
-          reverse ? "order-2" : "order-1",
-        )}
-      >
-        <DisplayHeading
-          as="h2"
-          text={feature.title}
-          className={desktopHeadingClass}
-        />
-        <p className={desktopBodyClass}>{feature.description}</p>
-      </div>
-    </article>
-  );
-}
-
-function DesktopLocationSchedule({
-  title,
-  days,
-}: {
-  title: string;
-  days: readonly LocationScheduleDay[];
-}) {
-  if (days.length === 0) return null;
-
-  return (
-    <section
-      aria-labelledby="schedule-title-desktop"
-      className="grid grid-cols-2 items-start gap-x-16"
-    >
-      <DisplayHeading
-        as="h2"
-        id="schedule-title-desktop"
-        text={title}
-        className={desktopHeadingClass}
-      />
-      <div className="flex min-w-0 flex-col gap-[1.875rem]">
-        {days.map((day) => (
-          <div key={day.date}>
-            <h3 className="px-[0.625rem] font-nav text-[1.375rem] font-bold uppercase leading-[1.3] tracking-nav text-white">
-              {formatScheduleDate(day.date)}
-            </h3>
-            <dl className="font-nav text-[1.375rem] uppercase leading-[1.3] tracking-nav text-white">
-              {day.sessions.map((session) => (
-                <div
-                  key={session.id}
-                  className="grid min-h-[1.75rem] grid-cols-[minmax(0,1fr)_auto] gap-5 px-[0.625rem] odd:bg-[#d9d9d9]/20"
-                >
-                  <dt className="min-w-0 break-words">{session.category}</dt>
-                  <dd className="whitespace-nowrap tabular-nums">
-                    {formatScheduleTime(session.startTime)} -{" "}
-                    {formatScheduleTime(session.endTime)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function DesktopLocationTicketInfo({
-  ticketInfo,
-}: {
-  ticketInfo: LocationDetailPageContent["ticketInfo"];
-}) {
-  if (ticketInfo.releases.length === 0) return null;
-
-  return (
-    <section
-      id={ticketInfo.id}
-      aria-labelledby={`${ticketInfo.id}-title-desktop`}
-      className="grid scroll-mt-24 grid-cols-2 items-start gap-x-16"
-    >
-      <DisplayHeading
-        as="h2"
-        id={`${ticketInfo.id}-title-desktop`}
-        text={ticketInfo.title}
-        className={desktopHeadingClass}
-      />
-      <div className="flex min-w-0 flex-col gap-7">
-        {ticketInfo.releases.map((release) => (
-          <DesktopTicketRelease key={release.id} release={release} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function DesktopTicketRelease({ release }: { release: LocationTicketRelease }) {
-  return (
-    <article className={desktopBodyClass}>
-      <h3 className="font-bold">{release.title}</h3>
-      <p>
-        {release.description}
-        <br />
-        <time dateTime={release.releaseDate}>
-          {formatLocationDate(release.releaseDate)}
-        </time>
-      </p>
-      {release.action ? (
-        <AnchorScrollLink
-          href={release.action.href}
-          className={`${desktopTextLinkClass} mt-2`}
-        >
-          {release.action.label}
-        </AnchorScrollLink>
-      ) : null}
-    </article>
-  );
-}
-
-function DesktopLocationImportantInformation({
-  information,
-}: {
-  information: LocationDetailPageContent["importantInformation"];
-}) {
-  const { volunteer } = information;
-
-  if (information.blocks.length === 0 && !volunteer) return null;
-
-  return (
-    <section
-      aria-labelledby="important-info-title-desktop"
-      className="grid grid-cols-2 items-start gap-x-16"
-    >
-      <DisplayHeading
-        as="h2"
-        id="important-info-title-desktop"
-        text={information.title}
-        className={desktopHeadingClass}
-      />
-      <div className="flex min-w-0 flex-col gap-7">
-        {information.blocks.map((block) => (
-          <DesktopInformationBlock key={block.id} block={block} />
-        ))}
-        {volunteer ? (
-          <div id="volunteer" className={`scroll-mt-24 ${desktopBodyClass}`}>
-            <h3 className="font-bold">{volunteer.title}</h3>
-            <p>{volunteer.description}</p>
-            <ul className="list-disc pl-6">
-              {volunteer.benefits.map((benefit) => (
-                <li key={benefit}>{benefit}</li>
-              ))}
-            </ul>
-            <AnchorScrollLink
-              href={volunteer.action.href}
-              className={`${desktopTextLinkClass} mt-2`}
-            >
-              {volunteer.action.label}
-            </AnchorScrollLink>
-          </div>
-        ) : null}
-      </div>
-    </section>
-  );
-}
-
-function DesktopInformationBlock({
-  block,
-}: {
-  block: LocationInformationBlock;
-}) {
-  return (
-    <article className={desktopBodyClass}>
-      <h3 className="font-bold">{block.title}</h3>
-      <p>
-        {block.lines.map((line, index) => (
-          <span key={line} className="block">
-            {index === block.lines.length - 1 && block.id === "location" ? (
-              <span translate="no">{line}</span>
-            ) : (
-              line
-            )}
-          </span>
-        ))}
-      </p>
-    </article>
   );
 }
 
@@ -343,61 +79,55 @@ function LocationIntroduction({
 }: {
   content: LocationDetailPageContent;
 }) {
+  const { primaryAction, status } = content;
+
   return (
-    <header>
+    <header className="flex flex-col">
+      {/* Desktop shows the city in the hero instead. */}
       <DisplayHeading
         as="h1"
         text={content.city}
-        className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[2.625rem] [text-wrap:balance]"
+        className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance] min-[768px]:text-[clamp(3.125rem,calc(0.78125rem+4.8828125vw),4.6875rem)] min-[1280px]:hidden"
       />
 
-      <div className="mt-[0.9375rem] grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-        <p className={bodyClass}>
-          {formatLocationDateRange(content.dates)}
-          <br />
-          {content.venueName}
+      <div className="mt-[0.9375rem] grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 min-[1280px]:mt-0 min-[1280px]:flex min-[1280px]:flex-col min-[1280px]:items-start min-[1280px]:gap-6">
+        <p className={cn(TEXT_SUBHEAD, "leading-[1.3] tracking-body")}>
+          <span className="block min-[1280px]:font-bold">
+            {formatLocationDateRange(content.dates)}
+          </span>
+          <span className="block min-[1280px]:leading-[1.8125rem]">
+            {content.venueName}
+          </span>
         </p>
-        <a
-          href={content.primaryAction.href}
-          className={buttonVariants({ variant: "outline-white" })}
-        >
-          {content.primaryAction.label}
-        </a>
+
+        <div className="flex flex-col items-end min-[1280px]:items-start">
+          {status === "soldOut" ? (
+            <span className={LOCATION_SOLD_OUT_CLASS_NAME}>Sold out</span>
+          ) : null}
+          <AnchorScrollLink
+            href={primaryAction.href}
+            className={cn(
+              locationActionClassName(status),
+              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+              status === "register"
+                ? "hover:border-brand-dark hover:bg-brand-dark"
+                : "hover:bg-white hover:text-black",
+            )}
+          >
+            {primaryAction.label}
+          </AnchorScrollLink>
+        </div>
       </div>
 
-      <p className={`${bodyClass} mt-[1.5625rem]`}>{content.introduction}</p>
+      <p
+        className={cn(
+          TEXT_SUBHEAD,
+          "mt-[1.5625rem] leading-[1.3] tracking-body min-[1280px]:mt-6 min-[1280px]:max-w-[48rem]",
+        )}
+      >
+        {content.introduction}
+      </p>
     </header>
-  );
-}
-
-function LocationFeatures({
-  features,
-}: {
-  features: readonly LocationFeature[];
-}) {
-  if (features.length === 0) return null;
-
-  return (
-    <section aria-label="What to expect" className="mt-[3.375rem] space-y-[1.875rem]">
-      {features.map((feature) => (
-        <article key={feature.id}>
-          <Image
-            src={feature.image.src}
-            alt={feature.image.alt}
-            width={feature.image.width}
-            height={feature.image.height}
-            sizes="(max-width: 479px) calc(100vw - 2rem), 0px"
-            className="aspect-[3/2] w-full object-cover"
-          />
-          <DisplayHeading
-            as="h2"
-            text={feature.title}
-            className={`${displayHeadingClass} mt-2`}
-          />
-          <p className={`${bodyClass} mt-2`}>{feature.description}</p>
-        </article>
-      ))}
-    </section>
   );
 }
 
@@ -411,29 +141,32 @@ function LocationSchedule({
   if (days.length === 0) return null;
 
   return (
-    <section aria-labelledby="schedule-title" className="mt-10">
+    <section
+      aria-labelledby="schedule-title"
+      className={cn(SPLIT_SECTION, "gap-y-[1.125rem]")}
+    >
       <DisplayHeading
         as="h2"
         id="schedule-title"
         text={title}
-        className={displayHeadingClass}
+        className={SECTION_HEADING}
       />
-      <div className="mt-5 space-y-6">
+      <div className="flex min-w-0 flex-col gap-[1.3415rem] font-nav text-[min(0.9375rem,calc((100vw-3.3125rem)/22.5))] uppercase leading-[1.5] tracking-nav min-[768px]:gap-[clamp(1.3415rem,calc(0.6833rem+1.3712vw),1.875rem)] min-[768px]:text-[clamp(0.9375rem,calc(0.28125rem+1.367vw),1.375rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:text-[1.375rem] min-[1280px]:leading-[1.3]">
         {days.map((day) => (
           <section key={day.date} aria-labelledby={`schedule-${day.date}`}>
             <h3
               id={`schedule-${day.date}`}
-              className="px-1 font-nav text-[0.9375rem] font-bold leading-[1.5]"
+              className="flex h-[2.2269rem] items-center pl-[0.4472rem] font-bold min-[768px]:h-[clamp(2.2269rem,calc(1.442rem+1.635vw),2.75rem)] min-[768px]:pl-[clamp(0.4472rem,calc(0.18rem+0.557vw),0.625rem)] min-[1280px]:h-11 min-[1280px]:pl-[0.625rem]"
             >
               {formatScheduleDate(day.date)}
             </h3>
-            <dl className="font-nav text-[0.9375rem] uppercase leading-[1.5]">
+            <dl>
               {day.sessions.map((session) => (
                 <div
                   key={session.id}
-                  className="grid min-h-[1.4375rem] grid-cols-[minmax(0,1fr)_auto] gap-2 px-1 odd:bg-[#d9d9d9]/20"
+                  className={cn(SCHEDULE_ROW, "odd:bg-[#d9d9d9]/20")}
                 >
-                  <dt className="min-w-0 break-words">{session.category}</dt>
+                  <dt className="min-w-0 truncate">{session.category}</dt>
                   <dd className="whitespace-nowrap tabular-nums">
                     {formatScheduleTime(session.startTime)} -{" "}
                     {formatScheduleTime(session.endTime)}
@@ -459,15 +192,15 @@ function LocationTicketInfo({
     <section
       id={ticketInfo.id}
       aria-labelledby={`${ticketInfo.id}-title`}
-      className="scroll-mt-nav-offset mt-10"
+      className={cn(SPLIT_SECTION, SCROLL_MARGIN, "gap-y-[0.9375rem]")}
     >
       <DisplayHeading
         as="h2"
         id={`${ticketInfo.id}-title`}
         text={ticketInfo.title}
-        className={displayHeadingClass}
+        className={SECTION_HEADING}
       />
-      <div className="mt-[0.9375rem] space-y-[0.9375rem]">
+      <div className="flex min-w-0 flex-col gap-[0.9375rem] min-[768px]:gap-[clamp(0.9375rem,calc(2.539vw-0.28125rem),1.75rem)] min-[1280px]:gap-7">
         {ticketInfo.releases.map((release) => (
           <TicketRelease key={release.id} release={release} />
         ))}
@@ -478,8 +211,10 @@ function LocationTicketInfo({
 
 function TicketRelease({ release }: { release: LocationTicketRelease }) {
   return (
-    <article className={bodyClass}>
-      <h3 className="font-medium">{release.title}</h3>
+    <article className={cn(TEXT_BODY, "leading-[1.3] tracking-body")}>
+      <h3 className="font-bold leading-[1.1] min-[1280px]:leading-[1.3]">
+        {release.title}
+      </h3>
       <p>
         {release.description}
         <br />
@@ -488,9 +223,12 @@ function TicketRelease({ release }: { release: LocationTicketRelease }) {
         </time>
       </p>
       {release.action ? (
-        <a href={release.action.href} className={`${textLinkClass} mt-2`}>
+        <AnchorScrollLink
+          href={release.action.href}
+          className={cn(TEXT_LINK, "mt-1 min-[1280px]:mt-2.5")}
+        >
           {release.action.label}
-        </a>
+        </AnchorScrollLink>
       ) : null}
     </article>
   );
@@ -506,35 +244,40 @@ function LocationImportantInformation({
   if (information.blocks.length === 0 && !volunteer) return null;
 
   return (
-    <section aria-labelledby="important-info-title" className="mt-10">
+    <section
+      aria-labelledby="important-info-title"
+      className={cn(SPLIT_SECTION, "gap-y-[0.9375rem]")}
+    >
       <DisplayHeading
         as="h2"
         id="important-info-title"
         text={information.title}
-        className={displayHeadingClass}
+        className={SECTION_HEADING}
       />
-      <div className="mt-[0.9375rem] space-y-[0.9375rem]">
+      <div className="flex min-w-0 flex-col gap-[0.9375rem] min-[768px]:gap-[clamp(0.9375rem,calc(0.4rem+1.119vw),1.2958rem)] min-[1280px]:gap-[1.2958rem]">
         {information.blocks.map((block) => (
           <InformationBlock key={block.id} block={block} />
         ))}
         {volunteer ? (
           <div
             id="volunteer"
-            className={`scroll-mt-nav-offset ${bodyClass}`}
+            className={cn(TEXT_BODY, SCROLL_MARGIN, "leading-[1.3] tracking-body")}
           >
-            <h3 className="font-medium">{volunteer.title}</h3>
+            <h3 className="font-bold leading-[1.1] min-[1280px]:leading-[1.3]">
+              {volunteer.title}
+            </h3>
             <p>{volunteer.description}</p>
             <ul className="list-disc pl-6">
               {volunteer.benefits.map((benefit) => (
                 <li key={benefit}>{benefit}</li>
               ))}
             </ul>
-            <a
+            <AnchorScrollLink
               href={volunteer.action.href}
-              className={`${textLinkClass} mt-2`}
+              className={cn(TEXT_LINK, "mt-2 min-[1280px]:mt-[0.6875rem]")}
             >
               {volunteer.action.label}
-            </a>
+            </AnchorScrollLink>
           </div>
         ) : null}
       </div>
@@ -548,8 +291,10 @@ function InformationBlock({
   block: LocationInformationBlock;
 }) {
   return (
-    <article className={bodyClass}>
-      <h3 className="font-medium">{block.title}</h3>
+    <article className={cn(TEXT_BODY, "leading-[1.3] tracking-body")}>
+      <h3 className="font-bold leading-[1.1] min-[1280px]:leading-[1.3]">
+        {block.title}
+      </h3>
       <p>
         {block.lines.map((line, index) => (
           <span key={line} className="block">
