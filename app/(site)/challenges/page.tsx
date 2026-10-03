@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import { CmsLive } from "@/components/cms/cms-live";
-import { ChallengesHero } from "@/components/sections/challenges-hero";
 import { ChallengesPageSection } from "@/components/sections/challenges-page-section";
 import { Cta } from "@/components/sections/cta";
+import { PageHero } from "@/components/sections/page-hero";
 import { getChallengesPage } from "@/lib/cms/challenges";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,7 +30,13 @@ export default async function ChallengesPage() {
   return (
     <>
       <main className="flex-1 overflow-x-clip bg-black">
-        <ChallengesHero title={title} />
+        <PageHero
+          title={title}
+          image={{
+            mobile: "/images/challenges/hero-mobile.jpg",
+            desktop: "/images/challenges/hero-desktop.jpg",
+          }}
+        />
         <ChallengesPageSection emptyState={emptyState} items={items} />
         <Cta
           variant="inverted"

@@ -353,7 +353,7 @@ export function Nav() {
                 </Link>
               ))}
             </div>
-            <button type="button" aria-disabled="true" tabIndex={-1} className="inline-flex h-[2.125rem] cursor-default items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-black">
+            <button type="button" aria-disabled="true" tabIndex={-1} className="inline-flex h-[2.125rem] cursor-default items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand">
               Sign Up
             </button>
           </nav>
