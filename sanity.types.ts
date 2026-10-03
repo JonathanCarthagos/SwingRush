@@ -201,6 +201,7 @@ export type Location = {
     endDate: string;
   };
   ctaLabel: string;
+  registrationStatus: "waitlist" | "register" | "soldOut";
   detailStatus: "comingSoon" | "complete";
   venueName?: string;
   introduction?: string;
@@ -707,7 +708,7 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
       endDate: string;
     } | null;
     ctaLabel: string;
-    registrationStatus: null;
+    registrationStatus: "register" | "soldOut" | "waitlist";
   }>;
 };
 
@@ -737,7 +738,7 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
   venueName: string | null;
   introduction: string | null;
   ctaLabel: string;
-  registrationStatus: null;
+  registrationStatus: "register" | "soldOut" | "waitlist";
   dates: {
     startDate: string;
     endDate: string;

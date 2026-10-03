@@ -95,6 +95,24 @@ export const location = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "registrationStatus",
+      title: "Registration status",
+      type: "string",
+      group: "content",
+      initialValue: "waitlist",
+      options: {
+        list: [
+          { title: "Join Waitlist", value: "waitlist" },
+          { title: "Register", value: "register" },
+          { title: "Sold out", value: "soldOut" },
+        ],
+        layout: "radio",
+      },
+      description:
+        "Controls the button on the Locations list: waitlist = outlined Join Waitlist; register = red Register button; sold out = red 'Sold out' label above the Join Waitlist button.",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "detailStatus",
       title: "Detail page",
       type: "string",
@@ -238,10 +256,19 @@ export const location = defineType({
       title: "city",
       startDate: "dates.startDate",
       detailStatus: "detailStatus",
+      registrationStatus: "registrationStatus",
     },
-    prepare: ({ title, startDate, detailStatus }) => ({
+    prepare: ({ title, startDate, detailStatus, registrationStatus }) => ({
       title,
-      subtitle: [startDate, detailStatus === "complete" ? "Complete" : "Coming soon"]
+      subtitle: [
+        startDate,
+        registrationStatus === "soldOut"
+          ? "Sold out"
+          : registrationStatus === "register"
+            ? "Register"
+            : "Join Waitlist",
+        detailStatus === "complete" ? "Complete" : "Coming soon",
+      ]
         .filter(Boolean)
         .join(" · "),
     }),
