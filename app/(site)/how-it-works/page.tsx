@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { CmsLive } from "@/components/cms/cms-live";
 import { Cta } from "@/components/sections/cta";
 import { HowItWorksDetailsSection } from "@/components/sections/how-it-works-details-section";
-import { HowItWorksArenaCard } from "@/components/sections/how-it-works-arena-card";
 import { PageHero } from "@/components/sections/page-hero";
 import { getHowItWorksPage } from "@/lib/cms/how-it-works";
 
@@ -39,19 +38,16 @@ export default async function HowItWorksPage() {
             desktop: "/images/how-it-works/hero-desktop.jpg",
           }}
         />
-        <HowItWorksArenaCard
-          heading={hero.arenaHeading}
-          description={hero.arenaDescription}
-        />
+        <HowItWorksDetailsSection items={items} />
         <Cta
           id="how-it-works-arena"
           variant="inverted"
           heading={hero.arenaHeading}
-          description={hero.arenaDescription}
+          mobileDescription={hero.arenaDescription}
+          description="Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?"
           ctaLabel="Sign Up"
-          className="hidden min-[1280px]:flex min-[1280px]:[&_h2]:whitespace-nowrap"
+          className="min-[1280px]:[&>div]:max-w-none min-[1280px]:[&_h2]:whitespace-nowrap"
         />
-        <HowItWorksDetailsSection items={items} />
       </main>
       <CmsLive />
     </>
