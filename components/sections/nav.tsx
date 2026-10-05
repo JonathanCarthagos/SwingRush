@@ -21,7 +21,14 @@ const links = [
 ];
 
 const TRANSPARENT_HERO_ROUTES = new Set(["/"]);
-const SOLID_NAV_ROUTES = new Set(["/challenges", "/how-it-works", "/locations"]);
+const SOLID_NAV_ROUTES = new Set([
+  "/challenges",
+  "/how-it-works",
+  "/locations",
+  "/waitlist",
+  "/privacy-policy",
+  "/terms",
+]);
 
 const BAR_W = "w-[23.907px]";
 const BAR_H = "h-[4.781px]";
@@ -228,7 +235,12 @@ function ScrollThresholdHeaderBackground({
   );
 }
 
-export function Nav() {
+export interface NavProps {
+  /** Forces the solid bar on surfaces with no route of their own, like the 404 page. */
+  solid?: boolean;
+}
+
+export function Nav({ solid = false }: NavProps) {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -238,6 +250,7 @@ export function Nav() {
   const isHeroRoute = TRANSPARENT_HERO_ROUTES.has(pathname);
   // City pages (/locations/<slug>) use the same solid bar as the Locations index.
   const isSolidRoute =
+    solid ||
     SOLID_NAV_ROUTES.has(pathname) || pathname.startsWith("/locations/");
 
   useEffect(() => {
@@ -339,9 +352,9 @@ export function Nav() {
                 </Link>
               ))}
             </div>
-            <button type="button" aria-disabled="true" tabIndex={-1} className="inline-flex h-[2.125rem] cursor-default items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand">
+            <Link href="/waitlist" className="inline-flex h-[2.125rem] items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand">
               Sign Up
-            </button>
+            </Link>
           </nav>
         </div>
       </header>
