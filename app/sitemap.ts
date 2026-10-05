@@ -28,6 +28,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/waitlist`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
     ...locations.map((location) => ({
       url: `${SITE_URL}/locations/${location.slug}`,
       lastModified: location.updatedAt
