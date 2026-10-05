@@ -74,6 +74,14 @@ export const LOCATIONS_PAGE_QUERY = defineQuery(`
   }
 `);
 
+export const WAITLIST_LOCATION_QUERY = defineQuery(`
+  *[_type == "location" && slug.current == $slug][0]{
+    _id,
+    city,
+    "slug": slug.current
+  }
+`);
+
 export const LOCATION_SLUGS_QUERY = defineQuery(`
   *[_type == "location" && defined(slug.current)]|order(sortOrder asc){
     "slug": slug.current

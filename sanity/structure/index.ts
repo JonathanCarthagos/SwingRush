@@ -4,7 +4,7 @@ import { CHALLENGES_PAGE_ID } from "@/sanity/schemaTypes/documents/challenges-pa
 import { HOME_PAGE_ID } from "@/sanity/schemaTypes/documents/home-page";
 import { HOW_IT_WORKS_PAGE_ID } from "@/sanity/schemaTypes/documents/how-it-works-page";
 import { LOCATIONS_PAGE_ID } from "@/sanity/schemaTypes/documents/locations-page";
-import { singletonTypes } from "@/sanity/schemaTypes";
+import { privateDocumentTypes, singletonTypes } from "@/sanity/schemaTypes";
 
 function singleton(
   S: StructureBuilder,
@@ -63,13 +63,25 @@ export const structure: StructureResolver = (S) =>
             .defaultOrdering([{ field: "sortOrder", direction: "asc" }]),
         ),
       S.divider(),
+      S.listItem()
+        .title("Waitlist")
+        .schemaType("waitlistContact")
+        .child(
+          S.documentTypeList("waitlistContact")
+            .title("Waitlist")
+            .defaultOrdering([{ field: "consentedAt", direction: "desc" }]),
+        ),
+      S.divider(),
       ...S.documentTypeListItems().filter((item) => {
         const id = item.getId();
         return (
           id !== undefined &&
           id !== "location" &&
           id !== "challenge" &&
-          !singletonTypes.includes(id as (typeof singletonTypes)[number])
+          !singletonTypes.includes(id as (typeof singletonTypes)[number]) &&
+          !privateDocumentTypes.includes(
+            id as (typeof privateDocumentTypes)[number],
+          )
         );
       }),
     ]);

@@ -69,11 +69,12 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
     }
     if (state.status === "error") {
       const firstInvalid = FIELD_ORDER.find((field) => state.errors[field]);
-      if (firstInvalid) {
-        formRef.current
-          ?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
-          ?.focus();
-      }
+      const target = firstInvalid
+        ? formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
+        : state.errors.optIn
+          ? formRef.current?.querySelector<HTMLElement>('[name="optIn"]')
+          : null;
+      target?.focus();
     }
   }, [state]);
 
@@ -113,7 +114,7 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
         startTransition(() => formAction(formData));
       }}
       noValidate
-      className="mt-[4.375rem] flex w-full max-w-[48.086rem] flex-col items-start min-[768px]:mt-[clamp(3.875rem,calc(5.125rem-1.5625vw),4.375rem)] min-[1280px]:mt-[3.875rem]"
+      className="relative mt-[4.375rem] flex w-full max-w-[48.086rem] flex-col items-start min-[768px]:mt-[clamp(3.875rem,calc(5.125rem-1.5625vw),4.375rem)] min-[1280px]:mt-[3.875rem]"
     >
       <div className={cn("flex w-full flex-col", FIELD_GAP)}>
         <Field
@@ -230,12 +231,51 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
         </Field>
       </div>
 
+      <div aria-hidden="true" className="sr-only">
+        <label>
+          Company
+          <input
+            name="company"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            defaultValue=""
+          />
+        </label>
+      </div>
+
+      <div className="mt-[1.432rem] flex w-full flex-col min-[768px]:mt-[clamp(1.432rem,calc(5.29vw-1.1075rem),3.125rem)] min-[1280px]:mt-[3.125rem]">
+        <label className="flex items-start gap-3 font-body text-[0.9375rem] leading-[1.3] tracking-body text-white min-[768px]:text-[clamp(0.9375rem,calc(0.9766vw+0.46875rem),1.25rem)] min-[1280px]:text-xl">
+          <input
+            id="waitlist-opt-in"
+            name="optIn"
+            type="checkbox"
+            required
+            aria-invalid={errors.optIn ? true : undefined}
+            aria-describedby={errors.optIn ? "waitlist-opt-in-error" : undefined}
+            className="mt-[0.2em] size-4 shrink-0 accent-brand outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-white"
+          />
+          <span>{content.consentLabel}</span>
+        </label>
+        {errors.optIn ? (
+          <p id="waitlist-opt-in-error" role="alert" className={ERROR_TEXT}>
+            {errors.optIn}
+          </p>
+        ) : null}
+      </div>
+
+      {state.status === "error" && state.message ? (
+        <p role="alert" className={ERROR_TEXT}>
+          {state.message}
+        </p>
+      ) : null}
+
       <Button
         type="submit"
         variant="outline-white"
         disabled={isPending}
         aria-busy={isPending || undefined}
-        className="mt-[1.432rem] h-[2.125rem] px-4 py-0 text-[0.875rem] transition-colors duration-150 hover:bg-white hover:text-black min-[768px]:mt-[clamp(1.432rem,calc(5.29vw-1.1075rem),3.125rem)] min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:mt-[3.125rem] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl"
+        className="mt-[1.432rem] h-[2.125rem] px-4 py-0 text-[0.875rem] transition-colors duration-150 hover:bg-white hover:text-black min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl"
       >
         {isPending ? content.pendingLabel : content.submitLabel}
       </Button>

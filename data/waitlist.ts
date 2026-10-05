@@ -7,6 +7,9 @@ export const WAITLIST_PAGE_SEO = {
     "Join the SwingRush waitlist to be notified when we announce event dates and ticket sales.",
 } as const satisfies SeoContent;
 
+export const WAITLIST_CONSENT_TEXT =
+  "I agree to receive marketing emails and SMS updates from SwingRush about event dates and ticket sales. Message frequency varies. Consent is not a condition of purchase.";
+
 export const WAITLIST_PAGE_CONTENT = {
   title: "Become a Swingrusher",
   introduction:
@@ -16,6 +19,7 @@ export const WAITLIST_PAGE_CONTENT = {
     phone: { label: "Phone number", placeholder: "Phone Number" },
     location: { label: "Location", placeholder: "Location" },
   },
+  consentLabel: WAITLIST_CONSENT_TEXT,
   submitLabel: "Join Waitlist",
   pendingLabel: "Joining…",
   success: {
@@ -30,3 +34,9 @@ export const WAITLIST_ERROR_MESSAGES = {
   phone: "Enter a phone number with 10 to 15 digits.",
   location: "Choose the location you want to hear about.",
 } as const satisfies Record<WaitlistField, string>;
+
+export const WAITLIST_OPT_IN_ERROR =
+  "Please agree to receive updates before joining the waitlist.";
+
+export const WAITLIST_SAVE_ERROR =
+  "We couldn't save your signup. Please try again.";

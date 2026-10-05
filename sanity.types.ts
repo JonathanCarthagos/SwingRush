@@ -160,6 +160,31 @@ export type Seo = {
   description: string;
 };
 
+export type LocationReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "location";
+};
+
+export type WaitlistContact = {
+  _id: string;
+  _type: "waitlistContact";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  email: string;
+  phone: string;
+  city: string;
+  location: LocationReference;
+  locationSlug: string;
+  marketingOptIn: boolean;
+  smsOptIn: boolean;
+  consentText: string;
+  consentedAt: string;
+  sourcePath: string;
+};
+
 export type Challenge = {
   _id: string;
   _type: "challenge";
@@ -434,6 +459,8 @@ export type AllSanitySchemaTypes =
   | ContentImage
   | ActionLink
   | Seo
+  | LocationReference
+  | WaitlistContact
   | Challenge
   | Slug
   | Location
@@ -660,6 +687,12 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
 export type LOCATIONS_PAGE_QUERY_RESULT = {
   page:
     | {
+        title: null;
+        introduction: null;
+        emptyState: null;
+        seo: null;
+      }
+    | {
         title: string;
         introduction: null;
         emptyState: null;
@@ -711,6 +744,15 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
     registrationStatus: "register" | "soldOut" | "waitlist";
   }>;
 };
+
+// Source: sanity/lib/queries.ts
+// Variable: WAITLIST_LOCATION_QUERY
+// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current  }
+export type WAITLIST_LOCATION_QUERY_RESULT = {
+  _id: string;
+  city: string;
+  slug: string;
+} | null;
 
 // Source: sanity/lib/queries.ts
 // Variable: LOCATION_SLUGS_QUERY
@@ -819,6 +861,12 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
 export type CHALLENGES_PAGE_QUERY_RESULT = {
   page:
     | {
+        title: null;
+        introduction: null;
+        emptyState: null;
+        seo: null;
+      }
+    | {
         title: string;
         introduction: null;
         emptyState: null;
@@ -886,6 +934,7 @@ declare module "@sanity/client" {
     '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
     '\n  *[_id == "howItWorksPage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel,\n      registrationStatus\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
+    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current\n  }\n': WAITLIST_LOCATION_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;
     '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    registrationStatus,\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;

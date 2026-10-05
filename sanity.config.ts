@@ -9,13 +9,15 @@ import {
 } from "sanity/presentation";
 import { structureTool } from "sanity/structure";
 
-import { schemaTypes, singletonTypes } from "@/sanity/schemaTypes";
+import { waitlistExportTool } from "@/sanity/tools/export-waitlist";
+import { privateDocumentTypes, schemaTypes, singletonTypes } from "@/sanity/schemaTypes";
 import { structure } from "@/sanity/structure";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? "";
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
 
 const SINGLETON_ACTIONS = new Set(["publish", "discardChanges", "restore"]);
+const WAITLIST_ACTIONS = new Set(["delete", "discardChanges"]);
 
 function singletonPageLocations(title: string, href: string) {
   return defineLocations({
@@ -70,6 +72,7 @@ export default defineConfig({
       },
     }),
     visionTool(),
+    waitlistExportTool(),
   ],
   schema: {
     types: schemaTypes,
@@ -78,21 +81,40 @@ export default defineConfig({
         ({ schemaType }) =>
           !singletonTypes.includes(
             schemaType as (typeof singletonTypes)[number],
+          ) &&
+          !privateDocumentTypes.includes(
+            schemaType as (typeof privateDocumentTypes)[number],
           ),
       ),
   },
   document: {
-    actions: (actions, { schemaType }) =>
-      singletonTypes.includes(schemaType as (typeof singletonTypes)[number])
-        ? actions.filter(
-            ({ action }) => (action ? SINGLETON_ACTIONS.has(action) : false),
+    actions: (actions, { schemaType }) => {
+      if (
+        privateDocumentTypes.includes(
+          schemaType as (typeof privateDocumentTypes)[number],
+        )
+      ) {
+        return actions.filter(({ action }) =>
+          action ? WAITLIST_ACTIONS.has(action) : false,
+        );
+      }
+
+      return singletonTypes.includes(
+        schemaType as (typeof singletonTypes)[number],
+      )
+        ? actions.filter(({ action }) =>
+            action ? SINGLETON_ACTIONS.has(action) : false,
           )
-        : actions,
+        : actions;
+    },
     newDocumentOptions: (items) =>
       items.filter(
         ({ templateId }) =>
           !singletonTypes.includes(
             (templateId ?? "") as (typeof singletonTypes)[number],
+          ) &&
+          !privateDocumentTypes.includes(
+            (templateId ?? "") as (typeof privateDocumentTypes)[number],
           ),
       ),
   },

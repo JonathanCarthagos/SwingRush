@@ -4,6 +4,10 @@ import { homePage } from "./documents/home-page";
 import { howItWorksPage } from "./documents/how-it-works-page";
 import { location } from "./documents/location";
 import { locationsPage } from "./documents/locations-page";
+import {
+  WAITLIST_CONTACT_TYPE,
+  waitlistContact,
+} from "./documents/waitlist-contact";
 import { actionLink } from "./objects/action-link";
 import { contentImage } from "./objects/content-image";
 import { ctaBlock } from "./objects/cta-block";
@@ -30,6 +34,8 @@ export const singletonTypes = [
   "challengesPage",
 ] as const;
 
+export const privateDocumentTypes = [WAITLIST_CONTACT_TYPE] as const;
+
 export const schemaTypes = [
   homePage,
   howItWorksPage,
@@ -37,6 +43,7 @@ export const schemaTypes = [
   challengesPage,
   location,
   challenge,
+  waitlistContact,
   seo,
   actionLink,
   contentImage,
