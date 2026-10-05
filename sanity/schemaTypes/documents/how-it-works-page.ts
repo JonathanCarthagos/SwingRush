@@ -14,6 +14,15 @@ export const howItWorksPage = defineType({
   ],
   fields: [
     defineField({
+      name: "title",
+      title: "Page title (H1)",
+      type: "text",
+      rows: 3,
+      group: "content",
+      description:
+        "Shown as the main page heading in the hero. Line breaks create multiple lines.",
+    }),
+    defineField({
       name: "hero",
       title: "Hero",
       type: "videoHero",

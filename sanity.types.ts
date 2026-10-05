@@ -265,6 +265,17 @@ export type Location = {
   seo?: Seo;
 };
 
+export type WaitlistPage = {
+  _id: string;
+  _type: "waitlistPage";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  introduction: string;
+  seo?: Seo;
+};
+
 export type ChallengesPage = {
   _id: string;
   _type: "challengesPage";
@@ -295,6 +306,7 @@ export type HowItWorksPage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  title?: string;
   hero?: VideoHero;
   arena?: HeadlineBlock;
   introduction?: string;
@@ -312,6 +324,7 @@ export type HomePage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
+  title?: string;
   hero?: VideoHero;
   clubs?: Array<
     {
@@ -464,6 +477,7 @@ export type AllSanitySchemaTypes =
   | Challenge
   | Slug
   | Location
+  | WaitlistPage
   | ChallengesPage
   | LocationsPage
   | HowItWorksPage
@@ -481,9 +495,10 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: HOME_PAGE_QUERY
-// Query: *[_id == "homePage"][0]{    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    clubs[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    arena{heading, description},    stories[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    cta{      heading,      description,      action{label, href}    }  }
+// Query: *[_id == "homePage"][0]{    title,    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    clubs[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    arena{heading, description},    stories[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    cta{      heading,      description,      action{label, href}    }  }
 export type HOME_PAGE_QUERY_RESULT =
   | {
+      title: null;
       seo: null;
       hero: null;
       clubs: null;
@@ -492,6 +507,25 @@ export type HOME_PAGE_QUERY_RESULT =
       cta: null;
     }
   | {
+      title: string;
+      seo: null;
+      hero: null;
+      clubs: null;
+      arena: null;
+      stories: null;
+      cta: null;
+    }
+  | {
+      title: string | null;
+      seo: null;
+      hero: null;
+      clubs: null;
+      arena: null;
+      stories: null;
+      cta: null;
+    }
+  | {
+      title: string;
       seo: {
         title: string;
         description: string;
@@ -503,6 +537,7 @@ export type HOME_PAGE_QUERY_RESULT =
       cta: null;
     }
   | {
+      title: null;
       seo: {
         title: string;
         description: string;
@@ -519,6 +554,7 @@ export type HOME_PAGE_QUERY_RESULT =
       cta: null;
     }
   | {
+      title: string | null;
       seo: {
         title: string;
         description: string;
@@ -538,6 +574,7 @@ export type HOME_PAGE_QUERY_RESULT =
       cta: null;
     }
   | {
+      title: string | null;
       seo: {
         title: string;
         description: string;
@@ -591,9 +628,10 @@ export type HOME_PAGE_QUERY_RESULT =
 
 // Source: sanity/lib/queries.ts
 // Variable: HOW_IT_WORKS_PAGE_QUERY
-// Query: *[_id == "howItWorksPage"][0]{    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{heading, description},    introduction,    items[]{      _key,      title,      "slug": slug.current,      content,      sections[]{_key, heading, body},      link{label, href},      "image": image{"src": asset->url, alt}    }  }
+// Query: *[_id == "howItWorksPage"][0]{    title,    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{heading, description},    introduction,    items[]{      _key,      title,      "slug": slug.current,      content,      sections[]{_key, heading, body},      link{label, href},      "image": image{"src": asset->url, alt}    }  }
 export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
   | {
+      title: null;
       seo: null;
       hero: null;
       arena: null;
@@ -601,6 +639,34 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       items: null;
     }
   | {
+      title: string;
+      seo: null;
+      hero: null;
+      arena: null;
+      introduction: null;
+      items: null;
+    }
+  | {
+      title: string | null;
+      seo: null;
+      hero: null;
+      arena: null;
+      introduction: null;
+      items: null;
+    }
+  | {
+      title: string;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+      hero: null;
+      arena: null;
+      introduction: string;
+      items: null;
+    }
+  | {
+      title: string;
       seo: {
         title: string;
         description: string;
@@ -611,6 +677,7 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       items: null;
     }
   | {
+      title: null;
       seo: {
         title: string;
         description: string;
@@ -626,6 +693,7 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       items: null;
     }
   | {
+      title: string | null;
       seo: {
         title: string;
         description: string;
@@ -644,6 +712,7 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       items: null;
     }
   | {
+      title: string | null;
       seo: {
         title: string;
         description: string;
@@ -705,7 +774,7 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
         seo: null;
       }
     | {
-        title: null;
+        title: string | null;
         introduction: null;
         emptyState: null;
         seo: {
@@ -714,7 +783,25 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
         } | null;
       }
     | {
+        title: string;
+        introduction: string;
+        emptyState: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
         title: null;
+        introduction: string | null;
+        emptyState: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
+        title: string | null;
         introduction: string | null;
         emptyState: null;
         seo: {
@@ -744,6 +831,67 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
     registrationStatus: "register" | "soldOut" | "waitlist";
   }>;
 };
+
+// Source: sanity/lib/queries.ts
+// Variable: WAITLIST_PAGE_QUERY
+// Query: *[_id == "waitlistPage"][0]{    title,    introduction,    seo{title, description}  }
+export type WAITLIST_PAGE_QUERY_RESULT =
+  | {
+      title: null;
+      introduction: null;
+      seo: null;
+    }
+  | {
+      title: string;
+      introduction: null;
+      seo: null;
+    }
+  | {
+      title: string | null;
+      introduction: null;
+      seo: null;
+    }
+  | {
+      title: string | null;
+      introduction: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string;
+      introduction: string;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: null;
+      introduction: string | null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string;
+      introduction: string | null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string | null;
+      introduction: string | null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | null;
 
 // Source: sanity/lib/queries.ts
 // Variable: WAITLIST_LOCATION_QUERY
@@ -879,7 +1027,7 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         seo: null;
       }
     | {
-        title: null;
+        title: string | null;
         introduction: null;
         emptyState: null;
         seo: {
@@ -888,7 +1036,25 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         } | null;
       }
     | {
+        title: string;
+        introduction: string;
+        emptyState: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
         title: null;
+        introduction: string | null;
+        emptyState: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
+        title: string | null;
         introduction: string | null;
         emptyState: null;
         seo: {
@@ -931,9 +1097,10 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '\n  *[_id == "homePage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
-    '\n  *[_id == "howItWorksPage"][0]{\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
+    '\n  *[_id == "howItWorksPage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel,\n      registrationStatus\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
+    '\n  *[_id == "waitlistPage"][0]{\n    title,\n    introduction,\n    seo{title, description}\n  }\n': WAITLIST_PAGE_QUERY_RESULT;
     '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current\n  }\n': WAITLIST_LOCATION_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;

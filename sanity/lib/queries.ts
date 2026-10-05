@@ -2,6 +2,7 @@ import { defineQuery } from "next-sanity";
 
 export const HOME_PAGE_QUERY = defineQuery(`
   *[_id == "homePage"][0]{
+    title,
     seo{title, description},
     hero{
       heading,
@@ -34,6 +35,7 @@ export const HOME_PAGE_QUERY = defineQuery(`
 
 export const HOW_IT_WORKS_PAGE_QUERY = defineQuery(`
   *[_id == "howItWorksPage"][0]{
+    title,
     seo{title, description},
     hero{
       heading,
@@ -71,6 +73,14 @@ export const LOCATIONS_PAGE_QUERY = defineQuery(`
       ctaLabel,
       registrationStatus
     }
+  }
+`);
+
+export const WAITLIST_PAGE_QUERY = defineQuery(`
+  *[_id == "waitlistPage"][0]{
+    title,
+    introduction,
+    seo{title, description}
   }
 `);
 

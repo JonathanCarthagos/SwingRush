@@ -4,6 +4,7 @@ import { CHALLENGES_PAGE_ID } from "@/sanity/schemaTypes/documents/challenges-pa
 import { HOME_PAGE_ID } from "@/sanity/schemaTypes/documents/home-page";
 import { HOW_IT_WORKS_PAGE_ID } from "@/sanity/schemaTypes/documents/how-it-works-page";
 import { LOCATIONS_PAGE_ID } from "@/sanity/schemaTypes/documents/locations-page";
+import { WAITLIST_PAGE_ID } from "@/sanity/schemaTypes/documents/waitlist-page";
 import { privateDocumentTypes, singletonTypes } from "@/sanity/schemaTypes";
 
 function singleton(
@@ -42,6 +43,11 @@ export const structure: StructureResolver = (S) =>
                 id: CHALLENGES_PAGE_ID,
                 type: "challengesPage",
                 title: "Challenges Page",
+              }),
+              singleton(S, {
+                id: WAITLIST_PAGE_ID,
+                type: "waitlistPage",
+                title: "Waitlist Page",
               }),
             ]),
         ),

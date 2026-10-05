@@ -60,6 +60,7 @@ function adaptImage(
 }
 
 interface RawHowItWorksPage {
+  title?: string | null;
   seo?: { title?: string | null; description?: string | null } | null;
   hero?: {
     heading?: string | null;
@@ -119,7 +120,8 @@ function adaptHowItWorksPage(
       description: text(raw.seo?.description) ?? fallback.seo.description,
     },
     hero: {
-      heading: text(raw.hero?.heading) ?? fallback.hero.heading,
+      heading:
+        text(raw.title) ?? text(raw.hero?.heading) ?? fallback.hero.heading,
       webmSrc: text(raw.hero?.webmSrc) ?? fallback.hero.webmSrc,
       mp4Src: text(raw.hero?.mp4Src) ?? fallback.hero.mp4Src,
       posterSrc: text(raw.hero?.posterSrc) ?? fallback.hero.posterSrc,

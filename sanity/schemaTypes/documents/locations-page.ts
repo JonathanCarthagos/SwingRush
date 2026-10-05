@@ -15,9 +15,10 @@ export const locationsPage = defineType({
   fields: [
     defineField({
       name: "title",
-      title: "Title",
+      title: "Page title (H1)",
       type: "string",
       group: "content",
+      description: "Shown as the main page heading in the hero.",
       validation: (rule) => rule.required(),
     }),
     defineField({

@@ -1,13 +1,13 @@
-import { OlistIcon } from "@sanity/icons";
+import { EnvelopeIcon } from "@sanity/icons";
 import { defineField, defineType } from "sanity";
 
-export const CHALLENGES_PAGE_ID = "challengesPage";
+export const WAITLIST_PAGE_ID = "waitlistPage";
 
-export const challengesPage = defineType({
-  name: "challengesPage",
-  title: "Challenges Page",
+export const waitlistPage = defineType({
+  name: "waitlistPage",
+  title: "Waitlist Page",
   type: "document",
-  icon: OlistIcon,
+  icon: EnvelopeIcon,
   groups: [
     { name: "content", title: "Content", default: true },
     { name: "seo", title: "SEO" },
@@ -16,9 +16,10 @@ export const challengesPage = defineType({
     defineField({
       name: "title",
       title: "Page title (H1)",
-      type: "string",
+      type: "text",
+      rows: 3,
       group: "content",
-      description: "Shown as the main page heading in the hero.",
+      description: "Shown as the main page heading above the form.",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -27,13 +28,7 @@ export const challengesPage = defineType({
       type: "text",
       rows: 5,
       group: "content",
-    }),
-    defineField({
-      name: "emptyState",
-      title: "Empty state",
-      type: "string",
-      group: "content",
-      description: "Shown when no challenge is published.",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "seo",
@@ -44,6 +39,6 @@ export const challengesPage = defineType({
   ],
   preview: {
     select: { subtitle: "seo.title" },
-    prepare: ({ subtitle }) => ({ title: "Challenges Page", subtitle }),
+    prepare: ({ subtitle }) => ({ title: "Waitlist Page", subtitle }),
   },
 });

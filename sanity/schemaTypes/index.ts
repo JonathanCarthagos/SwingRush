@@ -4,6 +4,7 @@ import { homePage } from "./documents/home-page";
 import { howItWorksPage } from "./documents/how-it-works-page";
 import { location } from "./documents/location";
 import { locationsPage } from "./documents/locations-page";
+import { waitlistPage } from "./documents/waitlist-page";
 import {
   WAITLIST_CONTACT_TYPE,
   waitlistContact,
@@ -32,6 +33,7 @@ export const singletonTypes = [
   "howItWorksPage",
   "locationsPage",
   "challengesPage",
+  "waitlistPage",
 ] as const;
 
 export const privateDocumentTypes = [WAITLIST_CONTACT_TYPE] as const;
@@ -41,6 +43,7 @@ export const schemaTypes = [
   howItWorksPage,
   locationsPage,
   challengesPage,
+  waitlistPage,
   location,
   challenge,
   waitlistContact,

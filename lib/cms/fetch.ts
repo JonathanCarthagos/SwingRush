@@ -1,3 +1,4 @@
+import { draftMode } from "next/headers";
 import type { QueryParams } from "next-sanity";
 
 import { isSanityConfigured } from "@/sanity/env";
@@ -19,11 +20,13 @@ interface CmsFetchOptions extends CmsReadOptions {
 export async function cmsFetch<T>({
   query,
   params,
-  clean = false,
+  clean,
 }: CmsFetchOptions): Promise<T | null> {
   if (!isSanityConfigured) return null;
 
-  const { data } = clean
+  const resolvedClean = clean ?? !(await draftMode()).isEnabled;
+
+  const { data } = resolvedClean
     ? await sanityFetch({
         query,
         params,
