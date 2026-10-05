@@ -19,14 +19,16 @@ import type {
 } from "@/types/waitlist";
 
 // Type and spacing ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
+// Owners Black Italic hangs about 0.35em below the baseline, outside the em box. The line box has to
+// contain that ink, and the field has to be taller than the line or the input clips it.
 const FIELD_GAP =
   "gap-[1.1rem] min-[768px]:gap-[clamp(1.1rem,calc(3.008vw-0.34375rem),2.0625rem)] min-[1280px]:gap-[2.0625rem]";
 const FIELD_BOX =
-  "flex h-[3.2rem] w-full items-center bg-white text-black min-[768px]:h-[clamp(3.2rem,calc(8.75vw-1rem),6rem)] min-[1280px]:h-24";
+  "flex h-[5rem] w-full items-center overflow-visible bg-white text-black min-[768px]:h-[clamp(5rem,calc(12.5vw-1rem),9rem)] min-[1280px]:h-[9rem]";
 const FIELD_INSET =
-  "px-[0.733rem] min-[768px]:px-[clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)] min-[1280px]:px-[1.375rem]";
+  "pr-[0.733rem] pl-[calc(0.733rem+0.12em)] min-[768px]:pr-[clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)] min-[768px]:pl-[calc(clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)+0.12em)] min-[1280px]:pr-[1.375rem] min-[1280px]:pl-[calc(1.375rem+0.12em)]";
 const FIELD_TEXT =
-  "font-display text-[2.5rem] leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem]";
+  "font-display text-[2.5rem] leading-[1.85] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem]";
 // Errors carry a red bar inside the white field; keyboard focus gets a white ring outside it.
 const FIELD_STATES =
   "outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-white aria-invalid:shadow-[inset_0_-0.375rem_0_#f92524]";
@@ -42,6 +44,57 @@ const CHEVRON =
 
 const FIELD_ORDER = ["email", "phone", "location"] as const satisfies readonly WaitlistField[];
 
+// National US format: (404) 555-0134. A leading 1 from autofill is the country code, not part of the number.
+function formatUsPhone(raw: string, previous = "") {
+  let digits = raw.replace(/\D/g, "");
+  const previousDigits = previous.replace(/\D/g, "");
+  if (
+    previous &&
+    digits === previousDigits &&
+    raw.length < previous.length &&
+    digits.length > 0
+  ) {
+    digits = digits.slice(0, -1);
+  }
+  if (digits.startsWith("1") && digits.length > 10) digits = digits.slice(1);
+  digits = digits.slice(0, 10);
+
+  const area = digits.slice(0, 3);
+  const prefix = digits.slice(3, 6);
+  const line = digits.slice(6);
+  if (digits.length === 0) return "";
+  if (digits.length <= 3) return `(${area}`;
+  if (digits.length <= 6) return `(${area}) ${prefix}`;
+  return `(${area}) ${prefix}-${line}`;
+}
+
+function formatPhoneInput(input: HTMLInputElement) {
+  const previous = input.dataset.formatted ?? "";
+  const formatted = formatUsPhone(input.value, previous);
+  input.dataset.formatted = formatted;
+  if (input.value === formatted) return;
+
+  const caretDigits = input.value
+    .slice(0, input.selectionStart ?? input.value.length)
+    .replace(/\D/g, "").length;
+  input.value = formatted;
+
+  let seen = 0;
+  let caret = formatted.length;
+  if (caretDigits === 0) {
+    caret = 0;
+  } else {
+    for (let index = 0; index < formatted.length; index += 1) {
+      if (/\d/.test(formatted[index] ?? "")) seen += 1;
+      if (seen >= caretDigits) {
+        caret = index + 1;
+        break;
+      }
+    }
+  }
+  input.setSelectionRange(caret, caret);
+}
+
 const initialState: WaitlistFormState = { status: "idle" };
 
 export interface WaitlistFormProps {
@@ -56,11 +109,20 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
   );
   const formRef = useRef<HTMLFormElement>(null);
   const successHeadingRef = useRef<HTMLHeadingElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
 
   const errors = state.status === "error" ? state.errors : {};
   const values = state.status === "error" ? state.values : undefined;
   const [location, setLocation] = useState(values?.location ?? "");
+  const [email, setEmail] = useState(values?.email ?? "");
   const selectedLocation = locations.find((option) => option.value === location);
+
+  useEffect(() => {
+    const phoneInput = phoneRef.current;
+    if (phoneInput && phoneInput.dataset.formatted === undefined) {
+      phoneInput.dataset.formatted = phoneInput.value;
+    }
+  }, []);
 
   useEffect(() => {
     if (state.status === "success") {
@@ -122,25 +184,49 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
           label={content.fields.email.label}
           error={errors.email}
         >
-          <input
-            id="waitlist-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            autoCapitalize="none"
-            spellCheck={false}
-            required
-            // A blank native placeholder drives :placeholder-shown; the visual one carries the drawn asterisk.
-            placeholder=" "
-            defaultValue={values?.email}
-            aria-invalid={errors.email ? true : undefined}
-            aria-describedby={describedBy("email")}
-            className={cn("peer", FIELD_BOX, FIELD_INSET, FIELD_TEXT, FIELD_STATES, CONTROL, AUTOFILL)}
-          />
-          <RequiredPlaceholder
-            text={content.fields.email.placeholder}
-            className="peer-placeholder-shown:flex"
-          />
+          {/* The native input clips italic descenders. The visible text is the span; the input stays on top for typing, caret, and autofill. */}
+          <div className={cn(FIELD_BOX, "relative")}>
+            <span
+              aria-hidden="true"
+              className={cn(
+                FIELD_INSET,
+                FIELD_TEXT,
+                "pointer-events-none flex h-full w-full items-center overflow-visible",
+                !email && "invisible",
+                "[@media(scripting:none)]:invisible",
+              )}
+            >
+              {email}
+            </span>
+            <input
+              id="waitlist-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              required
+              // A blank native placeholder drives :placeholder-shown; the visual one carries the drawn asterisk.
+              placeholder=" "
+              defaultValue={values?.email}
+              onInput={(event) => setEmail(event.currentTarget.value)}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={describedBy("email")}
+              className={cn(
+                "peer absolute inset-0 h-full w-full bg-transparent text-transparent [-webkit-text-fill-color:transparent]",
+                FIELD_INSET,
+                FIELD_TEXT,
+                FIELD_STATES,
+                CONTROL,
+                "autofill:bg-transparent autofill:shadow-none autofill:[-webkit-text-fill-color:transparent]",
+                "[@media(scripting:none)]:static [@media(scripting:none)]:bg-white [@media(scripting:none)]:text-black [@media(scripting:none)]:[-webkit-text-fill-color:#000]",
+              )}
+            />
+            <RequiredPlaceholder
+              text={content.fields.email.placeholder}
+              className="peer-placeholder-shown:flex"
+            />
+          </div>
         </Field>
 
         <Field
@@ -149,14 +235,19 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
           error={errors.phone}
         >
           <input
+            ref={phoneRef}
             id="waitlist-phone"
             name="phone"
             type="tel"
             inputMode="tel"
-            autoComplete="tel"
+            autoComplete="tel-national"
             required
             placeholder=" "
-            defaultValue={values?.phone}
+            // Room for a pasted +1 before the mask keeps 10 national digits.
+            maxLength={17}
+            defaultValue={values?.phone ? formatUsPhone(values.phone) : undefined}
+            onInput={(event) => formatPhoneInput(event.currentTarget)}
+            onChange={(event) => formatPhoneInput(event.currentTarget)}
             aria-invalid={errors.phone ? true : undefined}
             aria-describedby={describedBy("phone")}
             className={cn("peer", FIELD_BOX, FIELD_INSET, FIELD_TEXT, FIELD_STATES, CONTROL, AUTOFILL)}
@@ -186,7 +277,7 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
             )}
           >
             {selectedLocation ? (
-              <span className="truncate uppercase [@media(scripting:none)]:invisible">
+              <span className="overflow-visible whitespace-nowrap uppercase [@media(scripting:none)]:invisible">
                 {selectedLocation.label}
               </span>
             ) : (
