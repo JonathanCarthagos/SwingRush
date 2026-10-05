@@ -260,16 +260,18 @@ export function Hero({
         <source type="video/mp4" />
       </video>
 
-      <div className="relative z-10 flex flex-col items-center gap-[1.9375rem] px-4 text-center min-[1280px]:gap-[1.8125rem]">
+      <div className="relative z-10 flex w-full flex-col items-center gap-[1.9375rem] overflow-visible px-4 text-center min-[1280px]:gap-[1.8125rem] min-[1280px]:px-[0.12em]">
         <DisplayHeading
           as="h1"
+          align="center"
           text={heading}
-          className="box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(7rem,12.5vw,10rem)] min-[1280px]:hidden"
+          className="box-border max-w-[calc(100vw-2rem)] whitespace-pre-line font-display text-hero uppercase leading-[0.84] text-white min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(7rem,12.5vw,10rem)] min-[1280px]:hidden"
         />
         <DisplayHeading
           as="h1"
+          align="center"
           text={heading.replace(/\s+/g, " ")}
-          className="box-border hidden max-w-none px-[0.08em] font-display leading-[0.84] text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
+          className="box-border hidden max-w-[calc(100vw-4rem)] font-display uppercase leading-[0.84] whitespace-nowrap text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
         />
         <span
           className={buttonVariants({

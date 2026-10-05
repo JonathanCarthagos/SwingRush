@@ -15,9 +15,10 @@ export function LegalPageSection({ content }: LegalPageSectionProps) {
       <header className="flex flex-col items-center text-center">
         <DisplayHeading
           as="h1"
+          align="center"
           text={title}
           wrap
-          className="box-border max-w-full px-[0.08em] font-display text-[4.375rem] leading-none [text-wrap:balance] min-[768px]:text-[clamp(4.375rem,calc(25.39vw-7.8125rem),12.5rem)] min-[1280px]:text-[12.5rem]"
+          className="box-border max-w-full font-display text-[4.375rem] leading-none [text-wrap:balance] min-[768px]:text-[clamp(4.375rem,calc(25.39vw-7.8125rem),12.5rem)] min-[1280px]:text-[12.5rem]"
         />
         <p className="mt-4 font-body text-[1.0625rem] font-extrabold leading-[1.5] min-[768px]:mt-[clamp(1rem,calc(1.758vw+0.15625rem),1.5625rem)] min-[768px]:text-[clamp(1.0625rem,calc(1.367vw+0.40625rem),1.5rem)] min-[1280px]:mt-[1.5625rem] min-[1280px]:text-2xl">
           {lastPublished.label}:{" "}

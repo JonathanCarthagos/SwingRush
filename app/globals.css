@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #000000;
+  --display-heading-optical-shift: 0.035em;
 }
 
 @theme inline {
@@ -28,4 +29,12 @@ body {
   font-style: italic;
   font-weight: 800;
   font-synthesis: none;
+}
+
+@media (min-width: 768px) {
+  .display-heading--center {
+    padding-left: 0.03em;
+    padding-right: 0.14em;
+    transform: translateX(calc(-1 * var(--display-heading-optical-shift)));
+  }
 }

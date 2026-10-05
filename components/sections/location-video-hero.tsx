@@ -50,8 +50,9 @@ export function LocationVideoHero({ media, title }: LocationVideoHeroProps) {
       <div className="absolute inset-0 z-10 hidden items-center justify-center min-[1280px]:flex">
         <DisplayHeading
           as="h1"
+          align="center"
           text={title}
-          className="box-border max-w-none whitespace-nowrap px-[0.08em] text-center font-display text-[12.5rem] uppercase leading-[0.845] text-white"
+          className="box-border max-w-none whitespace-nowrap font-display text-[12.5rem] uppercase leading-[0.845] text-white"
         />
       </div>
     </section>
