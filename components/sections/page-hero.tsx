@@ -89,10 +89,9 @@ export function PageHero({
 
       <DisplayHeading
         as="h1"
-        align="center"
         text={stackedTitle(title, stackTitleOnMobile)}
         lineClassName="min-[768px]:inline min-[768px]:not-last:after:content-['\00a0']"
-        className="relative z-10 box-border max-w-full font-display text-[4rem] uppercase leading-[3.375rem] text-white min-[768px]:whitespace-nowrap min-[768px]:text-[clamp(4rem,calc(100vw*200/1680),12.5rem)] min-[768px]:leading-[0.84]"
+        className="relative z-10 box-border max-w-full px-[0.08em] font-display text-[4rem] uppercase leading-[3.375rem] text-white min-[768px]:whitespace-nowrap min-[768px]:text-[clamp(4rem,calc(100vw*200/1680),12.5rem)] min-[768px]:leading-[0.84]"
       />
     </section>
   );

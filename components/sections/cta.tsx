@@ -104,21 +104,19 @@ export function Cta({
         <div className="flex w-full flex-col items-center gap-[0.8125rem] min-[768px]:gap-4">
           <DisplayHeading
             as="h2"
-            align="center"
             text={resolvedHeading}
             wrap={styles.headingWrap}
             className={cn(
-              "box-border max-w-[calc(100vw-2rem)] whitespace-pre-line font-display text-[4rem] leading-[3.375rem] [text-wrap:balance] min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(4rem,calc(0.625rem+7.03125vw),6.25rem)] min-[768px]:leading-[clamp(3.375rem,calc(0.5154375rem+5.957421875vw),5.281375rem)] min-[1280px]:hidden",
+              "box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[4rem] leading-[3.375rem] [text-wrap:balance] min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(4rem,calc(0.625rem+7.03125vw),6.25rem)] min-[768px]:leading-[clamp(3.375rem,calc(0.5154375rem+5.957421875vw),5.281375rem)] min-[1280px]:hidden",
               styles.headingClassName,
             )}
           />
           <DisplayHeading
             as="h2"
-            align="center"
             text={desktopHeading}
             wrap={styles.headingWrap}
             className={cn(
-              "hidden font-display min-[1280px]:block min-[1280px]:text-[6.25rem] min-[1280px]:leading-[5.281375rem]",
+              "hidden px-[0.08em] font-display min-[1280px]:block min-[1280px]:text-[6.25rem] min-[1280px]:leading-[5.281375rem]",
               styles.headingClassName,
             )}
           />
