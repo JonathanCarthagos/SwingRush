@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     description: seo.description,
     url: "/terms",
     type: "website",
+    images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
   },
   robots: { index: false, follow: false },
 };

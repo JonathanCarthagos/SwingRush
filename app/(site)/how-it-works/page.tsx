@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seo.description,
       url: "/how-it-works",
       type: "website",
+      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
     },
   };
 }
@@ -46,6 +47,7 @@ export default async function HowItWorksPage() {
           mobileDescription={hero.arenaDescription}
           description="Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?"
           ctaLabel="Sign Up"
+          ctaHref="/locations"
           className="min-[1280px]:[&>div]:max-w-none min-[1280px]:[&_h2]:whitespace-nowrap"
         />
       </main>

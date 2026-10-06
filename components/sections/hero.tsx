@@ -263,19 +263,19 @@ export function Hero({
         <DisplayHeading
           as="h1"
           text={heading}
-          className="box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(7rem,12.5vw,10rem)] min-[1280px]:hidden"
+          className="pointer-events-none box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(7rem,12.5vw,10rem)] min-[1280px]:hidden"
         />
         <DisplayHeading
           as="h1"
           text={heading.replace(/\s+/g, " ")}
-          className="box-border hidden max-w-none px-[0.08em] font-display leading-[0.84] text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
+          className="pointer-events-none box-border hidden max-w-none px-[0.08em] font-display leading-[0.84] text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
         />
         <Link
           href="/locations"
           className={buttonVariants({
             variant: "glass",
             className:
-              "min-[1280px]:h-[2.125rem] min-[1280px]:bg-white/30 min-[1280px]:px-[1.35rem] min-[1280px]:py-0 min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
+              "relative z-10 min-[1280px]:h-[2.125rem] min-[1280px]:bg-white/30 min-[1280px]:px-[1.35rem] min-[1280px]:py-0 min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
           })}
         >
           Sign Up

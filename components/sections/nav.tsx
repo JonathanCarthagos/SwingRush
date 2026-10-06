@@ -352,7 +352,7 @@ export function Nav({ solid = false }: NavProps) {
                 </Link>
               ))}
             </div>
-            <Link href="/waitlist" className="inline-flex h-[2.125rem] items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand">
+            <Link href="/locations" className="inline-flex h-[2.125rem] items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand">
               Sign Up
             </Link>
           </nav>

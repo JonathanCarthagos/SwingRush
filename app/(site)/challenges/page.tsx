@@ -20,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seo.description,
       url: "/challenges",
       type: "website",
+      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
     },
   };
 }
@@ -45,6 +46,7 @@ export default async function ChallengesPage() {
           mobileDescription="Do you have the skills to complete each golf challenge as fast as you can and become a Swingrusher?"
           description="Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?"
           ctaLabel="Sign Up"
+          ctaHref="/locations"
           className="min-[1280px]:[&>div]:max-w-none min-[1280px]:[&_h2]:whitespace-nowrap"
         />
       </main>

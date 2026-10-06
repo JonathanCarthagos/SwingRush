@@ -18,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seo.description,
       url: "/waitlist",
       type: "website",
+      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
     },
   };
 }
