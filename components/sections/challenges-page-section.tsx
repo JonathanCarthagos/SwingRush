@@ -59,8 +59,36 @@ export function ChallengesPageSection({
   useLayoutEffect(() => {
     const applyHash = () => {
       const index = challengeIndexFromHash(window.location.hash, items.length);
-      setRequestedItemId(index === null ? null : items[index].id);
+      const nextId = index === null ? null : items[index].id;
+      setRequestedItemId(nextId);
       setRequestRevealed(boardSettledRef.current);
+      if (!nextId) return;
+
+      const reduce = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (reduce) {
+        const desktop = window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches;
+        const target = desktop
+          ? document.getElementById(`desktop-challenge-panel-${nextId}`)
+          : document.getElementById(`split-flap-trigger-${nextId}`);
+        if (!target || target.getClientRects().length === 0) return;
+
+        const header = document.querySelector("header");
+        const margin = desktop
+          ? Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0
+          : (header?.getBoundingClientRect().height ?? 0) + 12;
+        window.scrollTo(
+          0,
+          Math.max(
+            0,
+            target.getBoundingClientRect().top + window.scrollY - margin,
+          ),
+        );
+        return;
+      }
+
+      window.scrollTo(0, 0);
     };
 
     applyHash();
@@ -170,7 +198,7 @@ export function ChallengesPageSection({
       <DesktopChallenges
         emptyState={emptyState}
         items={items}
-        requestedItemId={requestRevealed ? requestedItemId : null}
+        requestedItemId={requestedItemId}
         onSettled={revealRequestedChallenge}
       />
     </section>
@@ -233,35 +261,44 @@ function DesktopChallenges({
       };
       const margin =
         Number.parseFloat(getComputedStyle(card).scrollMarginTop) || 0;
-      const top = Math.max(
-        0,
-        card.getBoundingClientRect().top + window.scrollY - margin,
-      );
+      const destination = () =>
+        Math.max(
+          0,
+          card.getBoundingClientRect().top + window.scrollY - margin,
+        );
 
       if (shouldReduceMotion) {
-        window.scrollTo(0, top);
+        window.scrollTo(0, destination());
         window.setTimeout(release, 50);
         return;
       }
 
       const start = window.scrollY;
-      const distance = top - start;
-      if (Math.abs(distance) < 1) {
+      const initialDistance = destination() - start;
+      if (Math.abs(initialDistance) < 1) {
         release();
         return;
       }
 
-      const duration = 650;
+      const duration = Math.min(
+        900,
+        Math.max(450, Math.abs(initialDistance) * 0.35),
+      );
       const startTime = performance.now();
       const step = (now: number) => {
         if (scrollTokenRef.current !== token) return;
         const progress = Math.min(1, (now - startTime) / duration);
-        const eased = 1 - (1 - progress) ** 3;
-        window.scrollTo(0, start + distance * eased);
+        const eased =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - (-2 * progress + 2) ** 3 / 2;
+        const nextDestination = destination();
+        window.scrollTo(0, start + (nextDestination - start) * eased);
         if (progress < 1) {
           window.requestAnimationFrame(step);
           return;
         }
+        window.scrollTo(0, destination());
         release();
       };
       window.requestAnimationFrame(step);
@@ -282,7 +319,11 @@ function DesktopChallenges({
 
     syncHash();
     media.addEventListener("change", syncHash);
-    return () => media.removeEventListener("change", syncHash);
+    return () => {
+      media.removeEventListener("change", syncHash);
+      scrollTokenRef.current += 1;
+      ignoreSpyRef.current = false;
+    };
   }, [items, requestedItemId, scrollToItem]);
 
   useEffect(() => {
