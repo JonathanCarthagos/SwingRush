@@ -82,31 +82,10 @@ export function LocationListItem({ location }: LocationListItemProps) {
   const dateLabel = formatLocationDateRange(location.dates);
 
   return (
-    <>
-      <Link
-        href={location.cta.href}
-        className={cn(
-          ROW_CLASS_NAME,
-          "group transition-colors duration-150 hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none min-[1280px]:hidden",
-        )}
-      >
-        <LocationListItemDetails city={location.city} dateLabel={dateLabel} startDate={location.dates.startDate} />
-        <LocationListItemAction
-          cta={location.cta}
-          status={location.status}
-          variant="mobile"
-        />
-      </Link>
-
-      <div className={cn(ROW_CLASS_NAME, "hidden min-[1280px]:flex")}>
-        <LocationListItemDetails city={location.city} dateLabel={dateLabel} startDate={location.dates.startDate} />
-        <LocationListItemAction
-          cta={location.cta}
-          status={location.status}
-          variant="desktop"
-        />
-      </div>
-    </>
+    <div className={ROW_CLASS_NAME}>
+      <LocationListItemDetails city={location.city} dateLabel={dateLabel} startDate={location.dates.startDate} />
+      <LocationListItemAction cta={location.cta} status={location.status} />
+    </div>
   );
 }
 
@@ -142,26 +121,15 @@ function LocationListItemDetails({
 interface LocationListItemActionProps {
   cta: LocationListItemData["cta"];
   status: LocationListItemData["status"];
-  variant: "mobile" | "desktop";
 }
 
-function LocationListItemAction({
-  cta,
-  status,
-  variant,
-}: LocationListItemActionProps) {
+function LocationListItemAction({ cta, status }: LocationListItemActionProps) {
   const actionClassName = cn(
     locationActionClassName(status),
-    "mb-1.5 min-[768px]:mb-0",
-    variant === "mobile" &&
-      status !== "register" &&
-      "group-hover:border-black group-hover:text-black",
-    variant === "desktop" &&
-      "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-    variant === "desktop" &&
-      (status === "register"
-        ? "transition-colors duration-150 hover:border-brand-dark hover:bg-brand-dark motion-reduce:transition-none"
-        : "transition-colors duration-150 hover:bg-white hover:text-black motion-reduce:transition-none"),
+    "mb-1.5 touch-manipulation [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[768px]:mb-0",
+    status === "register"
+      ? "[@media(hover:hover)]:hover:border-brand-dark [@media(hover:hover)]:hover:bg-brand-dark"
+      : "[@media(hover:hover)]:hover:bg-white [@media(hover:hover)]:hover:text-black",
   );
 
   return (
@@ -169,13 +137,9 @@ function LocationListItemAction({
       {status === "soldOut" ? (
         <span className={LOCATION_SOLD_OUT_CLASS_NAME}>Sold out</span>
       ) : null}
-      {variant === "desktop" ? (
-        <Link href={cta.href} className={actionClassName}>
-          {cta.label}
-        </Link>
-      ) : (
-        <span className={actionClassName}>{cta.label}</span>
-      )}
+      <Link href={cta.href} className={actionClassName}>
+        {cta.label}
+      </Link>
     </span>
   );
 }

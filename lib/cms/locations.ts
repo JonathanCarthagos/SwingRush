@@ -270,7 +270,8 @@ function adaptVolunteer(
 }
 
 // A city's own video wins only when both sources are set; a half-uploaded override falls back as a whole
-// so the WebM and MP4 never come from different clips.
+// so the WebM and MP4 never come from different clips. The phone hero is a wide frame, so without a
+// dedicated mobile pair it keeps the landscape clip instead of cropping the portrait Home clip.
 function resolveHero(raw: RawLocationDetail, city: string): LocationHeroMedia {
   const own = raw.hero;
   const shared = raw.shared?.locationHero;
@@ -285,15 +286,16 @@ function resolveHero(raw: RawLocationDetail, city: string): LocationHeroMedia {
     text(own?.posterSrc) ??
     text(shared?.posterSrc) ??
     DEFAULT_HERO_MEDIA.posterSrc;
-  const mobileWebmSrc =
-    text(source?.mobileWebmSrc) ?? DEFAULT_HERO_MEDIA.mobileWebmSrc;
-  const mobileMp4Src =
-    text(source?.mobileMp4Src) ?? DEFAULT_HERO_MEDIA.mobileMp4Src;
-  const mobilePosterSrc =
-    text(source?.mobilePosterSrc) ??
-    text(own?.mobilePosterSrc) ??
-    text(shared?.mobilePosterSrc) ??
-    DEFAULT_HERO_MEDIA.mobilePosterSrc;
+  const mobileWebm = text(source?.mobileWebmSrc);
+  const mobileMp4 = text(source?.mobileMp4Src);
+  const mobile =
+    mobileWebm && mobileMp4
+      ? {
+          webmSrc: mobileWebm,
+          mp4Src: mobileMp4,
+          posterSrc: text(source?.mobilePosterSrc) ?? posterSrc,
+        }
+      : { webmSrc, mp4Src, posterSrc };
 
   return {
     ariaLabel:
@@ -303,9 +305,9 @@ function resolveHero(raw: RawLocationDetail, city: string): LocationHeroMedia {
     webmSrc,
     mp4Src,
     posterSrc,
-    mobileWebmSrc,
-    mobileMp4Src,
-    mobilePosterSrc,
+    mobileWebmSrc: mobile.webmSrc,
+    mobileMp4Src: mobile.mp4Src,
+    mobilePosterSrc: mobile.posterSrc,
   };
 }
 

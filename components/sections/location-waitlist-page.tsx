@@ -24,7 +24,7 @@ export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
         className="min-[1280px]:h-[47.125rem]"
       />
 
-      <div className="mx-auto w-full max-w-[105rem] px-4 py-16 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(0.9375rem,calc(21.29vw-9.28rem),7.75rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.75rem]">
+      <div className="mx-auto w-full max-w-[105rem] px-4 pt-4 pb-16 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(0.9375rem,calc(21.29vw-9.28rem),7.75rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.75rem]">
         <div className="flex max-w-[48.086rem] flex-col">
           <DisplayHeading
             as="h1"

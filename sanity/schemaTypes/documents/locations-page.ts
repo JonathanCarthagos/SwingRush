@@ -42,7 +42,7 @@ export const locationsPage = defineType({
       type: "videoHero",
       group: "cityPages",
       description:
-        "Plays at the top of every city page. Uses the same desktop and mobile videos as Home until a city sets its own Hero video.",
+        "Plays at the top of every city page until a city sets its own Hero video. Upload the landscape video: phones play it too. The mobile video is optional and should also be landscape, because the city hero is a wide frame on every screen.",
     }),
     defineField({
       name: "defaultIntroduction",

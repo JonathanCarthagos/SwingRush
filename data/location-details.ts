@@ -43,9 +43,9 @@ export const NEW_YORK_LOCATION_DETAIL = {
     webmSrc: "/videos/hero-desktop.webm",
     mp4Src: "/videos/hero-desktop.mp4",
     posterSrc: "/images/hero-desktop-poster.jpg",
-    mobileWebmSrc: "/videos/hero-mobile.webm",
-    mobileMp4Src: "/videos/hero-mobile.mp4",
-    mobilePosterSrc: "/images/hero-mobile-poster.jpg",
+    mobileWebmSrc: "/videos/hero-desktop.webm",
+    mobileMp4Src: "/videos/hero-desktop.mp4",
+    mobilePosterSrc: "/images/hero-desktop-poster.jpg",
   },
   primaryAction: {
     label: NEW_YORK_SUMMARY?.cta.label ?? "Join Waitlist",
