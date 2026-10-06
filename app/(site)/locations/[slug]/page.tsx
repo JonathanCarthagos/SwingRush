@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import {
-  LocationComingSoon,
-  LocationDetailPage,
-} from "@/components/sections/location-detail-page";
+import { LocationDetailPage } from "@/components/sections/location-detail-page";
+import { LocationWaitlistPage } from "@/components/sections/location-waitlist-page";
 import { getLocationRoute, getLocationSlugs } from "@/lib/cms/locations";
 
 interface LocationPageProps {
@@ -26,17 +24,8 @@ export async function generateMetadata({
     return { title: "Location Not Found" };
   }
 
-  if (route.status === "complete") {
-    return {
-      title: route.detail.seo.title,
-      description: route.detail.seo.description,
-    };
-  }
-
-  return {
-    title: route.summary.city,
-    description: `SwingRush event details for ${route.summary.city} are coming soon.`,
-  };
+  const { seo } = route.status === "sales" ? route.detail : route.waitlist;
+  return { title: seo.title, description: seo.description };
 }
 
 export default async function LocationPage({ params }: LocationPageProps) {
@@ -47,13 +36,9 @@ export default async function LocationPage({ params }: LocationPageProps) {
     notFound();
   }
 
-  if (route.status === "complete") {
+  if (route.status === "sales") {
     return <LocationDetailPage content={route.detail} />;
   }
 
-  return (
-    <>
-      <LocationComingSoon location={route.summary} />
-    </>
-  );
+  return <LocationWaitlistPage content={route.waitlist} />;
 }

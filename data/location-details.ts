@@ -40,9 +40,12 @@ export const NEW_YORK_LOCATION_DETAIL = {
   },
   hero: {
     ariaLabel: "SwingRush New York arena preview",
-    webmSrc: "/videos/Sizzzle%20one.webm",
-    mp4Src: "/videos/Sizzzle%20one.mp4",
-    posterSrc: "/images/hero-poster.jpg",
+    webmSrc: "/videos/hero-desktop.webm",
+    mp4Src: "/videos/hero-desktop.mp4",
+    posterSrc: "/images/hero-desktop-poster.jpg",
+    mobileWebmSrc: "/videos/hero-mobile.webm",
+    mobileMp4Src: "/videos/hero-mobile.mp4",
+    mobilePosterSrc: "/images/hero-mobile-poster.jpg",
   },
   primaryAction: {
     label: NEW_YORK_SUMMARY?.cta.label ?? "Join Waitlist",

@@ -1,5 +1,9 @@
 import { getLocationDetailMock } from "@/data/location-details";
-import { LOCATIONS_PAGE_CONTENT, LOCATIONS_PAGE_SEO } from "@/data/locations";
+import {
+  DEFAULT_LOCATION_INTRODUCTION,
+  LOCATIONS_PAGE_CONTENT,
+  LOCATIONS_PAGE_SEO,
+} from "@/data/locations";
 import { DEFAULT_FEATURE_IMAGE_SIZE, DEFAULT_HERO_MEDIA } from "@/data/media";
 import { cmsFetch, type CmsReadOptions } from "@/lib/cms/fetch";
 import { compact, isoDate, isoTime, text, toId } from "@/lib/cms/utils";
@@ -12,6 +16,8 @@ import {
 import type {
   LocationDetailPageContent,
   LocationFeature,
+  LocationHeroMedia,
+  LocationWaitlistContent,
   LocationInformationBlock,
   LocationScheduleDay,
   LocationTicketRelease,
@@ -55,16 +61,25 @@ interface RawLocationsPage {
   locations?: RawLocationSummary[] | null;
 }
 
+interface RawHeroMedia {
+  ariaLabel?: string | null;
+  posterSrc?: string | null;
+  webmSrc?: string | null;
+  mp4Src?: string | null;
+  mobilePosterSrc?: string | null;
+  mobileWebmSrc?: string | null;
+  mobileMp4Src?: string | null;
+}
+
 interface RawLocationDetail extends RawLocationSummary {
   detailStatus?: string | null;
   venueName?: string | null;
   introduction?: string | null;
   seo?: { title?: string | null; description?: string | null } | null;
-  hero?: {
-    ariaLabel?: string | null;
-    posterSrc?: string | null;
-    webmSrc?: string | null;
-    mp4Src?: string | null;
+  hero?: RawHeroMedia | null;
+  shared?: {
+    locationHero?: RawHeroMedia | null;
+    defaultIntroduction?: string | null;
   } | null;
   primaryAction?: RawAction | null;
   features?:
@@ -254,6 +269,76 @@ function adaptVolunteer(
   };
 }
 
+// A city's own video wins only when both sources are set; a half-uploaded override falls back as a whole
+// so the WebM and MP4 never come from different clips.
+function resolveHero(raw: RawLocationDetail, city: string): LocationHeroMedia {
+  const own = raw.hero;
+  const shared = raw.shared?.locationHero;
+  const hasSources = (media: RawHeroMedia | null | undefined) =>
+    Boolean(text(media?.webmSrc) && text(media?.mp4Src));
+  const source = hasSources(own) ? own : hasSources(shared) ? shared : undefined;
+
+  const webmSrc = text(source?.webmSrc) ?? DEFAULT_HERO_MEDIA.webmSrc;
+  const mp4Src = text(source?.mp4Src) ?? DEFAULT_HERO_MEDIA.mp4Src;
+  const posterSrc =
+    text(source?.posterSrc) ??
+    text(own?.posterSrc) ??
+    text(shared?.posterSrc) ??
+    DEFAULT_HERO_MEDIA.posterSrc;
+  const mobileWebmSrc =
+    text(source?.mobileWebmSrc) ?? DEFAULT_HERO_MEDIA.mobileWebmSrc;
+  const mobileMp4Src =
+    text(source?.mobileMp4Src) ?? DEFAULT_HERO_MEDIA.mobileMp4Src;
+  const mobilePosterSrc =
+    text(source?.mobilePosterSrc) ??
+    text(own?.mobilePosterSrc) ??
+    text(shared?.mobilePosterSrc) ??
+    DEFAULT_HERO_MEDIA.mobilePosterSrc;
+
+  return {
+    ariaLabel:
+      text(own?.ariaLabel) ??
+      text(source?.ariaLabel) ??
+      `SwingRush ${city} arena preview`,
+    webmSrc,
+    mp4Src,
+    posterSrc,
+    mobileWebmSrc,
+    mobileMp4Src,
+    mobilePosterSrc,
+  };
+}
+
+function adaptIntroduction(raw: RawLocationDetail) {
+  return (
+    text(raw.introduction) ??
+    text(raw.shared?.defaultIntroduction) ??
+    DEFAULT_LOCATION_INTRODUCTION
+  );
+}
+
+function adaptWaitlist(
+  raw: RawLocationDetail,
+  summary: LocationListItem,
+): LocationWaitlistContent {
+  const venueName = text(raw.venueName);
+
+  return {
+    slug: summary.slug,
+    city: summary.city,
+    ...(venueName ? { venueName } : {}),
+    dates: summary.dates,
+    introduction: adaptIntroduction(raw),
+    seo: {
+      title: text(raw.seo?.title) ?? summary.city,
+      description:
+        text(raw.seo?.description) ??
+        `Join the SwingRush ${summary.city} waitlist to hear first when tickets go on sale.`,
+    },
+    hero: resolveHero(raw, summary.city),
+  };
+}
+
 function adaptDetail(
   raw: RawLocationDetail,
 ): LocationDetailPageContent | undefined {
@@ -268,20 +353,14 @@ function adaptDetail(
     city: summary.city,
     venueName: text(raw.venueName) ?? "",
     dates: summary.dates,
-    introduction: text(raw.introduction) ?? "",
+    introduction: adaptIntroduction(raw),
     seo: {
       title: text(raw.seo?.title) ?? summary.city,
       description:
         text(raw.seo?.description) ??
         `SwingRush event details for ${summary.city}.`,
     },
-    hero: {
-      ariaLabel:
-        text(raw.hero?.ariaLabel) ?? `SwingRush ${summary.city} arena preview`,
-      webmSrc: text(raw.hero?.webmSrc) ?? DEFAULT_HERO_MEDIA.webmSrc,
-      mp4Src: text(raw.hero?.mp4Src) ?? DEFAULT_HERO_MEDIA.mp4Src,
-      posterSrc: text(raw.hero?.posterSrc) ?? DEFAULT_HERO_MEDIA.posterSrc,
-    },
+    hero: resolveHero(raw, summary.city),
     primaryAction: {
       // "Register" always follows the status, so a stale CMS label can't contradict it.
       label:
@@ -378,18 +457,29 @@ export async function getLocationSitemapEntries(): Promise<
 }
 
 export type LocationRoute =
-  | { status: "complete"; detail: LocationDetailPageContent }
-  | { status: "comingSoon"; summary: LocationListItem };
+  | { status: "sales"; detail: LocationDetailPageContent }
+  | { status: "waitlist"; waitlist: LocationWaitlistContent };
 
 function mockLocationRoute(slug: string): LocationRoute | null {
   const detail = getLocationDetailMock(slug);
-  if (detail) return { status: "complete", detail };
+  if (detail?.status === "register") return { status: "sales", detail };
 
   const summary = LOCATIONS_PAGE_CONTENT.locations.find(
     (location) => location.slug === slug,
   );
+  if (!summary) return null;
 
-  return summary ? { status: "comingSoon", summary } : null;
+  return {
+    status: "waitlist",
+    waitlist: adaptWaitlist(
+      {
+        _id: summary.slug,
+        venueName: detail?.venueName,
+        introduction: detail?.introduction,
+      },
+      summary,
+    ),
+  };
 }
 
 export async function getLocationRoute(
@@ -407,31 +497,13 @@ export async function getLocationRoute(
   const summary = adaptSummary(raw);
   if (!summary) return null;
 
-  if (raw.detailStatus !== "complete") {
-    return { status: "comingSoon", summary };
-  }
+  // The full sales page only opens once tickets are on sale; every other city collects waitlist signups.
+  const detail =
+    summary.status === "register" && raw.detailStatus === "complete"
+      ? adaptDetail(raw)
+      : undefined;
 
-  const detail = adaptDetail(raw);
-  if (!detail) return { status: "comingSoon", summary };
-
-  const mock = getLocationDetailMock(summary.slug);
-  if (
-    mock &&
-    (!detail.hero.webmSrc || !detail.hero.mp4Src || !detail.hero.posterSrc)
-  ) {
-    return {
-      status: "complete",
-      detail: {
-        ...detail,
-        hero: {
-          ...detail.hero,
-          webmSrc: detail.hero.webmSrc || mock.hero.webmSrc,
-          mp4Src: detail.hero.mp4Src || mock.hero.mp4Src,
-          posterSrc: detail.hero.posterSrc || mock.hero.posterSrc,
-        },
-      },
-    };
-  }
-
-  return { status: "complete", detail };
+  return detail
+    ? { status: "sales", detail }
+    : { status: "waitlist", waitlist: adaptWaitlist(raw, summary) };
 }

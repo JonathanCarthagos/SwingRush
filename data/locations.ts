@@ -11,6 +11,9 @@ export const LOCATIONS_PAGE_SEO = {
   description: "Explore SwingRush events across cities.",
 } as const satisfies SeoContent;
 
+export const DEFAULT_LOCATION_INTRODUCTION =
+  "This is it - the inaugural SwingRush. The first time anybody will see 10 one-of-a-kind skills challenges. The first time anybody will play the arena golf gauntlet. The first time a golf skills champion will be crowned.";
+
 const APRIL_DATES = {
   startDate: "2027-04-08",
   endDate: "2027-04-11",

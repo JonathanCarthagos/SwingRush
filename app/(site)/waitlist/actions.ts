@@ -22,7 +22,15 @@ import type {
 } from "@/types/waitlist";
 
 const WAITLIST_SOURCE_PATH = "/waitlist";
+const LOCATION_SOURCE_PATH = /^\/locations\/[a-z0-9-]+$/;
 const HONEYPOT_FIELD = "company";
+
+function readSourcePath(formData: FormData) {
+  const value = formData.get("sourcePath");
+  return typeof value === "string" && LOCATION_SOURCE_PATH.test(value)
+    ? value
+    : WAITLIST_SOURCE_PATH;
+}
 
 function readValues(formData: FormData): WaitlistFormValues {
   const read = (key: WaitlistField) => {
@@ -134,7 +142,7 @@ export async function joinWaitlist(
       smsOptIn: true,
       consentText: WAITLIST_CONSENT_TEXT,
       consentedAt: new Date().toISOString(),
-      sourcePath: WAITLIST_SOURCE_PATH,
+      sourcePath: readSourcePath(formData),
     });
   } catch (error) {
     const statusCode =

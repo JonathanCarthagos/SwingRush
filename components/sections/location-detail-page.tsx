@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { LocationVideoHero } from "@/components/sections/location-video-hero";
 import { AnchorScrollLink } from "@/components/ui/anchor-scroll-link";
 import { DisplayHeading } from "@/components/ui/display-heading";
@@ -20,12 +18,6 @@ import type {
   LocationScheduleDay,
   LocationTicketRelease,
 } from "@/types/location-detail";
-import type { LocationListItem } from "@/types/locations";
-
-// Used by LocationComingSoon.
-const bodyClass = "font-body text-[1.0625rem] leading-[1.3] tracking-body";
-const textLinkClass =
-  "inline-flex min-h-11 touch-manipulation items-start py-1 font-body text-[1.0625rem] font-medium leading-[1.1] underline underline-offset-2 [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 // Type and spacing ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
 const TEXT_BODY =
@@ -307,50 +299,5 @@ function InformationBlock({
         ))}
       </p>
     </article>
-  );
-}
-
-export interface LocationComingSoonProps {
-  location: LocationListItem;
-}
-
-export function LocationComingSoon({ location }: LocationComingSoonProps) {
-  return (
-    <main className="flex min-h-dvh flex-1 bg-black px-4 pb-24 pt-nav-offset text-white min-[1280px]:px-0 min-[1280px]:pb-0 min-[1280px]:pt-0">
-      <div className="mx-auto w-full max-w-[25.125rem] pt-12 min-[1280px]:hidden">
-        <DisplayHeading
-          as="h1"
-          text={location.city}
-          className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance]"
-        />
-        <p className={`${bodyClass} mt-4`}>
-          {formatLocationDateRange(location.dates)}
-        </p>
-        <p className={`${bodyClass} mt-8`}>Event details are coming soon.</p>
-        <Link href="/locations" className={`${textLinkClass} mt-4`}>
-          View All Locations
-        </Link>
-      </div>
-
-      <div className="mx-auto hidden w-full max-w-[105rem] flex-col items-start justify-center px-desktop-gutter pb-24 pt-24 min-[1280px]:flex">
-        <DisplayHeading
-          as="h1"
-          text={location.city}
-          className="box-border max-w-full px-[0.08em] font-display text-location-city-desktop uppercase"
-        />
-        <p className="mt-6 font-body text-location-meta-desktop text-white">
-          {formatLocationDateRange(location.dates)}
-        </p>
-        <p className="mt-10 font-body text-location-meta-desktop text-white">
-          Event details are coming soon.
-        </p>
-        <Link
-          href="/locations"
-          className="mt-6 inline-flex font-body text-location-meta-desktop font-bold text-white underline decoration-[7%] underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-        >
-          View All Locations
-        </Link>
-      </div>
-    </main>
   );
 }

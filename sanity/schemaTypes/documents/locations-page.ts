@@ -10,6 +10,7 @@ export const locationsPage = defineType({
   icon: PinIcon,
   groups: [
     { name: "content", title: "Content", default: true },
+    { name: "cityPages", title: "City pages" },
     { name: "seo", title: "SEO" },
   ],
   fields: [
@@ -34,6 +35,22 @@ export const locationsPage = defineType({
       type: "string",
       group: "content",
       description: "Shown when no location is published.",
+    }),
+    defineField({
+      name: "locationHero",
+      title: "City page hero video",
+      type: "videoHero",
+      group: "cityPages",
+      description:
+        "Plays at the top of every city page. Uses the same desktop and mobile videos as Home until a city sets its own Hero video.",
+    }),
+    defineField({
+      name: "defaultIntroduction",
+      title: "Default city introduction",
+      type: "text",
+      rows: 5,
+      group: "cityPages",
+      description: "Shown on a city page when that city has no Introduction of its own.",
     }),
     defineField({
       name: "seo",

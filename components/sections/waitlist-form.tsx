@@ -25,6 +25,9 @@ const FIELD_GAP =
   "gap-[1.1rem] min-[768px]:gap-[clamp(1.1rem,calc(3.008vw-0.34375rem),2.0625rem)] min-[1280px]:gap-[2.0625rem]";
 const FIELD_BOX =
   "flex h-[5rem] w-full items-center overflow-visible bg-white text-black min-[768px]:h-[clamp(5rem,calc(12.5vw-1rem),9rem)] min-[1280px]:h-[9rem]";
+// City pages draw shorter fields (51px to 96px). The line box overflows them, so both inputs use the drawn text.
+const FIELD_BOX_COMPACT =
+  "flex h-[3.1956rem] w-full items-center overflow-visible bg-white text-black min-[768px]:h-[clamp(3.1956rem,calc(8.752vw-1.005rem),5.9963rem)] min-[1280px]:h-[5.9963rem]";
 const FIELD_INSET =
   "pr-[0.733rem] pl-[calc(0.733rem+0.12em)] min-[768px]:pr-[clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)] min-[768px]:pl-[calc(clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)+0.12em)] min-[1280px]:pr-[1.375rem] min-[1280px]:pl-[calc(1.375rem+0.12em)]";
 const FIELD_TEXT =
@@ -100,9 +103,17 @@ const initialState: WaitlistFormState = { status: "idle" };
 export interface WaitlistFormProps {
   content: WaitlistPageContent;
   locations: readonly WaitlistLocationOption[];
+  /** Locks the signup to one city: the location picker is replaced by a hidden field and the fields get the compact city-page size. */
+  fixedLocation?: { slug: string; sourcePath: string };
+  className?: string;
 }
 
-export function WaitlistForm({ content, locations }: WaitlistFormProps) {
+export function WaitlistForm({
+  content,
+  locations,
+  fixedLocation,
+  className,
+}: WaitlistFormProps) {
   const [state, formAction, isPending] = useActionState(
     joinWaitlist,
     initialState,
@@ -115,7 +126,17 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
   const values = state.status === "error" ? state.values : undefined;
   const [location, setLocation] = useState(values?.location ?? "");
   const [email, setEmail] = useState(values?.email ?? "");
+  const [phone, setPhone] = useState(
+    values?.phone ? formatUsPhone(values.phone) : "",
+  );
   const selectedLocation = locations.find((option) => option.value === location);
+  const compact = Boolean(fixedLocation);
+  const fieldBox = compact ? FIELD_BOX_COMPACT : FIELD_BOX;
+  // A fixed city can only fail validation if it was unpublished mid-visit; surface that as a form message.
+  const formMessage =
+    state.status === "error"
+      ? (state.message ?? (compact ? errors.location : undefined))
+      : undefined;
 
   useEffect(() => {
     const phoneInput = phoneRef.current;
@@ -145,7 +166,13 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
       <div
         aria-live="polite"
         // Holds the form's height so the footer doesn't jump when the confirmation replaces it.
-        className="mt-[4.375rem] min-h-[15.357rem] max-w-[48.086rem] min-[768px]:mt-[clamp(3.875rem,calc(5.125rem-1.5625vw),4.375rem)] min-[768px]:min-h-[clamp(15.357rem,calc(37.56vw-2.67rem),27.375rem)] min-[1280px]:mt-[3.875rem] min-[1280px]:min-h-[27.375rem]"
+        className={cn(
+          "max-w-[48.086rem]",
+          compact
+            ? "min-h-[13rem] min-[1280px]:min-h-[19rem]"
+            : "mt-[4.375rem] min-h-[15.357rem] min-[768px]:mt-[clamp(3.875rem,calc(5.125rem-1.5625vw),4.375rem)] min-[768px]:min-h-[clamp(15.357rem,calc(37.56vw-2.67rem),27.375rem)] min-[1280px]:mt-[3.875rem] min-[1280px]:min-h-[27.375rem]",
+          className,
+        )}
       >
         <h2
           ref={successHeadingRef}
@@ -176,8 +203,20 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
         startTransition(() => formAction(formData));
       }}
       noValidate
-      className="relative mt-[4.375rem] flex w-full max-w-[48.086rem] flex-col items-start min-[768px]:mt-[clamp(3.875rem,calc(5.125rem-1.5625vw),4.375rem)] min-[1280px]:mt-[3.875rem]"
+      className={cn(
+        "relative flex w-full max-w-[48.086rem] flex-col items-start",
+        !compact &&
+          "mt-[4.375rem] min-[768px]:mt-[clamp(3.875rem,calc(5.125rem-1.5625vw),4.375rem)] min-[1280px]:mt-[3.875rem]",
+        className,
+      )}
     >
+      {fixedLocation ? (
+        <>
+          <input type="hidden" name="location" value={fixedLocation.slug} />
+          <input type="hidden" name="sourcePath" value={fixedLocation.sourcePath} />
+        </>
+      ) : null}
+
       <div className={cn("flex w-full flex-col", FIELD_GAP)}>
         <Field
           field="email"
@@ -185,7 +224,7 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
           error={errors.email}
         >
           {/* The native input clips italic descenders. The visible text is the span; the input stays on top for typing, caret, and autofill. */}
-          <div className={cn(FIELD_BOX, "relative")}>
+          <div className={cn(fieldBox, "relative")}>
             <span
               aria-hidden="true"
               className={cn(
@@ -234,30 +273,85 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
           label={content.fields.phone.label}
           error={errors.phone}
         >
-          <input
-            ref={phoneRef}
-            id="waitlist-phone"
-            name="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel-national"
-            required
-            placeholder=" "
-            // Room for a pasted +1 before the mask keeps 10 national digits.
-            maxLength={17}
-            defaultValue={values?.phone ? formatUsPhone(values.phone) : undefined}
-            onInput={(event) => formatPhoneInput(event.currentTarget)}
-            onChange={(event) => formatPhoneInput(event.currentTarget)}
-            aria-invalid={errors.phone ? true : undefined}
-            aria-describedby={describedBy("phone")}
-            className={cn("peer", FIELD_BOX, FIELD_INSET, FIELD_TEXT, FIELD_STATES, CONTROL, AUTOFILL)}
-          />
-          <RequiredPlaceholder
-            text={content.fields.phone.placeholder}
-            className="peer-placeholder-shown:flex"
-          />
+          {compact ? (
+            <div className={cn(fieldBox, "relative")}>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  FIELD_INSET,
+                  FIELD_TEXT,
+                  "pointer-events-none flex h-full w-full items-center overflow-visible whitespace-nowrap",
+                  !phone && "invisible",
+                  "[@media(scripting:none)]:invisible",
+                )}
+              >
+                {phone}
+              </span>
+              <input
+                ref={phoneRef}
+                id="waitlist-phone"
+                name="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                required
+                placeholder=" "
+                maxLength={17}
+                defaultValue={values?.phone ? formatUsPhone(values.phone) : undefined}
+                onInput={(event) => {
+                  formatPhoneInput(event.currentTarget);
+                  setPhone(event.currentTarget.value);
+                }}
+                onChange={(event) => {
+                  formatPhoneInput(event.currentTarget);
+                  setPhone(event.currentTarget.value);
+                }}
+                aria-invalid={errors.phone ? true : undefined}
+                aria-describedby={describedBy("phone")}
+                className={cn(
+                  "peer absolute inset-0 h-full w-full bg-transparent text-transparent [-webkit-text-fill-color:transparent]",
+                  FIELD_INSET,
+                  FIELD_TEXT,
+                  FIELD_STATES,
+                  CONTROL,
+                  "autofill:bg-transparent autofill:shadow-none autofill:[-webkit-text-fill-color:transparent]",
+                  "[@media(scripting:none)]:static [@media(scripting:none)]:bg-white [@media(scripting:none)]:text-black [@media(scripting:none)]:[-webkit-text-fill-color:#000]",
+                )}
+              />
+              <RequiredPlaceholder
+                text={content.fields.phone.placeholder}
+                className="peer-placeholder-shown:flex"
+              />
+            </div>
+          ) : (
+            <>
+              <input
+                ref={phoneRef}
+                id="waitlist-phone"
+                name="phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel-national"
+                required
+                placeholder=" "
+                // Room for a pasted +1 before the mask keeps 10 national digits.
+                maxLength={17}
+                defaultValue={values?.phone ? formatUsPhone(values.phone) : undefined}
+                onInput={(event) => formatPhoneInput(event.currentTarget)}
+                onChange={(event) => formatPhoneInput(event.currentTarget)}
+                aria-invalid={errors.phone ? true : undefined}
+                aria-describedby={describedBy("phone")}
+                className={cn("peer", FIELD_BOX, FIELD_INSET, FIELD_TEXT, FIELD_STATES, CONTROL, AUTOFILL)}
+              />
+              <RequiredPlaceholder
+                text={content.fields.phone.placeholder}
+                className="peer-placeholder-shown:flex"
+              />
+            </>
+          )}
         </Field>
 
+        {fixedLocation ? null : (
         <Field
           field="location"
           label={content.fields.location.label}
@@ -320,6 +414,7 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
             ))}
           </select>
         </Field>
+        )}
       </div>
 
       <div aria-hidden="true" className="sr-only">
@@ -355,9 +450,9 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
         ) : null}
       </div>
 
-      {state.status === "error" && state.message ? (
+      {formMessage ? (
         <p role="alert" className={ERROR_TEXT}>
-          {state.message}
+          {formMessage}
         </p>
       ) : null}
 
@@ -366,7 +461,11 @@ export function WaitlistForm({ content, locations }: WaitlistFormProps) {
         variant="outline-white"
         disabled={isPending}
         aria-busy={isPending || undefined}
-        className="mt-[1.432rem] h-[2.125rem] px-4 py-0 text-[0.875rem] transition-colors duration-150 hover:bg-white hover:text-black min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl"
+        className={cn(
+          "mt-[1.432rem] h-[2.125rem] px-4 py-0 text-[0.875rem] transition-colors duration-150 hover:bg-white hover:text-black min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl",
+          compact &&
+            "min-[768px]:mt-[clamp(1.432rem,calc(3.926vw-0.4525rem),2.6875rem)] min-[1280px]:mt-[2.6875rem]",
+        )}
       >
         {isPending ? content.pendingLabel : content.submitLabel}
       </Button>

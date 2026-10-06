@@ -17,6 +17,9 @@ export interface LocationHeroMedia {
   webmSrc: string;
   mp4Src: string;
   posterSrc: string;
+  mobileWebmSrc: string;
+  mobileMp4Src: string;
+  mobilePosterSrc: string;
 }
 
 export interface LocationFeatureImage {
@@ -64,6 +67,19 @@ export interface LocationVolunteerInformation {
   description: string;
   benefits: readonly string[];
   action: LocationAction;
+}
+
+export interface LocationWaitlistContent {
+  slug: LocationSlug;
+  city: string;
+  venueName?: string;
+  dates: LocationDateRange;
+  introduction: string;
+  seo: {
+    title: string;
+    description: string;
+  };
+  hero: LocationHeroMedia;
 }
 
 export interface LocationDetailPageContent {

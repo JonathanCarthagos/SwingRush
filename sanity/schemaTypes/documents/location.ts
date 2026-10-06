@@ -126,15 +126,14 @@ export const location = defineType({
         layout: "radio",
       },
       description:
-        "Coming soon shows only the city and dates. Complete renders the full detail page.",
+        "Every city shows the waitlist page. Complete switches to the full sales page (schedule, tickets, information) once Registration status is Register.",
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: "venueName",
       title: "Venue",
       type: "string",
-      group: "detail",
-      hidden: hiddenUnlessComplete,
+      group: "content",
       validation: (rule) => rule.custom(requiredWhenComplete),
     }),
     defineField({
@@ -142,16 +141,17 @@ export const location = defineType({
       title: "Introduction",
       type: "text",
       rows: 5,
-      group: "detail",
-      hidden: hiddenUnlessComplete,
+      group: "content",
+      description: "Leave empty to use the default introduction from the Locations Page.",
       validation: (rule) => rule.custom(requiredWhenComplete),
     }),
     defineField({
       name: "hero",
-      title: "Hero",
+      title: "Hero video",
       type: "videoHero",
-      group: "detail",
-      hidden: hiddenUnlessComplete,
+      group: "content",
+      description:
+        "Optional. Replaces the shared city page hero video from the Locations Page. Upload desktop and mobile WebM and MP4 files, plus posters, when a city needs its own clip.",
     }),
     defineField({
       name: "primaryAction",

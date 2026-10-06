@@ -121,7 +121,10 @@ export const LOCATION_BY_SLUG_QUERY = defineQuery(`
       ariaLabel,
       "posterSrc": poster.asset->url,
       "webmSrc": webm.asset->url,
-      "mp4Src": mp4.asset->url
+      "mp4Src": mp4.asset->url,
+      "mobilePosterSrc": mobilePoster.asset->url,
+      "mobileWebmSrc": mobileWebm.asset->url,
+      "mobileMp4Src": mobileMp4.asset->url
     },
     primaryAction{label, href},
     features[]{
@@ -162,6 +165,18 @@ export const LOCATION_BY_SLUG_QUERY = defineQuery(`
         benefits,
         action{label, href}
       }
+    },
+    "shared": *[_id == "locationsPage"][0]{
+      locationHero{
+        ariaLabel,
+        "posterSrc": poster.asset->url,
+        "webmSrc": webm.asset->url,
+        "mp4Src": mp4.asset->url,
+        "mobilePosterSrc": mobilePoster.asset->url,
+        "mobileWebmSrc": mobileWebm.asset->url,
+        "mobileMp4Src": mobileMp4.asset->url
+      },
+      defaultIntroduction
     }
   }
 `);
