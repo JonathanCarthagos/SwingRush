@@ -545,13 +545,13 @@ function ChallengeDetails({ item }: { item: ChallengeItem }) {
       </div>
 
       <dl className="mt-8 grid grid-cols-2 gap-x-6 text-white">
-        <div className="min-w-0">
+        <div className="min-w-0 space-y-[1.75rem]">
           <ChallengeDatum label="Club" value={item.club} />
           <ChallengeDatum label="Shot" value={item.shot} />
           <ChallengeDatum label="Distance" value={item.distance} />
         </div>
 
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-[1.75rem]">
           <ChallengeDatum
             label="Target Height"
             value={`OPEN = ${item.targetHeight.open}\nELITE = ${item.targetHeight.elite}`}
@@ -562,7 +562,7 @@ function ChallengeDetails({ item }: { item: ChallengeItem }) {
         <ChallengeDatum
           label="Description"
           value={item.description}
-          className="col-span-2"
+          className="col-span-2 mt-[1.4063rem]"
         />
       </dl>
     </div>
