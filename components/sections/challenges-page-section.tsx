@@ -1,12 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-  type Variants,
-} from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import {
   useCallback,
   useEffect,
@@ -28,47 +23,7 @@ import { CHALLENGES_PAGE_CONTENT } from "@/data/challenges";
 import { cn } from "@/lib/utils";
 import type { ChallengeItem } from "@/types/challenges";
 
-const PANEL_EASE: [number, number, number, number] = [
-  0.23, 1, 0.32, 1,
-];
-
-interface PanelMotionContext {
-  animate: boolean;
-  direction: -1 | 1;
-  reduce: boolean;
-}
-
-const panelVariants: Variants = {
-  initial: ({ animate, direction, reduce }: PanelMotionContext) => ({
-    opacity: animate ? 0 : 1,
-    filter: animate && !reduce ? "blur(2px)" : "blur(0px)",
-    transform:
-      animate && !reduce
-        ? `translateY(${direction * 8}px)`
-        : "translateY(0px)",
-  }),
-  animate: ({ animate, reduce }: PanelMotionContext) => ({
-    opacity: 1,
-    filter: "blur(0px)",
-    transform: "translateY(0px)",
-    transition: {
-      duration: animate ? (reduce ? 0.12 : 0.2) : 0,
-      ease: PANEL_EASE,
-    },
-  }),
-  exit: ({ animate, direction, reduce }: PanelMotionContext) => ({
-    opacity: animate ? 0 : 1,
-    filter: animate && !reduce ? "blur(2px)" : "blur(0px)",
-    transform:
-      animate && !reduce
-        ? `translateY(${direction * -6}px)`
-        : "translateY(0px)",
-    transition: {
-      duration: animate ? 0.12 : 0,
-      ease: PANEL_EASE,
-    },
-  }),
-};
+const DESKTOP_CHALLENGES_QUERY = "(min-width: 1280px)";
 
 export interface ChallengesPageSectionProps
   extends React.HTMLAttributes<HTMLElement> {
@@ -119,6 +74,8 @@ export function ChallengesPageSection({
     const section = sectionRef.current;
     if (!section) return;
 
+    if (window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) return;
+
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -141,6 +98,7 @@ export function ChallengesPageSection({
 
   useEffect(() => {
     if (!requestRevealed || !requestedItemId) return;
+    if (window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) return;
 
     setOpenItemId(requestedItemId);
 
@@ -185,7 +143,7 @@ export function ChallengesPageSection({
     <section
       ref={sectionRef}
       className={cn(
-        "bg-black px-4 py-16 text-white min-[1280px]:px-0",
+        "bg-black px-4 py-16 text-white min-[1280px]:px-0 min-[1280px]:py-0",
         className,
       )}
       {...props}
@@ -233,15 +191,13 @@ function DesktopChallenges({
   onSettled,
 }: DesktopChallengesProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const [selection, setSelection] = useState<{
-    activeItemId: string | null;
-    animate: boolean;
-    direction: -1 | 1;
-  }>({
-    activeItemId: items[0]?.id ?? null,
-    animate: false,
-    direction: 1,
-  });
+  const cardRefs = useRef(new Map<string, HTMLElement>());
+  const ignoreSpyRef = useRef(false);
+  const scrollTokenRef = useRef(0);
+  const [activeItemId, setActiveItemId] = useState<string | null>(
+    items[0]?.id ?? null,
+  );
+  const [animateSelection, setAnimateSelection] = useState(false);
 
   const navigationItems = useMemo<SplitFlapNavigationItem[]>(
     () =>
@@ -261,51 +217,129 @@ function DesktopChallenges({
       }),
     [items],
   );
-  const resolvedActiveIndex = Math.max(
-    0,
-    items.findIndex((item) => item.id === selection.activeItemId),
+
+  const scrollToItem = useCallback(
+    (itemId: string) => {
+      const card = cardRefs.current.get(itemId);
+      if (!card || card.getClientRects().length === 0) return;
+      if (!window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) return;
+
+      const token = scrollTokenRef.current + 1;
+      scrollTokenRef.current = token;
+      ignoreSpyRef.current = true;
+      const release = () => {
+        if (scrollTokenRef.current !== token) return;
+        ignoreSpyRef.current = false;
+      };
+      const margin =
+        Number.parseFloat(getComputedStyle(card).scrollMarginTop) || 0;
+      const top = Math.max(
+        0,
+        card.getBoundingClientRect().top + window.scrollY - margin,
+      );
+
+      if (shouldReduceMotion) {
+        window.scrollTo(0, top);
+        window.setTimeout(release, 50);
+        return;
+      }
+
+      const start = window.scrollY;
+      const distance = top - start;
+      if (Math.abs(distance) < 1) {
+        release();
+        return;
+      }
+
+      const duration = 650;
+      const startTime = performance.now();
+      const step = (now: number) => {
+        if (scrollTokenRef.current !== token) return;
+        const progress = Math.min(1, (now - startTime) / duration);
+        const eased = 1 - (1 - progress) ** 3;
+        window.scrollTo(0, start + distance * eased);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+          return;
+        }
+        release();
+      };
+      window.requestAnimationFrame(step);
+    },
+    [shouldReduceMotion],
   );
-  const activeItem = items[resolvedActiveIndex] ?? null;
 
   useEffect(() => {
-    if (!requestedItemId) return;
+    const media = window.matchMedia(DESKTOP_CHALLENGES_QUERY);
+    const syncHash = () => {
+      if (!media.matches || !requestedItemId) return;
+      if (!items.some((item) => item.id === requestedItemId)) return;
 
-    const nextIndex = items.findIndex((item) => item.id === requestedItemId);
-    if (nextIndex < 0) return;
+      setActiveItemId(requestedItemId);
+      setAnimateSelection(true);
+      scrollToItem(requestedItemId);
+    };
 
-    setSelection((current) => {
-      const currentIndex = Math.max(
-        0,
-        items.findIndex((item) => item.id === current.activeItemId),
+    syncHash();
+    media.addEventListener("change", syncHash);
+    return () => media.removeEventListener("change", syncHash);
+  }, [items, requestedItemId, scrollToItem]);
+
+  useEffect(() => {
+    const media = window.matchMedia(DESKTOP_CHALLENGES_QUERY);
+    let observer: IntersectionObserver | null = null;
+
+    const connect = () => {
+      observer?.disconnect();
+      observer = null;
+      if (!media.matches) return;
+
+      const cards = items
+        .map((item) => cardRefs.current.get(item.id))
+        .filter((card): card is HTMLElement => card !== undefined);
+      if (cards.length === 0) return;
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (ignoreSpyRef.current) return;
+
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort(
+              (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
+            );
+          const nextId = visible[0]?.target.getAttribute("data-challenge-id");
+          if (!nextId) return;
+
+          setAnimateSelection(false);
+          setActiveItemId(nextId);
+        },
+        {
+          rootMargin: "-115.2px 0px -70% 0px",
+          threshold: [0, 0.25, 0.5],
+        },
       );
-      if (nextIndex === currentIndex) return current;
 
-      return {
-        activeItemId: requestedItemId,
-        animate: true,
-        direction: nextIndex > currentIndex ? 1 : -1,
-      };
-    });
-  }, [items, requestedItemId]);
+      for (const card of cards) observer.observe(card);
+    };
+
+    connect();
+    media.addEventListener("change", connect);
+    return () => {
+      media.removeEventListener("change", connect);
+      observer?.disconnect();
+    };
+  }, [items]);
 
   const selectItem = (
     itemId: string,
     source: SplitFlapSelectionSource,
   ) => {
-    const nextIndex = items.findIndex((item) => item.id === itemId);
-    if (nextIndex < 0 || nextIndex === resolvedActiveIndex) return;
+    if (!items.some((item) => item.id === itemId)) return;
 
-    setSelection({
-      activeItemId: itemId,
-      animate: source === "pointer",
-      direction: nextIndex > resolvedActiveIndex ? 1 : -1,
-    });
-  };
-
-  const motionContext: PanelMotionContext = {
-    animate: selection.animate,
-    direction: selection.direction,
-    reduce: shouldReduceMotion,
+    setActiveItemId(itemId);
+    setAnimateSelection(source === "pointer");
+    scrollToItem(itemId);
   };
 
   const navigationStyle = {
@@ -318,15 +352,15 @@ function DesktopChallenges({
   return (
     <div
       data-challenges-desktop
-      className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter min-[1280px]:block"
+      className="mx-auto hidden w-full max-w-[105rem] px-[clamp(4.375rem,5.476vw,5.75rem)] py-[clamp(7.5rem,8.929vw,9.375rem)] min-[1280px]:block"
     >
       {items.length > 0 ? (
-        <div className="grid w-full grid-cols-[minmax(0,40.874%)_minmax(0,35.733%)] items-start gap-x-[18.188%]">
-          <aside className="min-w-0">
+        <div className="grid w-full grid-cols-[minmax(0,43.186%)_minmax(0,37.695%)] items-start gap-x-[19.119%]">
+          <aside className="sticky top-[7.2rem] min-w-0 self-start">
             <SplitFlapNavigationBoard
               items={navigationItems}
-              activeItemId={activeItem?.id ?? null}
-              animateSelection={selection.animate}
+              activeItemId={activeItemId}
+              animateSelection={animateSelection}
               onSelect={selectItem}
               onSettled={onSettled}
               className="w-full"
@@ -334,30 +368,24 @@ function DesktopChallenges({
             />
           </aside>
 
-          <div className="min-h-[clamp(42rem,48.5vw,49rem)] min-w-0">
-            <AnimatePresence
-              initial={false}
-              mode="wait"
-              custom={motionContext}
-            >
-              {activeItem && (
-                <motion.div
-                  key={activeItem.id}
-                  id={`desktop-challenge-panel-${activeItem.id}`}
-                  role="tabpanel"
-                  aria-labelledby={`desktop-challenge-tab-${activeItem.id}`}
-                  tabIndex={0}
-                  custom={motionContext}
-                  variants={panelVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
-                >
-                  <DesktopChallengePanel item={activeItem} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="flex min-w-0 flex-col gap-4">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                id={`desktop-challenge-panel-${item.id}`}
+                data-challenge-id={item.id}
+                ref={(element) => {
+                  if (element) cardRefs.current.set(item.id, element);
+                  else cardRefs.current.delete(item.id);
+                }}
+                role="tabpanel"
+                aria-labelledby={`desktop-challenge-tab-${item.id}`}
+                tabIndex={0}
+                className="scroll-mt-[7.2rem] min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+              >
+                <DesktopChallengePanel item={item} />
+              </div>
+            ))}
           </div>
         </div>
       ) : (
@@ -387,7 +415,7 @@ function DesktopChallengePanel({
           src={item.image}
           alt={item.imageAlt}
           fill
-          sizes="(min-width: 1680px) 556px, (min-width: 1280px) 36vw, 0px"
+          sizes="(min-width: 1680px) 556px, (min-width: 1280px) 38vw, 0px"
           className="scale-[1.12] object-contain [object-position:46%_50%]"
         />
       </div>

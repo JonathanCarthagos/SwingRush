@@ -1174,7 +1174,7 @@ export function SplitFlapAccordionBoard({
                 aria-controls={contentId}
                 aria-label={item.accessibleLabel}
                 onClick={() => onToggle(item.id)}
-                className="block min-h-11 w-full touch-manipulation rounded-[0.25rem] py-px text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="block min-h-11 w-full cursor-pointer touch-manipulation rounded-[0.25rem] py-px text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 <div aria-hidden="true">
                   <ClockedOrStaticRow
@@ -1355,7 +1355,7 @@ export function SplitFlapNavigationBoard({
               onKeyDown={(event) =>
                 selectFromKeyboard(event, rowIndex)
               }
-              className="block w-full touch-manipulation rounded-[0.25rem] text-left focus-visible:relative focus-visible:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              className="block w-full cursor-pointer touch-manipulation rounded-[0.25rem] text-left focus-visible:relative focus-visible:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
             >
               <div aria-hidden="true">
                 <ClockedOrStaticRow
