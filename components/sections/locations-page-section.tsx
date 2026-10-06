@@ -75,44 +75,107 @@ export interface LocationListItemProps {
   location: LocationListItemData;
 }
 
+const ROW_CLASS_NAME =
+  "flex touch-manipulation items-end justify-between gap-4 py-2.5 [-webkit-tap-highlight-color:transparent] min-[768px]:gap-6 min-[768px]:py-[clamp(0.625rem,calc(1.707vw-0.1944rem),1.1714rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:py-[1.1714rem]";
+
 export function LocationListItem({ location }: LocationListItemProps) {
   const dateLabel = formatLocationDateRange(location.dates);
 
   return (
-    <Link
-      href={location.cta.href}
-      className="group flex touch-manipulation items-end justify-between gap-4 py-2.5 transition-colors duration-150 [-webkit-tap-highlight-color:transparent] hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none min-[768px]:gap-6 min-[768px]:py-[clamp(0.625rem,calc(1.707vw-0.1944rem),1.1714rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:py-[1.1714rem]"
-    >
-      <span className="flex min-w-0 flex-1 flex-col gap-1 min-[768px]:gap-[clamp(0.25rem,calc(0.0625rem+0.4vw),0.46856rem)] min-[1280px]:gap-[0.46856rem]">
-        <h2
-          className="break-words font-display text-[min(2.5rem,calc((100vw-11.5625rem)/5.4))] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[1.0533]"
-          translate="no"
-        >
-          {location.city}
-        </h2>
-        <time
-          dateTime={location.dates.startDate}
-          className={cn(TEXT_DATE, "font-body leading-[1.3] tracking-body min-[768px]:min-h-[2.125rem]")}
-        >
-          {dateLabel}
-        </time>
-      </span>
+    <>
+      <Link
+        href={location.cta.href}
+        className={cn(
+          ROW_CLASS_NAME,
+          "group transition-colors duration-150 hover:bg-white hover:text-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none min-[1280px]:hidden",
+        )}
+      >
+        <LocationListItemDetails city={location.city} dateLabel={dateLabel} startDate={location.dates.startDate} />
+        <LocationListItemAction
+          cta={location.cta}
+          status={location.status}
+          variant="mobile"
+        />
+      </Link>
 
-      <span className="flex shrink-0 flex-col items-end min-[1280px]:gap-[0.46856rem]">
-        {location.status === "soldOut" ? (
-          <span className={LOCATION_SOLD_OUT_CLASS_NAME}>Sold out</span>
-        ) : null}
-        <span
-          className={cn(
-            locationActionClassName(location.status),
-            "mb-1.5 min-[768px]:mb-0",
-            location.status !== "register" &&
-              "group-hover:border-black group-hover:text-black",
-          )}
-        >
-          {location.cta.label}
-        </span>
-      </span>
-    </Link>
+      <div className={cn(ROW_CLASS_NAME, "hidden min-[1280px]:flex")}>
+        <LocationListItemDetails city={location.city} dateLabel={dateLabel} startDate={location.dates.startDate} />
+        <LocationListItemAction
+          cta={location.cta}
+          status={location.status}
+          variant="desktop"
+        />
+      </div>
+    </>
+  );
+}
+
+interface LocationListItemDetailsProps {
+  city: string;
+  dateLabel: string;
+  startDate: string;
+}
+
+function LocationListItemDetails({
+  city,
+  dateLabel,
+  startDate,
+}: LocationListItemDetailsProps) {
+  return (
+    <span className="flex min-w-0 flex-1 flex-col gap-1 min-[768px]:gap-[clamp(0.25rem,calc(0.0625rem+0.4vw),0.46856rem)] min-[1280px]:gap-[0.46856rem]">
+      <h2
+        className="break-words font-display text-[min(2.5rem,calc((100vw-11.5625rem)/5.4))] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[1.0533]"
+        translate="no"
+      >
+        {city}
+      </h2>
+      <time
+        dateTime={startDate}
+        className={cn(TEXT_DATE, "font-body leading-[1.3] tracking-body min-[768px]:min-h-[2.125rem]")}
+      >
+        {dateLabel}
+      </time>
+    </span>
+  );
+}
+
+interface LocationListItemActionProps {
+  cta: LocationListItemData["cta"];
+  status: LocationListItemData["status"];
+  variant: "mobile" | "desktop";
+}
+
+function LocationListItemAction({
+  cta,
+  status,
+  variant,
+}: LocationListItemActionProps) {
+  const actionClassName = cn(
+    locationActionClassName(status),
+    "mb-1.5 min-[768px]:mb-0",
+    variant === "mobile" &&
+      status !== "register" &&
+      "group-hover:border-black group-hover:text-black",
+    variant === "desktop" &&
+      "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+    variant === "desktop" &&
+      (status === "register"
+        ? "transition-colors duration-150 hover:border-brand-dark hover:bg-brand-dark motion-reduce:transition-none"
+        : "transition-colors duration-150 hover:bg-white hover:text-black motion-reduce:transition-none"),
+  );
+
+  return (
+    <span className="flex shrink-0 flex-col items-end min-[1280px]:gap-[0.46856rem]">
+      {status === "soldOut" ? (
+        <span className={LOCATION_SOLD_OUT_CLASS_NAME}>Sold out</span>
+      ) : null}
+      {variant === "desktop" ? (
+        <Link href={cta.href} className={actionClassName}>
+          {cta.label}
+        </Link>
+      ) : (
+        <span className={actionClassName}>{cta.label}</span>
+      )}
+    </span>
   );
 }

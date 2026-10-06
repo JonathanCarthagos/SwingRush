@@ -8,7 +8,11 @@ import {
   type Variants,
 } from "framer-motion";
 import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
 } from "react";
@@ -72,13 +76,89 @@ export interface ChallengesPageSectionProps
   items?: readonly ChallengeItem[];
 }
 
+function challengeIndexFromHash(hash: string, itemCount: number) {
+  const match = /^#(\d{1,2})$/.exec(hash);
+  if (!match) return null;
+
+  const index = Number(match[1]) - 1;
+  if (index < 0 || index >= itemCount) return null;
+  return index;
+}
+
 export function ChallengesPageSection({
   emptyState = CHALLENGES_PAGE_CONTENT.emptyState,
   items = CHALLENGES_PAGE_CONTENT.items,
   className,
   ...props
 }: ChallengesPageSectionProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const boardSettledRef = useRef(false);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const [requestedItemId, setRequestedItemId] = useState<string | null>(null);
+  const [requestRevealed, setRequestRevealed] = useState(false);
+  const revealRequestedChallenge = useCallback(() => {
+    boardSettledRef.current = true;
+    setRequestRevealed(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    const applyHash = () => {
+      const index = challengeIndexFromHash(window.location.hash, items.length);
+      setRequestedItemId(index === null ? null : items[index].id);
+      setRequestRevealed(boardSettledRef.current);
+    };
+
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, [items]);
+
+  useEffect(() => {
+    if (!requestedItemId) return;
+
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const scrollToBoard = () => {
+      const header = document.querySelector("header");
+      section.style.scrollMarginTop = `${(header?.getBoundingClientRect().height ?? 0) + 12}px`;
+      section.scrollIntoView({
+        behavior: reduce ? "auto" : "smooth",
+        block: "start",
+      });
+    };
+    const frame = window.requestAnimationFrame(scrollToBoard);
+    const later = window.setTimeout(scrollToBoard, 150);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(later);
+    };
+  }, [requestedItemId]);
+
+  useEffect(() => {
+    if (!requestRevealed || !requestedItemId) return;
+
+    setOpenItemId(requestedItemId);
+
+    const trigger = document.getElementById(
+      `split-flap-trigger-${requestedItemId}`,
+    );
+    if (!trigger || trigger.getClientRects().length === 0) return;
+
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const header = document.querySelector("header");
+    trigger.style.scrollMarginTop = `${(header?.getBoundingClientRect().height ?? 0) + 12}px`;
+    trigger.scrollIntoView({
+      behavior: reduce ? "auto" : "smooth",
+      block: "nearest",
+    });
+  }, [requestRevealed, requestedItemId]);
   const boardItems = useMemo<SplitFlapAccordionItem[]>(() => {
     const baseLabels = items.map(
       (item) =>
@@ -103,6 +183,7 @@ export function ChallengesPageSection({
 
   return (
     <section
+      ref={sectionRef}
       className={cn(
         "bg-black px-4 py-16 text-white min-[1280px]:px-0",
         className,
@@ -119,6 +200,7 @@ export function ChallengesPageSection({
                 current === itemId ? null : itemId,
               )
             }
+            onSettled={revealRequestedChallenge}
           />
         ) : (
           <p className="font-body text-[1.0625rem] leading-[1.3] tracking-body">
@@ -127,7 +209,12 @@ export function ChallengesPageSection({
         )}
       </div>
 
-      <DesktopChallenges emptyState={emptyState} items={items} />
+      <DesktopChallenges
+        emptyState={emptyState}
+        items={items}
+        requestedItemId={requestRevealed ? requestedItemId : null}
+        onSettled={revealRequestedChallenge}
+      />
     </section>
   );
 }
@@ -135,9 +222,16 @@ export function ChallengesPageSection({
 interface DesktopChallengesProps {
   emptyState: string;
   items: readonly ChallengeItem[];
+  requestedItemId: string | null;
+  onSettled: () => void;
 }
 
-function DesktopChallenges({ emptyState, items }: DesktopChallengesProps) {
+function DesktopChallenges({
+  emptyState,
+  items,
+  requestedItemId,
+  onSettled,
+}: DesktopChallengesProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [selection, setSelection] = useState<{
     activeItemId: string | null;
@@ -172,6 +266,27 @@ function DesktopChallenges({ emptyState, items }: DesktopChallengesProps) {
     items.findIndex((item) => item.id === selection.activeItemId),
   );
   const activeItem = items[resolvedActiveIndex] ?? null;
+
+  useEffect(() => {
+    if (!requestedItemId) return;
+
+    const nextIndex = items.findIndex((item) => item.id === requestedItemId);
+    if (nextIndex < 0) return;
+
+    setSelection((current) => {
+      const currentIndex = Math.max(
+        0,
+        items.findIndex((item) => item.id === current.activeItemId),
+      );
+      if (nextIndex === currentIndex) return current;
+
+      return {
+        activeItemId: requestedItemId,
+        animate: true,
+        direction: nextIndex > currentIndex ? 1 : -1,
+      };
+    });
+  }, [items, requestedItemId]);
 
   const selectItem = (
     itemId: string,
@@ -213,6 +328,7 @@ function DesktopChallenges({ emptyState, items }: DesktopChallengesProps) {
               activeItemId={activeItem?.id ?? null}
               animateSelection={selection.animate}
               onSelect={selectItem}
+              onSettled={onSettled}
               className="w-full"
               style={navigationStyle}
             />

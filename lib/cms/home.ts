@@ -36,13 +36,31 @@ interface RawHomePage {
   } | null;
 }
 
-function adaptStories(stories: RawStory[] | null | undefined): HomeStory[] {
+const CLUB_CHALLENGE_HREFS: Record<string, string> = {
+  driver: "/challenges#1",
+  iron: "/challenges#2",
+  wedge: "/challenges#6",
+  putter: "/challenges#10",
+};
+
+const HOME_STORY_HREFS: Record<string, string> = {
+  "timed race": "/how-it-works",
+  "singles or teams": "/how-it-works",
+};
+
+function adaptStories(
+  stories: RawStory[] | null | undefined,
+  titleHrefOverrides: Record<string, string> = {},
+): HomeStory[] {
   if (!stories?.length) return [];
 
   return stories.flatMap((story) => {
     const title = text(story.title);
     const subtitle = text(story.subtitle);
-    const href = text(story.link?.href);
+    const cmsHref = text(story.link?.href);
+    const href = title
+      ? (titleHrefOverrides[title.trim().toLowerCase()] ?? cmsHref)
+      : cmsHref;
     const src = text(story.image?.src);
     if (!title || !subtitle || !href || !src) return [];
 
@@ -63,8 +81,8 @@ function adaptHomePage(raw: RawHomePage | null): HomePageContent {
   const fallback = HOME_PAGE_CONTENT;
   if (!raw) return fallback;
 
-  const clubs = adaptStories(raw.clubs);
-  const stories = adaptStories(raw.stories);
+  const clubs = adaptStories(raw.clubs, CLUB_CHALLENGE_HREFS);
+  const stories = adaptStories(raw.stories, HOME_STORY_HREFS);
 
   return {
     seo: {

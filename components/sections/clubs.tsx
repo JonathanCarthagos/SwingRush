@@ -79,6 +79,7 @@ function ClubCard({ club, index }: { club: HomeStory; index: number }) {
         </div>
         <Link
           href={club.href}
+          scroll={false}
           className="mt-[0.83375rem] inline-flex min-h-11 w-fit items-center font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body underline decoration-[0.08em] underline-offset-[0.18em] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:mt-6 min-[1280px]:leading-[1.3] min-[1280px]:decoration-[0.07em]"
         >
           {club.linkLabel}

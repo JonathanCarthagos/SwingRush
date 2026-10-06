@@ -15,7 +15,7 @@ import { LogoLockup } from "@/components/ui/logo-lockup";
 
 const links = [
   { label: "Home", href: "/" },
-  { label: "Challenges", href: "/challenges" },
+  { label: "Skills Challenges", href: "/challenges" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "Locations", href: "/locations" },
 ];

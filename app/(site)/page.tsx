@@ -74,6 +74,7 @@ export default async function HomePage() {
           heading={"JUMP INTO\nTHE ARENA"}
           description={cta.description}
           ctaLabel="Sign Up"
+          ctaHref="/locations"
         />
       </main>
       <CmsLive />

@@ -21,7 +21,7 @@ export const HOME_PAGE_CONTENT = {
       title: "Driver",
       subtitle: "Abilities will be put to the test one skill at a time",
       linkLabel: "Learn More",
-      href: "/how-it-works",
+      href: "/challenges#1",
       image: {
         src: "/images/clubs/driver.jpg",
         alt: "A golfer in a white shirt and black skirt swinging a driver under a red ring light",
@@ -32,7 +32,7 @@ export const HOME_PAGE_CONTENT = {
       title: "Iron",
       subtitle: "The clock is ticking until you cross the finish line",
       linkLabel: "Learn More",
-      href: "/how-it-works",
+      href: "/challenges#2",
       image: {
         src: "/images/clubs/iron.jpg",
         alt: "A golfer in a black shirt swinging an iron on the arena turf",
@@ -44,7 +44,7 @@ export const HOME_PAGE_CONTENT = {
       subtitle:
         "Whether you are an elite golfer or a weekend warrior, we have a division for you",
       linkLabel: "Learn More",
-      href: "/how-it-works",
+      href: "/challenges#6",
       image: {
         src: "/images/clubs/wedge.jpg",
         alt: "A golfer hitting out of a bunker in front of a pink bunker sign",
@@ -55,7 +55,7 @@ export const HOME_PAGE_CONTENT = {
       title: "Putter",
       subtitle: "Take all the glory yourself or share it with your friends",
       linkLabel: "Learn More",
-      href: "/how-it-works",
+      href: "/challenges#10",
       image: {
         src: "/images/clubs/putter.jpg",
         alt: "A golfer in black celebrating with a putter beside a lit banner",

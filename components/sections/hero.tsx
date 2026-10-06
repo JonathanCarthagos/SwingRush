@@ -6,6 +6,7 @@ import {
   useInView,
   useReducedMotion,
 } from "framer-motion";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -163,6 +164,7 @@ export function Hero({
 }: HeroProps) {
   const shouldReduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const stillRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -182,6 +184,14 @@ export function Hero({
       const nextWebm = desktop ? webmSrc : mobileWebmSrc;
       const nextMp4 = desktop ? videoSrc : mobileVideoSrc;
       const nextPoster = desktop ? poster : mobilePoster;
+
+      if (reducedQuery.matches) {
+        const still = stillRef.current;
+        if (still && still.getAttribute("src") !== nextPoster) still.src = nextPoster;
+        video.pause();
+        return;
+      }
+
       const sourceChanged = video.dataset.variant !== nextVariant;
       video.dataset.variant = nextVariant;
 
@@ -190,11 +200,6 @@ export function Hero({
       video.poster = nextPoster;
 
       const playOrPause = () => {
-        if (reducedQuery.matches) {
-          video.pause();
-          return;
-        }
-
         void video.play().catch(() => undefined);
       };
 
@@ -221,7 +226,7 @@ export function Hero({
       reducedQuery.removeEventListener("change", applySource);
       window.removeEventListener("resize", applySource);
     };
-  }, [mobilePoster, mobileVideoSrc, mobileWebmSrc, poster, videoSrc, webmSrc]);
+  }, [mobilePoster, mobileVideoSrc, mobileWebmSrc, poster, shouldReduceMotion, videoSrc, webmSrc]);
 
   return (
     <section
@@ -232,28 +237,22 @@ export function Hero({
       {...props}
       data-nav-hero=""
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={mobilePoster}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 hidden h-full w-full object-cover object-center motion-reduce:block min-[768px]:motion-reduce:hidden"
-      />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={poster}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 hidden h-full w-full object-cover object-center min-[768px]:motion-reduce:block"
-      />
+      {shouldReduceMotion ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          ref={stillRef}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+      ) : null}
       <video
         ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
-        poster={poster}
+        preload="none"
         className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
       >
         <source type="video/webm" />
@@ -271,7 +270,8 @@ export function Hero({
           text={heading.replace(/\s+/g, " ")}
           className="box-border hidden max-w-none px-[0.08em] font-display leading-[0.84] text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
         />
-        <span
+        <Link
+          href="/locations"
           className={buttonVariants({
             variant: "glass",
             className:
@@ -279,7 +279,7 @@ export function Hero({
           })}
         >
           Sign Up
-        </span>
+        </Link>
       </div>
 
       <HeroScrollCue reduce={shouldReduceMotion} />

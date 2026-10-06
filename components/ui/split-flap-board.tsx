@@ -691,12 +691,21 @@ function useDomClock(isRunning: boolean, onComplete: () => void) {
   return register;
 }
 
-function useClockedBoardSession(ref: RefObject<Element | null>) {
+function useClockedBoardSession(
+  ref: RefObject<Element | null>,
+  onSettled?: () => void,
+) {
   const visibilityPhase = usePreparedVisibilitySession(ref);
   const { isVisible: isDocumentVisible } = useDocumentVisibility();
   const shouldReduceMotion = useReducedMotion() ?? false;
   const [settled, setSettled] = useState(false);
   const visibilityPhaseRef = useRef(visibilityPhase);
+  const onSettledRef = useRef(onSettled);
+  const notifiedRef = useRef(false);
+
+  useLayoutEffect(() => {
+    onSettledRef.current = onSettled;
+  });
 
   useLayoutEffect(() => {
     visibilityPhaseRef.current = visibilityPhase;
@@ -718,9 +727,21 @@ function useClockedBoardSession(ref: RefObject<Element | null>) {
   const shouldRenderScramble = phase !== "final" && !shouldReduceMotion;
   const isScrambleRunning =
     phase === "running" && isDocumentVisible && !shouldReduceMotion;
+  const notifySettled = useCallback(() => {
+    if (notifiedRef.current) return;
+    notifiedRef.current = true;
+    onSettledRef.current?.();
+  }, []);
   const settle = useCallback(() => {
     setSettled(true);
-  }, []);
+    notifySettled();
+  }, [notifySettled]);
+
+  useEffect(() => {
+    if (!shouldReduceMotion || visibilityPhase !== "running") return;
+    notifySettled();
+  }, [notifySettled, shouldReduceMotion, visibilityPhase]);
+
   const register = useDomClock(isScrambleRunning, settle);
 
   return {
@@ -1090,12 +1111,14 @@ export interface SplitFlapAccordionBoardProps
   items: readonly SplitFlapAccordionItem[];
   openItemId: string | null;
   onToggle: (itemId: string) => void;
+  onSettled?: () => void;
 }
 
 export function SplitFlapAccordionBoard({
   items,
   openItemId,
   onToggle,
+  onSettled,
   className,
   ...props
 }: SplitFlapAccordionBoardProps) {
@@ -1105,7 +1128,7 @@ export function SplitFlapAccordionBoard({
     isScrambleRunning,
     register,
     shouldReduceMotion,
-  } = useClockedBoardSession(visibilityRef);
+  } = useClockedBoardSession(visibilityRef, onSettled);
   const rowsKey = items.map((item) => item.label).join("\u0000");
   const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(
@@ -1227,6 +1250,7 @@ export interface SplitFlapNavigationBoardProps
     itemId: string,
     source: SplitFlapSelectionSource,
   ) => void;
+  onSettled?: () => void;
 }
 
 export function SplitFlapNavigationBoard({
@@ -1234,13 +1258,14 @@ export function SplitFlapNavigationBoard({
   activeItemId,
   animateSelection = false,
   onSelect,
+  onSettled,
   className,
   ...props
 }: SplitFlapNavigationBoardProps) {
   const visibilityRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef(new Map<string, HTMLButtonElement>());
   const { shouldRenderScramble, isScrambleRunning, register } =
-    useClockedBoardSession(visibilityRef);
+    useClockedBoardSession(visibilityRef, onSettled);
   const rowsKey = items.map((item) => item.label).join("\u0000");
   const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(

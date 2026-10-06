@@ -5,7 +5,7 @@ export const fontDisplay = localFont({
   variable: "--font-display",
   weight: "800",
   style: "italic",
-  display: "block",
+  display: "swap",
 });
 
 export const fontBody = localFont({
