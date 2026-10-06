@@ -8,7 +8,7 @@ export const WAITLIST_PAGE_SEO = {
 } as const satisfies SeoContent;
 
 export const WAITLIST_CONSENT_TEXT =
-  "I agree to receive marketing emails and SMS updates from SwingRush about event dates and ticket sales. Message frequency varies. Consent is not a condition of purchase.";
+  "I agree to receive marketing emails and SMS updates from SwingRush about event dates and ticket sales.";
 
 export const WAITLIST_PAGE_CONTENT = {
   title: "Become a Swingrusher",

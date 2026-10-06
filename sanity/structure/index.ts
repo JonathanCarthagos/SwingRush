@@ -1,11 +1,35 @@
 import type { StructureBuilder, StructureResolver } from "sanity/structure";
 
+import { apiVersion } from "@/sanity/env";
 import { CHALLENGES_PAGE_ID } from "@/sanity/schemaTypes/documents/challenges-page";
 import { HOME_PAGE_ID } from "@/sanity/schemaTypes/documents/home-page";
 import { HOW_IT_WORKS_PAGE_ID } from "@/sanity/schemaTypes/documents/how-it-works-page";
 import { LOCATIONS_PAGE_ID } from "@/sanity/schemaTypes/documents/locations-page";
 import { WAITLIST_PAGE_ID } from "@/sanity/schemaTypes/documents/waitlist-page";
 import { privateDocumentTypes, singletonTypes } from "@/sanity/schemaTypes";
+
+interface WaitlistLocationPane {
+  _id: string;
+  city: string;
+}
+
+const WAITLIST_SIGNUP_ORDERING = [
+  { field: "consentedAt", direction: "desc" as const },
+];
+
+function waitlistSignups(
+  S: StructureBuilder,
+  { title, filter, params }: { title: string; filter: string; params?: Record<string, string> },
+) {
+  const list = S.documentList()
+    .title(title)
+    .schemaType("waitlistContact")
+    .filter(filter)
+    .defaultOrdering(WAITLIST_SIGNUP_ORDERING)
+    .initialValueTemplates([]);
+
+  return params ? list.params(params) : list;
+}
 
 function singleton(
   S: StructureBuilder,
@@ -18,8 +42,15 @@ function singleton(
     .child(S.document().documentId(id).schemaType(type).title(title));
 }
 
-export const structure: StructureResolver = (S) =>
-  S.list()
+export const structure: StructureResolver = async (S, context) => {
+  const locations = await context.getClient({ apiVersion }).fetch<WaitlistLocationPane[]>(
+    `*[_type == "location" && !(_id in path("drafts.**")) && defined(city)] | order(sortOrder asc) {
+      _id,
+      city
+    }`,
+  );
+
+  return S.list()
     .title("Content")
     .items([
       S.listItem()
@@ -70,12 +101,36 @@ export const structure: StructureResolver = (S) =>
         ),
       S.divider(),
       S.listItem()
-        .title("Waitlist")
-        .schemaType("waitlistContact")
+        .id("waitlists")
+        .title("Waitlists")
         .child(
-          S.documentTypeList("waitlistContact")
-            .title("Waitlist")
-            .defaultOrdering([{ field: "consentedAt", direction: "desc" }]),
+          S.list()
+            .title("Waitlists")
+            .items([
+              ...locations.map((location) =>
+                S.listItem()
+                  .id(`waitlist-${location._id}`)
+                  .title(location.city)
+                  .child(
+                    waitlistSignups(S, {
+                      title: location.city,
+                      filter:
+                        '_type == "waitlistContact" && location._ref == $locationId',
+                      params: { locationId: location._id },
+                    }),
+                  ),
+              ),
+              S.listItem()
+                .id("waitlist-unassigned")
+                .title("Unassigned")
+                .child(
+                  waitlistSignups(S, {
+                    title: "Unassigned",
+                    filter:
+                      '_type == "waitlistContact" && !defined(location._ref)',
+                  }),
+                ),
+            ]),
         ),
       S.divider(),
       ...S.documentTypeListItems().filter((item) => {
@@ -91,3 +146,4 @@ export const structure: StructureResolver = (S) =>
         );
       }),
     ]);
+};

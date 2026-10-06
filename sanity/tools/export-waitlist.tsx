@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { definePlugin, useClient } from "sanity";
 
 import { apiVersion } from "@/sanity/env";
@@ -18,6 +18,12 @@ interface WaitlistExportRow {
   sourcePath?: string;
 }
 
+interface WaitlistLocationOption {
+  _id: string;
+  city: string;
+  slug: string;
+}
+
 const COLUMNS = [
   "email",
   "phone",
@@ -29,6 +35,25 @@ const COLUMNS = [
   "consentedAt",
   "sourcePath",
 ] as const satisfies readonly (keyof WaitlistExportRow)[];
+
+const LOCATIONS_QUERY = `*[_type == "location" && defined(slug.current) && defined(city)] | order(sortOrder asc) {
+  _id,
+  city,
+  "slug": slug.current
+}`;
+
+const SIGNUPS_QUERY = `*[_type == "waitlistContact" && locationSlug == $slug] | order(consentedAt desc) {
+  _id,
+  email,
+  phone,
+  city,
+  locationSlug,
+  marketingOptIn,
+  smsOptIn,
+  consentText,
+  consentedAt,
+  sourcePath
+}`;
 
 function csvCell(value: unknown) {
   const text = value == null ? "" : String(value);
@@ -45,39 +70,52 @@ function toCsv(rows: readonly WaitlistExportRow[]) {
 
 function ExportWaitlistTool() {
   const client = useClient({ apiVersion });
+  const [locations, setLocations] = useState<WaitlistLocationOption[]>([]);
+  const [slug, setSlug] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
     "idle",
   );
   const [message, setMessage] = useState(
-    "Downloads every unpublished waitlist signup.",
+    "Choose a city, then download its unpublished signups.",
   );
 
+  useEffect(() => {
+    let cancelled = false;
+
+    client
+      .fetch<WaitlistLocationOption[]>(LOCATIONS_QUERY)
+      .then((rows) => {
+        if (!cancelled) setLocations(rows);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setStatus("error");
+          setMessage("Locations could not be loaded. Try again in a moment.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [client]);
+
+  const selected = locations.find((location) => location.slug === slug);
+
   async function download() {
+    if (!selected) return;
+
     setStatus("loading");
     setMessage("Preparing the CSV…");
 
     try {
       const rows = await client
         .withConfig({ perspective: "raw" })
-        .fetch<WaitlistExportRow[]>(
-          `*[_type == "waitlistContact"] | order(consentedAt desc) {
-            _id,
-            email,
-            phone,
-            city,
-            locationSlug,
-            marketingOptIn,
-            smsOptIn,
-            consentText,
-            consentedAt,
-            sourcePath
-          }`,
-        );
+        .fetch<WaitlistExportRow[]>(SIGNUPS_QUERY, { slug: selected.slug });
       const drafts = rows.filter((row) => row._id.startsWith("drafts."));
 
       if (drafts.length === 0) {
         setStatus("ready");
-        setMessage("No waitlist signups to export yet.");
+        setMessage(`No waitlist signups for ${selected.city} yet.`);
         return;
       }
 
@@ -88,12 +126,12 @@ function ExportWaitlistTool() {
       const link = document.createElement("a");
       const date = new Date().toISOString().slice(0, 10);
       link.href = url;
-      link.download = `swingrush-waitlist-${date}.csv`;
+      link.download = `swingrush-waitlist-${selected.slug}-${date}.csv`;
       link.click();
       URL.revokeObjectURL(url);
       setStatus("ready");
       setMessage(
-        `Downloaded ${drafts.length} signup${drafts.length === 1 ? "" : "s"}.`,
+        `Downloaded ${drafts.length} signup${drafts.length === 1 ? "" : "s"} for ${selected.city}.`,
       );
     } catch (error) {
       console.error(
@@ -113,14 +151,38 @@ function ExportWaitlistTool() {
       <p role="status" style={{ margin: "0 0 1.25rem", lineHeight: 1.4 }}>
         {message}
       </p>
+      <label htmlFor="waitlist-export-location" style={{ display: "block", marginBottom: "0.4rem" }}>
+        City
+      </label>
+      <select
+        id="waitlist-export-location"
+        value={slug}
+        onChange={(event) => setSlug(event.target.value)}
+        disabled={locations.length === 0 || status === "loading"}
+        style={{
+          display: "block",
+          width: "100%",
+          maxWidth: "20rem",
+          marginBottom: "1.25rem",
+          padding: "0.55rem 0.7rem",
+          font: "inherit",
+        }}
+      >
+        <option value="">Select a city</option>
+        {locations.map((location) => (
+          <option key={location._id} value={location.slug}>
+            {location.city}
+          </option>
+        ))}
+      </select>
       <button
         type="button"
         onClick={download}
-        disabled={status === "loading"}
+        disabled={!selected || status === "loading"}
         style={{
           padding: "0.6rem 1rem",
           font: "inherit",
-          cursor: status === "loading" ? "progress" : "pointer",
+          cursor: !selected || status === "loading" ? "not-allowed" : "pointer",
         }}
       >
         {status === "loading" ? "Preparing…" : "Download CSV"}
