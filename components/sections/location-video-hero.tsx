@@ -109,7 +109,7 @@ export function LocationVideoHero({
       )}
     >
       {/* Starts below the solid header: the inset follows the header height at every breakpoint. */}
-      <div className="absolute inset-x-0 bottom-0 top-[3.625rem] overflow-hidden bg-black min-[768px]:top-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:top-24">
+      <div className="absolute inset-x-0 bottom-0 top-nav-offset overflow-hidden bg-black min-[768px]:top-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:top-24">
         {shouldReduceMotion ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
