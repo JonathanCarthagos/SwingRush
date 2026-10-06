@@ -57,9 +57,11 @@ export default async function HomePage() {
           mobilePoster={hero.mobilePosterSrc}
         />
         <Cta
+          id="next-section"
           variant="inverted"
           keepBreaks
           heading={"10 CHALLENGES\n1 FINISH LINE"}
+          className="scroll-mt-nav-offset min-[1280px]:scroll-mt-24"
           description="The world’s first arena golf experience"
           ctaLabel="Learn More"
           ctaHref="/how-it-works"

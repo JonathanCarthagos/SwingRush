@@ -119,8 +119,21 @@ function HeroScrollCue({ reduce }: HeroScrollCueProps) {
     >
       <a
         ref={cueRef}
-        href="#arena"
+        href="#next-section"
         aria-label="Scroll to next section"
+        onClick={(event) => {
+          const target = document.getElementById("next-section");
+          if (!target) return;
+
+          event.preventDefault();
+          const reduce = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+          target.scrollIntoView({
+            behavior: reduce ? "auto" : "smooth",
+            block: "start",
+          });
+        }}
         className="pointer-events-auto relative inline-flex size-12 items-center justify-center rounded-full text-white opacity-95 outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
       >
         <motion.span
