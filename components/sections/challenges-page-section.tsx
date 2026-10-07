@@ -220,6 +220,7 @@ function DesktopChallenges({
 }: DesktopChallengesProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const cardRefs = useRef(new Map<string, HTMLElement>());
+  const boardRef = useRef<HTMLElement>(null);
   const ignoreSpyRef = useRef(false);
   const scrollTokenRef = useRef(0);
   const [activeItemId, setActiveItemId] = useState<string | null>(
@@ -372,6 +373,21 @@ function DesktopChallenges({
     };
   }, [items]);
 
+  useEffect(() => {
+    const board = boardRef.current;
+    if (!board) return;
+
+    const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const desktop = window.matchMedia(DESKTOP_CHALLENGES_QUERY);
+    const onWheel = (event: WheelEvent) => {
+      if (!fineHover.matches || !desktop.matches || event.ctrlKey) return;
+      event.preventDefault();
+    };
+
+    board.addEventListener("wheel", onWheel, { passive: false });
+    return () => board.removeEventListener("wheel", onWheel);
+  }, [items]);
+
   const selectItem = (
     itemId: string,
     source: SplitFlapSelectionSource,
@@ -397,7 +413,10 @@ function DesktopChallenges({
     >
       {items.length > 0 ? (
         <div className="grid w-full grid-cols-[minmax(0,43.186%)_minmax(0,37.695%)] items-start gap-x-[19.119%]">
-          <aside className="sticky top-[7.2rem] min-w-0 self-start">
+          <aside
+            ref={boardRef}
+            className="sticky top-[7.2rem] min-w-0 self-start"
+          >
             <SplitFlapNavigationBoard
               items={navigationItems}
               activeItemId={activeItemId}
