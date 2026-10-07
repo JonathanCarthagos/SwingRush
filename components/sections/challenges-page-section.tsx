@@ -25,6 +25,88 @@ import type { ChallengeItem } from "@/types/challenges";
 
 const DESKTOP_CHALLENGES_QUERY = "(min-width: 1280px)";
 
+function bezierComponent(t: number, p1: number, p2: number) {
+  const c = 3 * p1;
+  const b = 3 * (p2 - p1) - c;
+  const a = 1 - c - b;
+  return ((a * t + b) * t + c) * t;
+}
+
+function bezierSlope(t: number, p1: number, p2: number) {
+  const c = 3 * p1;
+  const b = 3 * (p2 - p1) - c;
+  const a = 1 - c - b;
+  return (3 * a * t + 2 * b) * t + c;
+}
+
+/** cubic-bezier(0.23, 1, 0.32, 1) */
+function easeOutStrong(progress: number) {
+  if (progress <= 0) return 0;
+  if (progress >= 1) return 1;
+
+  const x1 = 0.23;
+  const y1 = 1;
+  const x2 = 0.32;
+  const y2 = 1;
+  let t = progress;
+  for (let i = 0; i < 8; i += 1) {
+    const slope = bezierSlope(t, x1, x2);
+    if (Math.abs(slope) < 1e-6) break;
+    t = Math.min(
+      1,
+      Math.max(0, t - (bezierComponent(t, x1, x2) - progress) / slope),
+    );
+  }
+  return bezierComponent(t, y1, y2);
+}
+
+function animateScrollTo(
+  tokenRef: { current: number },
+  destination: () => number,
+  reduce: boolean,
+  onDone?: () => void,
+) {
+  const token = tokenRef.current + 1;
+  tokenRef.current = token;
+  const finish = () => {
+    if (tokenRef.current !== token) return;
+    onDone?.();
+  };
+
+  if (reduce) {
+    window.scrollTo(0, destination());
+    window.setTimeout(finish, 50);
+    return;
+  }
+
+  const start = window.scrollY;
+  const initialDistance = destination() - start;
+  if (Math.abs(initialDistance) < 1) {
+    finish();
+    return;
+  }
+
+  const duration = Math.min(
+    900,
+    Math.max(450, Math.abs(initialDistance) * 0.35),
+  );
+  const startTime = performance.now() - 16;
+  const step = (now: number) => {
+    if (tokenRef.current !== token) return;
+    const progress = Math.min(1, (now - startTime) / duration);
+    const eased = easeOutStrong(progress);
+    const nextDestination = destination();
+    window.scrollTo(0, start + (nextDestination - start) * eased);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+      return;
+    }
+    window.scrollTo(0, destination());
+    finish();
+  };
+  step(performance.now());
+}
+
 export interface ChallengesPageSectionProps
   extends React.HTMLAttributes<HTMLElement> {
   emptyState?: string;
@@ -46,8 +128,9 @@ export function ChallengesPageSection({
   className,
   ...props
 }: ChallengesPageSectionProps) {
-  const sectionRef = useRef<HTMLElement>(null);
   const boardSettledRef = useRef(false);
+  const arrivalTokenRef = useRef(0);
+  const arriveRef = useRef<(itemId: string) => void>(() => {});
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [requestedItemId, setRequestedItemId] = useState<string | null>(null);
   const [requestRevealed, setRequestRevealed] = useState(false);
@@ -89,6 +172,7 @@ export function ChallengesPageSection({
       }
 
       window.scrollTo(0, 0);
+      arriveRef.current(nextId);
     };
 
     applyHash();
@@ -97,53 +181,10 @@ export function ChallengesPageSection({
   }, [items]);
 
   useEffect(() => {
-    if (!requestedItemId) return;
-
-    const section = sectionRef.current;
-    if (!section) return;
-
-    if (window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) return;
-
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const scrollToBoard = () => {
-      const header = document.querySelector("header");
-      section.style.scrollMarginTop = `${(header?.getBoundingClientRect().height ?? 0) + 12}px`;
-      section.scrollIntoView({
-        behavior: reduce ? "auto" : "smooth",
-        block: "start",
-      });
-    };
-    const frame = window.requestAnimationFrame(scrollToBoard);
-    const later = window.setTimeout(scrollToBoard, 150);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(later);
-    };
-  }, [requestedItemId]);
-
-  useEffect(() => {
     if (!requestRevealed || !requestedItemId) return;
     if (window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) return;
 
     setOpenItemId(requestedItemId);
-
-    const trigger = document.getElementById(
-      `split-flap-trigger-${requestedItemId}`,
-    );
-    if (!trigger || trigger.getClientRects().length === 0) return;
-
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const header = document.querySelector("header");
-    trigger.style.scrollMarginTop = `${(header?.getBoundingClientRect().height ?? 0) + 12}px`;
-    trigger.scrollIntoView({
-      behavior: reduce ? "auto" : "smooth",
-      block: "nearest",
-    });
   }, [requestRevealed, requestedItemId]);
   const boardItems = useMemo<SplitFlapAccordionItem[]>(() => {
     const baseLabels = items.map(
@@ -169,7 +210,6 @@ export function ChallengesPageSection({
 
   return (
     <section
-      ref={sectionRef}
       className={cn(
         "bg-black px-4 py-16 text-white min-[1280px]:px-0 min-[1280px]:py-0",
         className,
@@ -199,6 +239,8 @@ export function ChallengesPageSection({
         emptyState={emptyState}
         items={items}
         requestedItemId={requestedItemId}
+        arrivalTokenRef={arrivalTokenRef}
+        arriveRef={arriveRef}
         onSettled={revealRequestedChallenge}
       />
     </section>
@@ -209,6 +251,8 @@ interface DesktopChallengesProps {
   emptyState: string;
   items: readonly ChallengeItem[];
   requestedItemId: string | null;
+  arrivalTokenRef: { current: number };
+  arriveRef: { current: (itemId: string) => void };
   onSettled: () => void;
 }
 
@@ -216,13 +260,16 @@ function DesktopChallenges({
   emptyState,
   items,
   requestedItemId,
+  arrivalTokenRef,
+  arriveRef,
   onSettled,
 }: DesktopChallengesProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const cardRefs = useRef(new Map<string, HTMLElement>());
   const boardRef = useRef<HTMLElement>(null);
   const ignoreSpyRef = useRef(false);
-  const scrollTokenRef = useRef(0);
+  const requestedItemIdRef = useRef(requestedItemId);
+  requestedItemIdRef.current = requestedItemId;
   const [activeItemId, setActiveItemId] = useState<string | null>(
     items[0]?.id ?? null,
   );
@@ -253,79 +300,69 @@ function DesktopChallenges({
       if (!card || card.getClientRects().length === 0) return;
       if (!window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) return;
 
-      const token = scrollTokenRef.current + 1;
-      scrollTokenRef.current = token;
       ignoreSpyRef.current = true;
-      const release = () => {
-        if (scrollTokenRef.current !== token) return;
-        ignoreSpyRef.current = false;
-      };
       const margin =
         Number.parseFloat(getComputedStyle(card).scrollMarginTop) || 0;
-      const destination = () =>
-        Math.max(
-          0,
-          card.getBoundingClientRect().top + window.scrollY - margin,
-        );
-
-      if (shouldReduceMotion) {
-        window.scrollTo(0, destination());
-        window.setTimeout(release, 50);
-        return;
-      }
-
-      const start = window.scrollY;
-      const initialDistance = destination() - start;
-      if (Math.abs(initialDistance) < 1) {
-        release();
-        return;
-      }
-
-      const duration = Math.min(
-        900,
-        Math.max(450, Math.abs(initialDistance) * 0.35),
+      animateScrollTo(
+        arrivalTokenRef,
+        () =>
+          Math.max(
+            0,
+            card.getBoundingClientRect().top + window.scrollY - margin,
+          ),
+        shouldReduceMotion,
+        () => {
+          ignoreSpyRef.current = false;
+        },
       );
-      const startTime = performance.now();
-      const step = (now: number) => {
-        if (scrollTokenRef.current !== token) return;
-        const progress = Math.min(1, (now - startTime) / duration);
-        const eased =
-          progress < 0.5
-            ? 4 * progress * progress * progress
-            : 1 - (-2 * progress + 2) ** 3 / 2;
-        const nextDestination = destination();
-        window.scrollTo(0, start + (nextDestination - start) * eased);
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-          return;
-        }
-        window.scrollTo(0, destination());
-        release();
-      };
-      window.requestAnimationFrame(step);
     },
-    [shouldReduceMotion],
+    [arrivalTokenRef, shouldReduceMotion],
   );
+
+  useLayoutEffect(() => {
+    arriveRef.current = (itemId: string) => {
+      if (!items.some((item) => item.id === itemId)) return;
+
+      if (!window.matchMedia(DESKTOP_CHALLENGES_QUERY).matches) {
+        ignoreSpyRef.current = false;
+        const trigger = document.getElementById(
+          `split-flap-trigger-${itemId}`,
+        );
+        if (!trigger || trigger.getClientRects().length === 0) return;
+
+        const header = document.querySelector("header");
+        const margin = (header?.getBoundingClientRect().height ?? 0) + 12;
+        animateScrollTo(arrivalTokenRef, () =>
+          Math.max(
+            0,
+            trigger.getBoundingClientRect().top + window.scrollY - margin,
+          ),
+          false,
+        );
+        return;
+      }
+
+      setActiveItemId(itemId);
+      setAnimateSelection(true);
+      scrollToItem(itemId);
+    };
+  }, [arrivalTokenRef, arriveRef, items, scrollToItem]);
 
   useEffect(() => {
     const media = window.matchMedia(DESKTOP_CHALLENGES_QUERY);
     const syncHash = () => {
-      if (!media.matches || !requestedItemId) return;
-      if (!items.some((item) => item.id === requestedItemId)) return;
+      const itemId = requestedItemIdRef.current;
+      if (!media.matches || !itemId) return;
+      if (!items.some((item) => item.id === itemId)) return;
 
-      setActiveItemId(requestedItemId);
+      setActiveItemId(itemId);
       setAnimateSelection(true);
-      scrollToItem(requestedItemId);
+      scrollToItem(itemId);
     };
 
-    syncHash();
     media.addEventListener("change", syncHash);
-    return () => {
-      media.removeEventListener("change", syncHash);
-      scrollTokenRef.current += 1;
-      ignoreSpyRef.current = false;
-    };
-  }, [items, requestedItemId, scrollToItem]);
+    return () => media.removeEventListener("change", syncHash);
+  }, [items, scrollToItem]);
 
   useEffect(() => {
     const media = window.matchMedia(DESKTOP_CHALLENGES_QUERY);
