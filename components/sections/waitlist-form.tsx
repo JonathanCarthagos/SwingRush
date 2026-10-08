@@ -32,11 +32,10 @@ const FIELD_BOX_COMPACT =
   "flex h-[3.1956rem] w-full items-center overflow-visible bg-white text-black min-[768px]:h-[clamp(3.1956rem,calc(8.752vw-1.005rem),5.9963rem)] min-[1280px]:h-[5.9963rem]";
 const FIELD_INSET =
   "pr-[0.733rem] pl-[calc(0.733rem+0.12em)] min-[768px]:pr-[clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)] min-[768px]:pl-[calc(clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)+0.12em)] min-[1280px]:pr-[1.375rem] min-[1280px]:pl-[calc(1.375rem+0.12em)]";
-// Mobile uses the body face so a full email fits in the field. Tablet and desktop keep Owners Black Italic.
-// The global .font-display rule is italic at every width, so the display face is only applied from 768px.
-// The display size caps below the old 4.6875rem so a long email stays inside the field.
+// Fields match the city heading face (Owners Black Italic) at every width; mobile stays smaller so a long email fits.
+// The display size caps below the old 4.6875rem so a long email stays inside the field on tablet and desktop.
 const FIELD_TEXT =
-  "font-body text-[1.0625rem] font-normal not-italic leading-[1.3] tracking-body min-[768px]:font-display min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),3.25rem)] min-[768px]:font-extrabold min-[768px]:italic min-[768px]:leading-[1.85] min-[768px]:tracking-normal min-[1280px]:text-[3.25rem]";
+  "font-display text-[clamp(1.25rem,calc(3.2vw+0.65rem),1.4375rem)] font-extrabold italic leading-[1.25] tracking-normal min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),3.25rem)] min-[768px]:leading-[1.85] min-[1280px]:text-[3.25rem]";
 // Errors carry a red bar inside the white field; keyboard focus gets a white ring outside it.
 const FIELD_STATES =
   "outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-white aria-invalid:shadow-[inset_0_-0.375rem_0_#f92524]";
@@ -46,7 +45,7 @@ const CONTROL =
 const AUTOFILL =
   "autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000]";
 // Mirrored fields keep the input transparent from 768px so the span is the only painted value.
-// Below that, the input itself is the visible body text and can scroll when the value is long.
+// Below that, the input paints the display face directly and can scroll when the value is long.
 const MIRROR_INPUT =
   "peer h-full w-full overflow-x-auto bg-transparent text-black [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] min-[768px]:absolute min-[768px]:inset-0 min-[768px]:text-transparent min-[768px]:[-webkit-text-fill-color:transparent] min-[768px]:autofill:[-webkit-text-fill-color:transparent]";
 const MIRROR_TEXT =
