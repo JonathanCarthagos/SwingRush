@@ -36,10 +36,19 @@ interface RawHomePage {
   } | null;
 }
 
-const CLUB_CHALLENGE_HREFS: Record<string, string> = {
+const CLUB_CHALLENGE_HREFS_BY_KEY: Record<string, string> = {
   driver: "/challenges#1",
   iron: "/challenges#2",
   wedge: "/challenges#6",
+  putter: "/challenges#10",
+};
+
+const CLUB_CHALLENGE_HREFS_BY_TITLE: Record<string, string> = {
+  driver: "/challenges#1",
+  iron: "/challenges#2",
+  irons: "/challenges#2",
+  wedge: "/challenges#6",
+  wedges: "/challenges#6",
   putter: "/challenges#10",
 };
 
@@ -51,6 +60,7 @@ const HOME_STORY_HREFS: Record<string, string> = {
 function adaptStories(
   stories: RawStory[] | null | undefined,
   titleHrefOverrides: Record<string, string> = {},
+  keyHrefOverrides: Record<string, string> = {},
 ): HomeStory[] {
   if (!stories?.length) return [];
 
@@ -58,9 +68,11 @@ function adaptStories(
     const title = text(story.title);
     const subtitle = text(story.subtitle);
     const cmsHref = text(story.link?.href);
-    const href = title
-      ? (titleHrefOverrides[title.trim().toLowerCase()] ?? cmsHref)
-      : cmsHref;
+    const titleKey = title?.trim().toLowerCase();
+    const href =
+      keyHrefOverrides[story._key] ??
+      (titleKey ? titleHrefOverrides[titleKey] : undefined) ??
+      cmsHref;
     const src = text(story.image?.src);
     if (!title || !subtitle || !href || !src) return [];
 
@@ -81,7 +93,11 @@ function adaptHomePage(raw: RawHomePage | null): HomePageContent {
   const fallback = HOME_PAGE_CONTENT;
   if (!raw) return fallback;
 
-  const clubs = adaptStories(raw.clubs, CLUB_CHALLENGE_HREFS);
+  const clubs = adaptStories(
+    raw.clubs,
+    CLUB_CHALLENGE_HREFS_BY_TITLE,
+    CLUB_CHALLENGE_HREFS_BY_KEY,
+  );
   const stories = adaptStories(raw.stories, HOME_STORY_HREFS);
 
   return {
