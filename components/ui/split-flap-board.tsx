@@ -30,6 +30,18 @@ const MIN_FLIP_MS = 51;
 const MAX_FLIP_MS = 66;
 const SETTLE_JITTER_MS = 48;
 const STEP_SCHEDULING_BUDGET_MS = 20;
+const NAV_FALL_MS = 60;
+const NAV_HOLD_MS = 15;
+const NAV_SETTLE_BASE_MS = 900;
+const NAV_SETTLE_PER_COLUMN_MS = 45;
+const NAV_SETTLE_JITTER_MS = 40;
+const NAV_MIN_FLIPS = 12;
+const NAV_MAX_FLIPS = 24;
+const NAV_FALL_CURVE: [number, number, number, number] = [0.5, 0, 0.75, 0.6];
+const NAV_FALL_EASING = `cubic-bezier(${NAV_FALL_CURVE.join(", ")})`;
+const NAV_BOUNCE_MS = 90;
+const NAV_BOUNCE_EASING = "cubic-bezier(0.23, 1, 0.32, 1)";
+const NAV_SHADE_PEAK = 0.35;
 const PREPARE_ROOT_MARGIN = "0px 0px 100% 0px";
 // Same seed the clocked boards used for their first started session.
 const CLOCKED_RUN_ID = Math.imul(2, 0x9e3779b1) >>> 0;
@@ -67,6 +79,8 @@ const halfClass =
   "pointer-events-none absolute inset-x-0 h-1/2 overflow-hidden bg-[#3f3f3f]";
 const faceClass =
   "pointer-events-none absolute inset-0 overflow-hidden bg-[#3f3f3f] [backface-visibility:hidden] [-webkit-backface-visibility:hidden]";
+const flapShadeClass =
+  "pointer-events-none absolute inset-0 bg-black opacity-0";
 const foldLineClasses: Record<SplitFlapDensity, string> = {
   display:
     "pointer-events-none absolute inset-x-0 top-1/2 z-20 h-[0.09375rem] -translate-y-1/2 bg-black/60",
@@ -80,6 +94,9 @@ interface FlapPlan {
   startIndex: number;
   stepDurationMs: number;
   totalSteps: number;
+  holdMs?: number;
+  delayMs?: number;
+  easing?: string;
 }
 
 type VisibilityPhase = "final" | "prepared" | "running";
@@ -173,6 +190,45 @@ function createRowPlans(row: string, rowIndex: number, runId: number) {
       startIndex,
       stepDurationMs,
       totalSteps,
+    } satisfies FlapPlan;
+  });
+}
+
+function createNavigationRowPlans(row: string, rowIndex: number) {
+  const random = createSeededRandom(getRowSeed(rowIndex, CLOCKED_RUN_ID));
+  const cycleMs = NAV_FALL_MS + NAV_HOLD_MS;
+
+  return Array.from(row).map((target, slotIndex) => {
+    const targetIndex = FLAP_DECK.indexOf(target);
+    const jitter = (random() * 2 - 1) * NAV_SETTLE_JITTER_MS;
+
+    if (targetIndex === -1) {
+      return {
+        startIndex: 0,
+        stepDurationMs: NAV_FALL_MS,
+        totalSteps: 0,
+        holdMs: NAV_HOLD_MS,
+        easing: NAV_FALL_EASING,
+      } satisfies FlapPlan;
+    }
+
+    const settleMs =
+      NAV_SETTLE_BASE_MS + slotIndex * NAV_SETTLE_PER_COLUMN_MS + jitter;
+    const totalSteps = clamp(
+      Math.round(settleMs / cycleMs),
+      NAV_MIN_FLIPS,
+      NAV_MAX_FLIPS,
+    );
+    const startIndex =
+      (targetIndex - (totalSteps % FLAP_DECK.length) + FLAP_DECK.length) %
+      FLAP_DECK.length;
+
+    return {
+      startIndex,
+      stepDurationMs: NAV_FALL_MS,
+      totalSteps,
+      holdMs: NAV_HOLD_MS,
+      easing: NAV_FALL_EASING,
     } satisfies FlapPlan;
   });
 }
@@ -545,20 +601,38 @@ interface FlapGlyphNodes {
   flapCurrent: HTMLSpanElement;
   flapNext: HTMLSpanElement;
   flap: HTMLSpanElement;
+  frontShade: HTMLSpanElement;
+  backShade: HTMLSpanElement;
 }
 
 interface FlapDriver {
   plan: FlapPlan;
   nodes: FlapGlyphNodes;
   step: number;
+  prepared: boolean;
   animation: Animation | null;
+  shades: Animation[];
+  bounce: Animation | null;
+}
+
+function cancelDriverAnimations(driver: FlapDriver) {
+  driver.animation?.cancel();
+  driver.animation = null;
+  for (const shade of driver.shades) shade.cancel();
+  driver.shades = [];
+  driver.bounce?.cancel();
+  driver.bounce = null;
+}
+
+function getHoldMs(plan: FlapPlan) {
+  return plan.holdMs ?? STEP_SCHEDULING_BUDGET_MS;
 }
 
 // The hold after each flip keeps the approved cadence. The clock writes the
 // next pair only when the step index changes, and never on the finished hold:
 // that face is already the target letter.
 function getClockedCycleDuration(plan: FlapPlan) {
-  return plan.stepDurationMs + STEP_SCHEDULING_BUDGET_MS;
+  return plan.stepDurationMs + getHoldMs(plan);
 }
 
 function getClockedStepIndex(plan: FlapPlan, elapsedMs: number) {
@@ -592,24 +666,197 @@ function writeStep(driver: FlapDriver, step: number) {
   driver.nodes.topNext.textContent = glyphs.next;
   driver.nodes.flapNext.textContent = glyphs.next;
   driver.step = step;
+  driver.prepared = false;
 }
+
+function readTimingMs(value: number | CSSNumericValue | null | undefined) {
+  if (typeof value === "number") return value;
+  if (typeof CSSUnitValue !== "undefined" && value instanceof CSSUnitValue) {
+    return value.value;
+  }
+  return null;
+}
+
+function getActiveElapsedMs(animation: Animation) {
+  const timing = animation.effect?.getComputedTiming();
+  if (!timing) return null;
+  const localTime = readTimingMs(timing.localTime);
+  if (localTime === null) return null;
+  return localTime - (readTimingMs(timing.delay) ?? 0);
+}
+
+// Navigation flips swap the hidden faces while the flap rests at -180deg,
+// then reveal the next pair once that same animation clock is back at 0deg.
+function syncNavigationGlyphs(driver: FlapDriver, elapsedInActive: number) {
+  const plan = driver.plan;
+  const cycle = getClockedCycleDuration(plan);
+  if (cycle <= 0 || plan.totalSteps === 0 || elapsedInActive < 0) return;
+
+  const activeDuration = cycle * plan.totalSteps;
+  if (elapsedInActive >= activeDuration) return;
+
+  const cycleIndex = Math.floor(elapsedInActive / cycle);
+  const cycleElapsed = elapsedInActive - cycleIndex * cycle;
+
+  if (driver.step < cycleIndex) {
+    writeStep(driver, cycleIndex);
+  }
+
+  const inHold = cycleElapsed >= plan.stepDurationMs;
+  if (
+    inHold &&
+    cycleIndex < plan.totalSteps - 1 &&
+    driver.step === cycleIndex &&
+    !driver.prepared
+  ) {
+    const glyphs = glyphsForStep(plan, cycleIndex + 1);
+    driver.nodes.bottomCurrent.textContent = glyphs.current;
+    driver.nodes.flapCurrent.textContent = glyphs.current;
+    driver.prepared = true;
+  }
+}
+
+type Point = [number, number];
+
+function lerpPoint(a: Point, b: Point, t: number): Point {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+}
+
+// Splits a CSS cubic-bezier where its output reaches `targetProgress`, and
+// returns both halves renormalized as CSS easings plus the time fraction of
+// the split, so two keyframe segments reproduce the original curve.
+function splitEasingAtProgress(
+  [x1, y1, x2, y2]: [number, number, number, number],
+  targetProgress: number,
+) {
+  const p0: Point = [0, 0];
+  const p1: Point = [x1, y1];
+  const p2: Point = [x2, y2];
+  const p3: Point = [1, 1];
+  const yAt = (t: number) =>
+    3 * (1 - t) ** 2 * t * y1 + 3 * (1 - t) * t ** 2 * y2 + t ** 3;
+
+  let low = 0;
+  let high = 1;
+  for (let index = 0; index < 40; index += 1) {
+    const mid = (low + high) / 2;
+    if (yAt(mid) < targetProgress) low = mid;
+    else high = mid;
+  }
+  const t = (low + high) / 2;
+
+  const p01 = lerpPoint(p0, p1, t);
+  const p12 = lerpPoint(p1, p2, t);
+  const p23 = lerpPoint(p2, p3, t);
+  const p012 = lerpPoint(p01, p12, t);
+  const p123 = lerpPoint(p12, p23, t);
+  const split = lerpPoint(p012, p123, t);
+
+  const toEasing = (a: Point, b: Point) =>
+    `cubic-bezier(${a.map((value) => value.toFixed(4)).join(", ")}, ${b
+      .map((value) => value.toFixed(4))
+      .join(", ")})`;
+  const normalizeFirst = ([x, y]: Point): Point => [x / split[0], y / split[1]];
+  const normalizeSecond = ([x, y]: Point): Point => [
+    (x - split[0]) / (1 - split[0]),
+    (y - split[1]) / (1 - split[1]),
+  ];
+
+  return {
+    midProgress: split[0],
+    firstEasing: toEasing(normalizeFirst(p01), normalizeFirst(p012)),
+    secondEasing: toEasing(normalizeSecond(p123), normalizeSecond(p23)),
+  };
+}
+
+const NAV_FALL_SPLIT = splitEasingAtProgress(NAV_FALL_CURVE, 0.5);
 
 function startFlip(driver: FlapDriver) {
   if (driver.plan.totalSteps === 0 || driver.animation) return;
 
   const cycleDurationMs = getClockedCycleDuration(driver.plan);
   const flipEndOffset = driver.plan.stepDurationMs / cycleDurationMs;
+  const fallEasing = driver.plan.easing;
+  const timing: KeyframeAnimationOptions = {
+    duration: cycleDurationMs,
+    iterations: driver.plan.totalSteps,
+    easing: "linear",
+    fill: "both",
+    ...(driver.plan.delayMs ? { delay: driver.plan.delayMs } : {}),
+  };
+
+  if (!fallEasing) {
+    driver.animation = driver.nodes.flap.animate(
+      [
+        { transform: "rotateX(0deg)", offset: 0 },
+        { transform: "rotateX(-180deg)", offset: flipEndOffset },
+        { transform: "rotateX(-180deg)", offset: 1 },
+      ],
+      timing,
+    );
+    return;
+  }
+
+  // The fall is split at exactly 90deg so each shade can drop to 0 the moment
+  // its face turns away. Chrome does not hide an opacity-animated child with
+  // its parent's backface, so the shades cannot rely on backface-visibility.
+  const { firstEasing, secondEasing, midProgress } = NAV_FALL_SPLIT;
+  const midOffset = flipEndOffset * midProgress;
+  const afterMidOffset = midOffset + 0.0001;
+
   driver.animation = driver.nodes.flap.animate(
     [
-      { transform: "rotateX(0deg)", offset: 0 },
+      { transform: "rotateX(0deg)", easing: firstEasing },
+      { transform: "rotateX(-90deg)", offset: midOffset, easing: secondEasing },
       { transform: "rotateX(-180deg)", offset: flipEndOffset },
       { transform: "rotateX(-180deg)", offset: 1 },
     ],
+    timing,
+  );
+
+  // Opacity shares each segment's easing, so it stays proportional to the
+  // flap angle. Chrome can resolve the exact end as iteration N at progress
+  // 0, so the shades never fill forwards and fall back to opacity 0.
+  const shadeTiming: KeyframeAnimationOptions = { ...timing, fill: "backwards" };
+  driver.shades = [
+    driver.nodes.frontShade.animate(
+      [
+        { opacity: 0, easing: firstEasing },
+        { opacity: NAV_SHADE_PEAK, offset: midOffset },
+        { opacity: 0, offset: afterMidOffset },
+        { opacity: 0, offset: 1 },
+      ],
+      shadeTiming,
+    ),
+    driver.nodes.backShade.animate(
+      [
+        { opacity: 0, offset: 0 },
+        { opacity: 0, offset: midOffset },
+        { opacity: NAV_SHADE_PEAK, offset: afterMidOffset, easing: secondEasing },
+        { opacity: 0, offset: flipEndOffset },
+        { opacity: 0, offset: 1 },
+      ],
+      shadeTiming,
+    ),
+  ];
+
+  // The settle bounce starts as the last flap lands and holds -180deg past
+  // the main animation, covering the same end-of-interval ambiguity.
+  const landedAtMs =
+    (driver.plan.delayMs ?? 0) +
+    cycleDurationMs * driver.plan.totalSteps -
+    getHoldMs(driver.plan);
+  driver.bounce = driver.nodes.flap.animate(
+    [
+      { transform: "rotateX(-180deg)" },
+      { transform: "rotateX(-172deg)", offset: 0.35 },
+      { transform: "rotateX(-180deg)" },
+    ],
     {
-      duration: cycleDurationMs,
-      iterations: driver.plan.totalSteps,
-      easing: "linear",
-      fill: "both",
+      duration: NAV_BOUNCE_MS,
+      delay: landedAtMs,
+      easing: NAV_BOUNCE_EASING,
+      fill: "forwards",
     },
   );
 }
@@ -630,8 +877,7 @@ function useDomClock(isRunning: boolean, onComplete: () => void) {
     driversRef.current.add(driver);
 
     return () => {
-      driver.animation?.cancel();
-      driver.animation = null;
+      cancelDriverAnimations(driver);
       driversRef.current.delete(driver);
     };
   }, []);
@@ -659,6 +905,23 @@ function useDomClock(isRunning: boolean, onComplete: () => void) {
         if (driver.plan.totalSteps === 0) continue;
         if (!driver.animation) startFlip(driver);
 
+        if (driver.plan.easing) {
+          const animation = driver.animation;
+          const activeElapsed = animation
+            ? getActiveElapsedMs(animation)
+            : null;
+          const activeDuration =
+            getClockedCycleDuration(driver.plan) * driver.plan.totalSteps;
+          const finished =
+            animation?.playState === "finished" ||
+            (activeElapsed !== null && activeElapsed >= activeDuration);
+          if (activeElapsed !== null) syncNavigationGlyphs(driver, activeElapsed);
+          if (!finished || driver.bounce?.playState === "running") {
+            pending = true;
+          }
+          continue;
+        }
+
         if (elapsedMs < getClockedPlanDuration(driver.plan)) pending = true;
 
         const step = getClockedStepIndex(driver.plan, elapsedMs);
@@ -681,10 +944,7 @@ function useDomClock(isRunning: boolean, onComplete: () => void) {
       cancelled = true;
       cancelAnimationFrame(frame);
 
-      for (const driver of drivers) {
-        driver.animation?.cancel();
-        driver.animation = null;
-      }
+      for (const driver of drivers) cancelDriverAnimations(driver);
     };
   }, [isRunning]);
 
@@ -765,6 +1025,8 @@ const ClockedSplitFlapCharacter = memo(
     const flapCurrentRef = useRef<HTMLSpanElement>(null);
     const flapNextRef = useRef<HTMLSpanElement>(null);
     const flapRef = useRef<HTMLSpanElement>(null);
+    const frontShadeRef = useRef<HTMLSpanElement>(null);
+    const backShadeRef = useRef<HTMLSpanElement>(null);
     const driverRef = useRef<FlapDriver | null>(null);
     const planRef = useRef(plan);
     const canFlip = plan.totalSteps > 0;
@@ -782,22 +1044,37 @@ const ClockedSplitFlapCharacter = memo(
       const flapCurrent = flapCurrentRef.current;
       const flapNext = flapNextRef.current;
       const flap = flapRef.current;
+      const frontShade = frontShadeRef.current;
+      const backShade = backShadeRef.current;
       if (
         !register ||
         !topNext ||
         !bottomCurrent ||
         !flapCurrent ||
         !flapNext ||
-        !flap
+        !flap ||
+        !frontShade ||
+        !backShade
       ) {
         return;
       }
 
       const driver: FlapDriver = {
         plan: planRef.current,
-        nodes: { topNext, bottomCurrent, flapCurrent, flapNext, flap },
+        nodes: {
+          topNext,
+          bottomCurrent,
+          flapCurrent,
+          flapNext,
+          flap,
+          frontShade,
+          backShade,
+        },
         step: 0,
+        prepared: false,
         animation: null,
+        shades: [],
+        bounce: null,
       };
       driverRef.current = driver;
       writeStep(driver, 0);
@@ -814,7 +1091,13 @@ const ClockedSplitFlapCharacter = memo(
       if (!driver) return;
       driver.plan = planRef.current;
       if (driver.step >= driver.plan.totalSteps) return;
+      const prepared = driver.prepared;
       writeStep(driver, driver.step);
+      if (!prepared || driver.step >= driver.plan.totalSteps - 1) return;
+      const glyphs = glyphsForStep(driver.plan, driver.step + 1);
+      driver.nodes.bottomCurrent.textContent = glyphs.current;
+      driver.nodes.flapCurrent.textContent = glyphs.current;
+      driver.prepared = true;
     });
 
     if (plan.totalSteps === 0) {
@@ -870,6 +1153,7 @@ const ClockedSplitFlapCharacter = memo(
             >
               {initialGlyphs.current}
             </span>
+            <span ref={frontShadeRef} className={flapShadeClass} />
           </span>
 
           <span className={cn(faceClass, "[transform:rotateX(180deg)]")}>
@@ -883,6 +1167,7 @@ const ClockedSplitFlapCharacter = memo(
             >
               {initialGlyphs.next}
             </span>
+            <span ref={backShadeRef} className={flapShadeClass} />
           </span>
         </span>
 
@@ -963,6 +1248,7 @@ function ClockedOrStaticRow({
   shouldRenderScramble,
   isScrambleRunning,
   rowKey,
+  concealStatic = false,
 }: {
   label: string;
   plans: readonly FlapPlan[];
@@ -971,13 +1257,14 @@ function ClockedOrStaticRow({
   shouldRenderScramble: boolean;
   isScrambleRunning: boolean;
   rowKey: string;
+  concealStatic?: boolean;
 }) {
   return (
     <div className="grid w-full">
       <div
         className={cn(
           "col-start-1 row-start-1",
-          isScrambleRunning && "invisible",
+          isScrambleRunning && (concealStatic ? "hidden" : "invisible"),
         )}
       >
         <div
@@ -1270,9 +1557,7 @@ export function SplitFlapNavigationBoard({
   const rows = useMemo(() => rowsKey.split("\u0000"), [rowsKey]);
   const plansByRow = useMemo(
     () =>
-      rows.map((row, rowIndex) =>
-        createRowPlans(row, rowIndex, CLOCKED_RUN_ID),
-      ),
+      rows.map((row, rowIndex) => createNavigationRowPlans(row, rowIndex)),
     [rows],
   );
 
@@ -1366,6 +1651,7 @@ export function SplitFlapNavigationBoard({
                   shouldRenderScramble={shouldRenderScramble}
                   isScrambleRunning={isScrambleRunning}
                   rowKey={item.id}
+                  concealStatic
                 />
               </div>
             </button>
