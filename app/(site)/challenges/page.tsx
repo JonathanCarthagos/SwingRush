@@ -30,7 +30,7 @@ export default async function ChallengesPage() {
 
   return (
     <>
-      <main className="flex-1 overflow-x-clip bg-black">
+      <main id="main" className="flex-1 overflow-x-clip bg-black">
         <PageHero
           title={title}
           stackTitleOnMobile

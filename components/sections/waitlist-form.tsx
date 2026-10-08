@@ -10,9 +10,11 @@ import {
 
 import { joinWaitlist } from "@/app/(site)/waitlist/actions";
 import { Button } from "@/components/ui/button";
+import { validateWaitlistFields } from "@/lib/waitlist-fields";
 import { cn } from "@/lib/utils";
 import type {
   WaitlistField,
+  WaitlistFormErrorField,
   WaitlistFormState,
   WaitlistLocationOption,
   WaitlistPageContent,
@@ -32,8 +34,9 @@ const FIELD_INSET =
   "pr-[0.733rem] pl-[calc(0.733rem+0.12em)] min-[768px]:pr-[clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)] min-[768px]:pl-[calc(clamp(0.733rem,calc(2.006vw-0.23rem),1.375rem)+0.12em)] min-[1280px]:pr-[1.375rem] min-[1280px]:pl-[calc(1.375rem+0.12em)]";
 // Mobile uses the body face so a full email fits in the field. Tablet and desktop keep Owners Black Italic.
 // The global .font-display rule is italic at every width, so the display face is only applied from 768px.
+// The display size caps below the old 4.6875rem so a long email stays inside the field.
 const FIELD_TEXT =
-  "font-body text-[1.0625rem] font-normal not-italic leading-[1.3] tracking-body min-[768px]:font-display min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[768px]:font-extrabold min-[768px]:italic min-[768px]:leading-[1.85] min-[768px]:tracking-normal min-[1280px]:text-[4.6875rem]";
+  "font-body text-[1.0625rem] font-normal not-italic leading-[1.3] tracking-body min-[768px]:font-display min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),3.25rem)] min-[768px]:font-extrabold min-[768px]:italic min-[768px]:leading-[1.85] min-[768px]:tracking-normal min-[1280px]:text-[3.25rem]";
 // Errors carry a red bar inside the white field; keyboard focus gets a white ring outside it.
 const FIELD_STATES =
   "outline-none focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-white aria-invalid:shadow-[inset_0_-0.375rem_0_#f92524]";
@@ -110,9 +113,24 @@ function formatPhoneInput(input: HTMLInputElement) {
 
 const initialState: WaitlistFormState = { status: "idle" };
 
+function focusWaitlistError(
+  form: HTMLFormElement,
+  fieldErrors: Partial<Record<WaitlistFormErrorField, string>>,
+) {
+  const firstInvalid = FIELD_ORDER.find((field) => fieldErrors[field]);
+  const target = firstInvalid
+    ? form.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
+    : fieldErrors.optIn
+      ? form.querySelector<HTMLElement>('[name="optIn"]')
+      : null;
+  target?.focus();
+}
+
 export interface WaitlistFormProps {
   content: WaitlistPageContent;
   locations: readonly WaitlistLocationOption[];
+  /** Id of the heading that names this form. */
+  headingId: string;
   /** Locks the signup to one city: the location picker is replaced by a hidden field and the fields get the compact city-page size. */
   fixedLocation?: { slug: string; sourcePath: string };
   className?: string;
@@ -121,6 +139,7 @@ export interface WaitlistFormProps {
 export function WaitlistForm({
   content,
   locations,
+  headingId,
   fixedLocation,
   className,
 }: WaitlistFormProps) {
@@ -132,7 +151,15 @@ export function WaitlistForm({
   const successHeadingRef = useRef<HTMLHeadingElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
 
-  const errors = state.status === "error" ? state.errors : {};
+  const [clientErrors, setClientErrors] = useState<
+    Partial<Record<WaitlistFormErrorField, string>>
+  >({});
+  const errors =
+    Object.keys(clientErrors).length > 0
+      ? clientErrors
+      : state.status === "error"
+        ? state.errors
+        : {};
   const values = state.status === "error" ? state.values : undefined;
   const [location, setLocation] = useState(values?.location ?? "");
   const [email, setEmail] = useState(values?.email ?? "");
@@ -144,9 +171,11 @@ export function WaitlistForm({
   const fieldBox = compact ? FIELD_BOX_COMPACT : FIELD_BOX;
   // A fixed city can only fail validation if it was unpublished mid-visit; surface that as a form message.
   const formMessage =
-    state.status === "error"
-      ? (state.message ?? (compact ? errors.location : undefined))
-      : undefined;
+    Object.keys(clientErrors).length > 0
+      ? undefined
+      : state.status === "error"
+        ? (state.message ?? (compact ? errors.location : undefined))
+        : undefined;
 
   const syncMirroredField = (input: HTMLInputElement) => {
     if (input.name === "phone") {
@@ -189,22 +218,16 @@ export function WaitlistForm({
   }, []);
 
   useEffect(() => {
-    if (state.status === "success") {
+    if (state.status === "success" || state.status === "duplicate") {
       successHeadingRef.current?.focus();
       return;
     }
-    if (state.status === "error") {
-      const firstInvalid = FIELD_ORDER.find((field) => state.errors[field]);
-      const target = firstInvalid
-        ? formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)
-        : state.errors.optIn
-          ? formRef.current?.querySelector<HTMLElement>('[name="optIn"]')
-          : null;
-      target?.focus();
+    if (state.status === "error" && formRef.current) {
+      focusWaitlistError(formRef.current, state.errors);
     }
   }, [state]);
 
-  if (state.status === "success") {
+  if (state.status === "success" || state.status === "duplicate") {
     return (
       <div
         aria-live="polite"
@@ -222,11 +245,15 @@ export function WaitlistForm({
           tabIndex={-1}
           className="font-display text-[2.5rem] uppercase leading-[0.9] text-white outline-none [text-wrap:balance] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem]"
         >
-          {content.success.title}
+          {state.status === "duplicate"
+            ? `You’re already on the list for ${state.city}`
+            : content.success.title}
         </h2>
-        <p className="mt-[0.9375rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:mt-6 min-[1280px]:text-[1.875rem]">
-          {content.success.message}
-        </p>
+        {state.status === "success" ? (
+          <p className="mt-[0.9375rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:mt-6 min-[1280px]:text-[1.875rem]">
+            {content.success.message}
+          </p>
+        ) : null}
       </div>
     );
   }
@@ -238,6 +265,7 @@ export function WaitlistForm({
     <form
       ref={formRef}
       action={formAction}
+      aria-labelledby={headingId}
       // With JS, submit inside a transition so React skips its post-action reset and the
       // visitor keeps what they typed; without JS the native action above still posts.
       onSubmit={(event) => {
@@ -247,6 +275,22 @@ export function WaitlistForm({
         const honeypot = form.elements.namedItem("sr_hp");
         if (honeypot instanceof HTMLInputElement) honeypot.value = "";
         const formData = new FormData(form);
+        const readField = (name: string) => {
+          const value = formData.get(name);
+          return typeof value === "string" ? value : "";
+        };
+        const nextErrors = validateWaitlistFields({
+          email: readField("email"),
+          phone: readField("phone"),
+          location: readField("location"),
+          optIn: formData.get("optIn") === "on",
+        });
+        if (Object.keys(nextErrors).length > 0) {
+          setClientErrors(nextErrors);
+          focusWaitlistError(form, nextErrors);
+          return;
+        }
+        setClientErrors({});
         startTransition(() => formAction(formData));
       }}
       noValidate

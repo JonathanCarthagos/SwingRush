@@ -29,7 +29,11 @@ export function WaitlistPageSection({
       <p className="mt-[0.9375rem] max-w-[47.8125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:mt-6 min-[1280px]:text-[1.875rem]">
         {content.introduction}
       </p>
-      <WaitlistForm content={content} locations={locations} />
+      <WaitlistForm
+        content={content}
+        locations={locations}
+        headingId="waitlist-title"
+      />
     </section>
   );
 }

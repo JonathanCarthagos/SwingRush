@@ -15,6 +15,8 @@ interface WaitlistExportRow {
   smsOptIn?: boolean;
   consentText?: string;
   consentedAt?: string;
+  lastSubmittedAt?: string;
+  submissionCount?: number;
   sourcePath?: string;
 }
 
@@ -33,6 +35,8 @@ const COLUMNS = [
   "smsOptIn",
   "consentText",
   "consentedAt",
+  "lastSubmittedAt",
+  "submissionCount",
   "sourcePath",
 ] as const satisfies readonly (keyof WaitlistExportRow)[];
 
@@ -52,6 +56,8 @@ const SIGNUPS_QUERY = `*[_type == "waitlistContact" && locationSlug == $slug] | 
   smsOptIn,
   consentText,
   consentedAt,
+  lastSubmittedAt,
+  submissionCount,
   sourcePath
 }`;
 

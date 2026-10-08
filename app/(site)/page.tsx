@@ -46,7 +46,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <main className="min-h-dvh flex-1 overflow-x-clip bg-[#000000]">
+      <main id="main" className="min-h-dvh flex-1 overflow-x-clip bg-[#000000]">
         <Hero
           heading={hero.heading}
           webmSrc={hero.webmSrc}

@@ -83,6 +83,19 @@ export const waitlistContact = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "lastSubmittedAt",
+      title: "Last submitted at",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
+      name: "submissionCount",
+      title: "Submission count",
+      type: "number",
+      readOnly: true,
+      validation: (rule) => rule.integer().positive(),
+    }),
+    defineField({
       name: "sourcePath",
       title: "Source",
       type: "string",

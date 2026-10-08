@@ -30,7 +30,7 @@ export default async function WaitlistPage() {
   ]);
 
   return (
-    <main className="flex-1 overflow-x-hidden bg-black pt-nav-offset min-[768px]:pt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:pt-24">
+    <main id="main" className="flex-1 overflow-x-hidden bg-black pt-nav-offset min-[768px]:pt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:pt-24">
       <WaitlistPageSection content={content} locations={locations} />
     </main>
   );

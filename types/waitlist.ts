@@ -35,4 +35,5 @@ export type WaitlistFormState =
       message?: string;
       values: WaitlistFormValues;
     }
-  | { status: "success" };
+  | { status: "success" }
+  | { status: "duplicate"; city: string };

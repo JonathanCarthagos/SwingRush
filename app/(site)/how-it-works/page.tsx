@@ -30,7 +30,7 @@ export default async function HowItWorksPage() {
 
   return (
     <>
-      <main className="min-h-dvh flex-1 overflow-x-hidden bg-black">
+      <main id="main" className="min-h-dvh flex-1 overflow-x-hidden bg-black">
         <PageHero
           title={hero.heading}
           tone="deep"

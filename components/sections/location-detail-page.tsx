@@ -43,7 +43,7 @@ export interface LocationDetailPageProps {
 
 export function LocationDetailPage({ content }: LocationDetailPageProps) {
   return (
-    <main className="flex-1 overflow-x-hidden bg-black text-white">
+    <main id="main" className="flex-1 overflow-x-hidden bg-black text-white">
       <LocationVideoHero media={content.hero} title={content.city} />
 
       <div className="mx-auto w-full max-w-[105rem] px-4 py-20 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(5rem,calc(1.25rem+7.8125vw),7.5rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.5rem]">
