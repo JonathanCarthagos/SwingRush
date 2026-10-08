@@ -515,32 +515,11 @@ function DesktopChallengeDetails({ item }: { item: ChallengeItem }) {
 
   return (
     <dl className={cn("mt-[1.4063rem] text-white", textClassName)}>
-      <div className="grid grid-cols-2 gap-x-[1.03125rem]">
-        <div className="min-w-0 space-y-[1.75rem]">
-          <DesktopChallengeDatum label="Club" value={item.club} />
-          <DesktopChallengeDatum label="Shot" value={item.shot} />
-          <DesktopChallengeDatum label="Distance" value={item.distance} />
-        </div>
-
-        <div className="min-w-0 space-y-[1.75rem]">
-          <DesktopChallengeDatum
-            label="Target Height"
-            value={`OPEN = ${item.targetHeight.open}\nELITE = ${item.targetHeight.elite}`}
-            stack
-          />
-          <DesktopChallengeDatum
-            label="Time Limit"
-            value={item.timeLimit}
-            stack
-          />
-        </div>
-      </div>
-
+      <DesktopChallengeDatum label="Club" value={item.club} />
       <DesktopChallengeDatum
         label="Description"
         value={item.description}
         className="mt-[1.4063rem]"
-        stack
       />
     </dl>
   );
@@ -549,27 +528,18 @@ function DesktopChallengeDetails({ item }: { item: ChallengeItem }) {
 interface DesktopChallengeDatumProps {
   label: string;
   value: string;
-  stack?: boolean;
   className?: string;
 }
 
 function DesktopChallengeDatum({
   label,
   value,
-  stack = false,
   className,
 }: DesktopChallengeDatumProps) {
   return (
     <div className={cn("min-w-0", className)}>
-      <dt className="inline font-bold">{label}</dt>
-      <dd
-        className={cn(
-          "whitespace-pre-line break-words",
-          stack ? "block" : "ml-[0.35em] inline",
-        )}
-      >
-        {value}
-      </dd>
+      <dt className="block font-bold">{label}</dt>
+      <dd className="block whitespace-pre-line break-words">{value}</dd>
     </div>
   );
 }
@@ -587,25 +557,12 @@ function ChallengeDetails({ item }: { item: ChallengeItem }) {
         />
       </div>
 
-      <dl className="mt-8 grid grid-cols-2 gap-x-6 text-white">
-        <div className="min-w-0 space-y-[1.75rem]">
-          <ChallengeDatum label="Club" value={item.club} />
-          <ChallengeDatum label="Shot" value={item.shot} />
-          <ChallengeDatum label="Distance" value={item.distance} />
-        </div>
-
-        <div className="min-w-0 space-y-[1.75rem]">
-          <ChallengeDatum
-            label="Target Height"
-            value={`OPEN = ${item.targetHeight.open}\nELITE = ${item.targetHeight.elite}`}
-          />
-          <ChallengeDatum label="Time Limit" value={item.timeLimit} />
-        </div>
-
+      <dl className="mt-8 text-white">
+        <ChallengeDatum label="Club" value={item.club} />
         <ChallengeDatum
           label="Description"
           value={item.description}
-          className="col-span-2 mt-[1.4063rem]"
+          className="mt-[1.4063rem]"
         />
       </dl>
     </div>
