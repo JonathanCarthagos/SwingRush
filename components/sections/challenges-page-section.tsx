@@ -247,25 +247,6 @@ export function ChallengesPageSection({
   );
 }
 
-const SPY_BAND_TOP = 115.2;
-
-function cardInSpyBand(cards: readonly HTMLElement[]) {
-  const bandBottom = window.innerHeight * 0.3;
-  return (
-    cards
-      .filter((card) => {
-        if (card.getClientRects().length === 0) return false;
-        const rect = card.getBoundingClientRect();
-        return rect.bottom > SPY_BAND_TOP && rect.top < bandBottom;
-      })
-      .sort(
-        (a, b) =>
-          a.getBoundingClientRect().top - b.getBoundingClientRect().top,
-      )[0]
-      ?.getAttribute("data-challenge-id") ?? null
-  );
-}
-
 interface DesktopChallengesProps {
   emptyState: string;
   items: readonly ChallengeItem[];
@@ -292,9 +273,6 @@ function DesktopChallenges({
     items[0]?.id ?? null,
   );
   const [animateSelection, setAnimateSelection] = useState(false);
-  const [pointerOnCards, setPointerOnCards] = useState(false);
-  const pointerOnCardsRef = useRef(false);
-  pointerOnCardsRef.current = pointerOnCards;
 
   const navigationItems = useMemo<SplitFlapNavigationItem[]>(
     () =>
@@ -399,20 +377,22 @@ function DesktopChallenges({
         .filter((card): card is HTMLElement => card !== undefined);
       if (cards.length === 0) return;
 
+      const bandTop = 115.2;
       observer = new IntersectionObserver(
-        (entries) => {
+        () => {
           if (ignoreSpyRef.current) return;
-          const finePointer = window.matchMedia(
-            "(hover: hover) and (pointer: fine)",
-          ).matches;
-          if (finePointer && !pointerOnCardsRef.current) return;
 
-          const visible = entries
-            .filter((entry) => entry.isIntersecting)
+          const bandBottom = window.innerHeight * 0.3;
+          const nextId = cards
+            .filter((card) => {
+              const rect = card.getBoundingClientRect();
+              return rect.bottom > bandTop && rect.top < bandBottom;
+            })
             .sort(
-              (a, b) => a.boundingClientRect.top - b.boundingClientRect.top,
-            );
-          const nextId = visible[0]?.target.getAttribute("data-challenge-id");
+              (a, b) =>
+                a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+            )[0]
+            ?.getAttribute("data-challenge-id");
           if (!nextId) return;
 
           setAnimateSelection(false);
@@ -472,30 +452,7 @@ function DesktopChallenges({
             />
           </aside>
 
-          <div
-            className="flex min-w-0 flex-col gap-4"
-            onPointerEnter={() => {
-              pointerOnCardsRef.current = true;
-              setPointerOnCards(true);
-              if (
-                !window.matchMedia("(hover: hover) and (pointer: fine)")
-                  .matches
-              ) {
-                return;
-              }
-              const cards = items
-                .map((item) => cardRefs.current.get(item.id))
-                .filter((card): card is HTMLElement => card !== undefined);
-              const nextId = cardInSpyBand(cards);
-              if (!nextId) return;
-              setAnimateSelection(false);
-              setActiveItemId(nextId);
-            }}
-            onPointerLeave={() => {
-              pointerOnCardsRef.current = false;
-              setPointerOnCards(false);
-            }}
-          >
+          <div className="flex min-w-0 flex-col gap-4">
             {items.map((item) => (
               <div
                 key={item.id}
