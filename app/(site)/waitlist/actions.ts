@@ -23,7 +23,7 @@ import type {
 
 const WAITLIST_SOURCE_PATH = "/waitlist";
 const LOCATION_SOURCE_PATH = /^\/locations\/[a-z0-9-]+$/;
-const HONEYPOT_FIELD = "company";
+const HONEYPOT_FIELD = "sr_hp";
 
 function readSourcePath(formData: FormData) {
   const value = formData.get("sourcePath");
@@ -32,12 +32,25 @@ function readSourcePath(formData: FormData) {
     : WAITLIST_SOURCE_PATH;
 }
 
+function normalizeEmail(value: string) {
+  const cleaned = value
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\u00a0/g, " ")
+    .trim();
+  const wrapped = cleaned.match(/<([^<>\s]+@[^<>\s]+)>/);
+  return (wrapped?.[1] ?? cleaned).trim();
+}
+
 function readValues(formData: FormData): WaitlistFormValues {
   const read = (key: WaitlistField) => {
     const value = formData.get(key);
     return typeof value === "string" ? value.trim() : "";
   };
-  return { email: read("email"), phone: read("phone"), location: read("location") };
+  return {
+    email: normalizeEmail(read("email")),
+    phone: read("phone"),
+    location: read("location"),
+  };
 }
 
 function waitlistDocumentId(email: string, locationSlug: string) {
