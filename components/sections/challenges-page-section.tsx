@@ -247,6 +247,25 @@ export function ChallengesPageSection({
   );
 }
 
+const SPY_BAND_TOP = 115.2;
+
+function cardInSpyBand(cards: readonly HTMLElement[]) {
+  const bandBottom = window.innerHeight * 0.3;
+  return (
+    cards
+      .filter((card) => {
+        if (card.getClientRects().length === 0) return false;
+        const rect = card.getBoundingClientRect();
+        return rect.bottom > SPY_BAND_TOP && rect.top < bandBottom;
+      })
+      .sort(
+        (a, b) =>
+          a.getBoundingClientRect().top - b.getBoundingClientRect().top,
+      )[0]
+      ?.getAttribute("data-challenge-id") ?? null
+  );
+}
+
 interface DesktopChallengesProps {
   emptyState: string;
   items: readonly ChallengeItem[];
@@ -266,7 +285,6 @@ function DesktopChallenges({
 }: DesktopChallengesProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const cardRefs = useRef(new Map<string, HTMLElement>());
-  const boardRef = useRef<HTMLElement>(null);
   const ignoreSpyRef = useRef(false);
   const requestedItemIdRef = useRef(requestedItemId);
   requestedItemIdRef.current = requestedItemId;
@@ -274,6 +292,9 @@ function DesktopChallenges({
     items[0]?.id ?? null,
   );
   const [animateSelection, setAnimateSelection] = useState(false);
+  const [pointerOnCards, setPointerOnCards] = useState(false);
+  const pointerOnCardsRef = useRef(false);
+  pointerOnCardsRef.current = pointerOnCards;
 
   const navigationItems = useMemo<SplitFlapNavigationItem[]>(
     () =>
@@ -381,6 +402,10 @@ function DesktopChallenges({
       observer = new IntersectionObserver(
         (entries) => {
           if (ignoreSpyRef.current) return;
+          const finePointer = window.matchMedia(
+            "(hover: hover) and (pointer: fine)",
+          ).matches;
+          if (finePointer && !pointerOnCardsRef.current) return;
 
           const visible = entries
             .filter((entry) => entry.isIntersecting)
@@ -410,21 +435,6 @@ function DesktopChallenges({
     };
   }, [items]);
 
-  useEffect(() => {
-    const board = boardRef.current;
-    if (!board) return;
-
-    const fineHover = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const desktop = window.matchMedia(DESKTOP_CHALLENGES_QUERY);
-    const onWheel = (event: WheelEvent) => {
-      if (!fineHover.matches || !desktop.matches || event.ctrlKey) return;
-      event.preventDefault();
-    };
-
-    board.addEventListener("wheel", onWheel, { passive: false });
-    return () => board.removeEventListener("wheel", onWheel);
-  }, [items]);
-
   const selectItem = (
     itemId: string,
     source: SplitFlapSelectionSource,
@@ -450,10 +460,7 @@ function DesktopChallenges({
     >
       {items.length > 0 ? (
         <div className="grid w-full grid-cols-[minmax(0,43.186%)_minmax(0,37.695%)] items-start gap-x-[19.119%]">
-          <aside
-            ref={boardRef}
-            className="sticky top-[7.2rem] min-w-0 self-start"
-          >
+          <aside className="sticky top-[7.2rem] min-w-0 self-start">
             <SplitFlapNavigationBoard
               items={navigationItems}
               activeItemId={activeItemId}
@@ -465,7 +472,30 @@ function DesktopChallenges({
             />
           </aside>
 
-          <div className="flex min-w-0 flex-col gap-4">
+          <div
+            className="flex min-w-0 flex-col gap-4"
+            onPointerEnter={() => {
+              pointerOnCardsRef.current = true;
+              setPointerOnCards(true);
+              if (
+                !window.matchMedia("(hover: hover) and (pointer: fine)")
+                  .matches
+              ) {
+                return;
+              }
+              const cards = items
+                .map((item) => cardRefs.current.get(item.id))
+                .filter((card): card is HTMLElement => card !== undefined);
+              const nextId = cardInSpyBand(cards);
+              if (!nextId) return;
+              setAnimateSelection(false);
+              setActiveItemId(nextId);
+            }}
+            onPointerLeave={() => {
+              pointerOnCardsRef.current = false;
+              setPointerOnCards(false);
+            }}
+          >
             {items.map((item) => (
               <div
                 key={item.id}
