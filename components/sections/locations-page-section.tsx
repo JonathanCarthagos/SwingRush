@@ -28,12 +28,12 @@ export function LocationsPageSection({
   return (
     <section
       className={cn(
-        "bg-black px-4 py-[4.375rem] text-white min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(4.375rem,calc(15.55vw-3.09rem),9.352rem)] min-[1280px]:px-[5%] min-[1280px]:py-[9.352rem]",
+        "bg-black px-4 py-[4.375rem] text-white min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(4.375rem,calc(15.55vw-3.09rem),9.352rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[9.352rem]",
         className,
       )}
       {...props}
     >
-      <div className="w-full">
+      <div className="w-full min-[1280px]:mx-auto min-[1280px]:max-w-[calc(105rem-2*3.875rem)]">
         {pageContent.locations.length > 0 ? (
           <LocationList locations={pageContent.locations} />
         ) : (

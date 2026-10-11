@@ -97,6 +97,10 @@ const config: Config = {
         "tablet-band":
           "clamp(28.4375rem, calc(14.84375rem + 28.3203125vw), 37.5rem)",
         "desktop-gutter": "3.875rem",
+        // Sticky/anchor offset under the 96px desktop nav (96px + 57.6px gap); shared by Challenges and How It Works.
+        "desktop-anchor": "9.6rem",
+        // How It Works titles: half the gap under the nav (96px + 28.8px).
+        "desktop-anchor-tight": "7.8rem",
         "desktop-content": "80.875rem",
       },
     },

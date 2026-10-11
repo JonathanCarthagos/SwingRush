@@ -22,6 +22,10 @@
 - Container: `mx-auto max-w-[105rem] px-desktop-gutter`, the same tokens already used by the Locations index and Challenges desktop work (1680px reference minus 2×62px gutters = 1556px content width, matching the Figma frame's own content column).
 - Typography/spacing use plain literal Tailwind values matching the 1680px Figma measurements directly (`text-[4.6875rem]` for 75px headings, `text-[1.5rem]` for 24px body, etc.) rather than new fluid `clamp()` tokens — this matches the established convention in `how-it-works-accordion-section.tsx` and `challenges-page-section.tsx` (fixed sizes, fluid only via the flexible grid/container), not the Locations-index page (which is the one exception that added `clamp()` tokens for its variable-height sticky layout).
 
+## Desktop page margin standard
+
+From 1280px, `desktop-gutter` (3.875rem = 62px, the nav gutter) is the only permitted side margin for page content: How It Works, Challenges, Locations index and detail pages all use it. Do not reintroduce `%` or `vw`-based side padding on desktop pages. Sticky/anchor offsets under the nav use the shared `desktop-anchor` spacing token (9.6rem).
+
 ## Anchor scroll fix
 
 The desktop tree renders a second copy of the ticket-info/volunteer sections, so `id="ticket-info"`/`id="volunteer"` exist twice in the DOM (once per breakpoint tree; only one is ever visible). A native `href="#ticket-info"` would always resolve to the first (mobile) match, which is invisible/zero-height at desktop. `components/ui/anchor-scroll-link.tsx` is a small client component used only on the CMS-driven action links that point at these anchors (`primaryAction`, ticket release actions, the volunteer action) — on click it finds whichever same-id node is actually rendered (`getClientRects().length > 0`) and scrolls to that one instead. Mobile markup and ids were not touched.

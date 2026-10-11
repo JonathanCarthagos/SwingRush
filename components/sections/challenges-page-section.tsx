@@ -439,7 +439,7 @@ function DesktopChallenges({
   return (
     <div
       data-challenges-desktop
-      className="mx-auto hidden w-full max-w-[105rem] px-[clamp(4.375rem,5.476vw,5.75rem)] py-[clamp(7.5rem,8.929vw,9.375rem)] [--challenges-anchor-offset:9.6rem] min-[1280px]:block"
+      className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter py-[clamp(7.5rem,8.929vw,9.375rem)] [--challenges-anchor-offset:theme(spacing.desktop-anchor)] min-[1280px]:block"
     >
       {items.length > 0 ? (
         <div className="grid w-full grid-cols-[minmax(0,43.186%)_minmax(0,37.695%)] items-start gap-x-[19.119%]">

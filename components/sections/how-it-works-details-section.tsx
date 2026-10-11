@@ -51,17 +51,20 @@ function DetailRow({ item }: { item: HowItWorksItem }) {
         STACK_GAP,
         // The link's 44px hit area already closes the block, as in the frame.
         item.link ? "pb-0" : "pb-[1.375rem]",
-        "min-[1280px]:grid min-[1280px]:grid-cols-[minmax(0,32.455%)_minmax(0,49.293%)] min-[1280px]:items-start min-[1280px]:justify-between min-[1280px]:gap-0 min-[1280px]:pb-0",
+        "min-[1280px]:grid min-[1280px]:scroll-mt-desktop-anchor-tight min-[1280px]:grid-cols-[minmax(0,32.455%)_minmax(0,49.293%)] min-[1280px]:items-start min-[1280px]:justify-between min-[1280px]:gap-0 min-[1280px]:pb-0",
       )}
     >
-      <DisplayHeading
-        as="h2"
-        text={item.title}
-        wrap
-        // Desktop scales with the 1680px frame so titles keep one line as the columns narrow;
-        // the tablet ramp ends where desktop starts (50px -> 57.14px) to avoid a jump at 1280.
-        className="flex min-h-[5.6875rem] flex-col justify-center font-display text-[3.125rem] uppercase leading-[2.625rem] text-white min-[768px]:text-[clamp(3.125rem,calc(2.4554rem+1.3951vw),3.5714rem)] min-[768px]:leading-[clamp(2.625rem,calc(2.0089rem+1.2835vw),3.0357rem)] min-[1280px]:-mt-[0.04em] min-[1280px]:block min-[1280px]:min-h-0 min-[1280px]:text-[clamp(3.125rem,calc(100vw*75/1680),4.6875rem)] min-[1280px]:leading-[0.85]"
-      />
+      {/* From 1280px the cell spans the whole row so the title can stay pinned until the next row takes over. */}
+      <div className="min-[1280px]:h-full min-[1280px]:self-stretch">
+        <DisplayHeading
+          as="h2"
+          text={item.title}
+          wrap
+          // Desktop scales with the 1680px frame so titles keep one line as the columns narrow;
+          // the tablet ramp ends where desktop starts (50px -> 57.14px) to avoid a jump at 1280.
+          className="flex min-h-[5.6875rem] flex-col justify-center font-display text-[3.125rem] uppercase leading-[2.625rem] text-white min-[768px]:text-[clamp(3.125rem,calc(2.4554rem+1.3951vw),3.5714rem)] min-[768px]:leading-[clamp(2.625rem,calc(2.0089rem+1.2835vw),3.0357rem)] min-[1280px]:sticky min-[1280px]:top-desktop-anchor-tight min-[1280px]:-mt-[0.04em] min-[1280px]:block min-[1280px]:min-h-0 min-[1280px]:text-[clamp(3.125rem,calc(100vw*75/1680),4.6875rem)] min-[1280px]:leading-[0.85]"
+        />
+      </div>
 
       <div className={cn("flex min-w-0 flex-col", STACK_GAP)}>
         {item.image ? <DetailImage image={item.image} /> : null}
