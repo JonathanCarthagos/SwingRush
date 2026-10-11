@@ -33,5 +33,5 @@ The other 13 cities render `LocationComingSoon` instead of the full template. Th
 ## Validation baseline
 
 - Widths: 375, 480, 768, 1024, 1279, 1280, 1440, 1680px, for both a complete city (`/locations/new-york-city`) and a coming-soon city (e.g. `/locations/boston`).
-- Required: no horizontal overflow (`document.documentElement.scrollWidth === clientWidth`), one Footer per route, mobile/tablet pixel-identical to before this change, nav still fades in over the hero at desktop (`data-nav-hero`/`data-nav-hero-boundary` + `data-location-hero`, unchanged), reduced-motion still swaps to the poster image, `#ticket-info`/`#volunteer` anchors scroll to the visible section at every breakpoint.
+- Required: no horizontal overflow (`document.documentElement.scrollWidth === clientWidth`), one Footer per route, mobile/tablet pixel-identical to before this change, location detail routes keep the solid brand nav bar (unchanged), reduced-motion still swaps to the poster image, `#ticket-info`/`#volunteer` anchors scroll to the visible section at every breakpoint.
 - Required commands: `npm run lint`, `npm run build`, `git diff --check`.

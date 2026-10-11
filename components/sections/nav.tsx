@@ -9,9 +9,11 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useState } from "react";
 
+import { buttonVariants } from "@/components/ui/button";
 import { LogoLockup } from "@/components/ui/logo-lockup";
+import { cn } from "@/lib/utils";
 
 const links = [
   { label: "Home", href: "/" },
@@ -41,12 +43,10 @@ const barClass = `block shrink-0 ${BAR_H} ${BAR_W} origin-center bg-white`;
 // Curva drawer (Ionic) — desaceleração longa, sensação premium e fluida.
 const MOTION_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
 const MOTION_EASE_IN: [number, number, number, number] = [0.76, 0, 0.24, 1];
-const HEADER_FADE_IN_EASE: [number, number, number, number] = [
-  0.77, 0, 0.175, 1,
-];
-const HEADER_FADE_OUT_EASE: [number, number, number, number] = [
-  0.23, 1, 0.32, 1,
-];
+// Soft ease-in-out: the red wash starts slowly instead of snapping on.
+const HEADER_BG_EASE: [number, number, number, number] = [0.45, 0.05, 0.2, 1];
+const HEADER_BG_ENTER_S = 1.05;
+const HEADER_BG_EXIT_S = 0.8;
 
 const panelEnter: Transition = { duration: 0.55, ease: MOTION_EASE };
 const panelExit: Transition = { duration: 0.38, ease: MOTION_EASE_IN };
@@ -117,89 +117,26 @@ function HeaderBackground({
       transition={
         immediate || reduce
           ? { duration: 0 }
-          : visible
-            ? { duration: 0.28, ease: HEADER_FADE_IN_EASE }
-            : { duration: 0.22, ease: HEADER_FADE_OUT_EASE }
+          : {
+              duration: visible ? HEADER_BG_ENTER_S : HEADER_BG_EXIT_S,
+              ease: HEADER_BG_EASE,
+            }
       }
     />
-  );
-}
-
-interface HeroHeaderBackgroundProps {
-  headerRef: RefObject<HTMLElement | null>;
-  isOpen: boolean;
-  reduce: boolean | null;
-}
-
-function HeroHeaderBackground({
-  headerRef,
-  isOpen,
-  reduce,
-}: HeroHeaderBackgroundProps) {
-  const [hasPassedHero, setHasPassedHero] = useState(false);
-
-  useEffect(() => {
-    const header = headerRef.current;
-    const hero = document.querySelector<HTMLElement>("[data-nav-hero]");
-    const boundary = document.querySelector<HTMLElement>(
-      "[data-nav-hero-boundary]",
-    );
-
-    if (!header || !hero || !boundary) return;
-
-    let boundaryObserver: IntersectionObserver | undefined;
-
-    const observeBoundary = () => {
-      boundaryObserver?.disconnect();
-
-      const headerBottom = Math.ceil(header.getBoundingClientRect().bottom);
-      boundaryObserver = new IntersectionObserver(
-        ([entry]) => {
-          if (!entry) return;
-
-          const rootTop = entry.rootBounds?.top ?? headerBottom;
-          setHasPassedHero(
-            !entry.isIntersecting &&
-              entry.boundingClientRect.bottom <= rootTop,
-          );
-        },
-        {
-          rootMargin: `-${headerBottom}px 0px 0px`,
-          threshold: [0, 1],
-        },
-      );
-      boundaryObserver.observe(boundary);
-
-      setHasPassedHero(
-        boundary.getBoundingClientRect().bottom <= headerBottom,
-      );
-    };
-
-    observeBoundary();
-
-    const resizeObserver = new ResizeObserver(observeBoundary);
-    resizeObserver.observe(header);
-    resizeObserver.observe(hero);
-
-    return () => {
-      boundaryObserver?.disconnect();
-      resizeObserver.disconnect();
-    };
-  }, [headerRef]);
-
-  return (
-    <HeaderBackground visible={isOpen || hasPassedHero} reduce={reduce} />
   );
 }
 
 interface ScrollThresholdHeaderBackgroundProps {
   isOpen: boolean;
   reduce: boolean | null;
+  /** When 0, show the bar on any scroll (scrollY > 0). When omitted, use 10vh. */
+  thresholdPx?: number;
 }
 
 function ScrollThresholdHeaderBackground({
   isOpen,
   reduce,
+  thresholdPx,
 }: ScrollThresholdHeaderBackgroundProps) {
   const [hasPassedThreshold, setHasPassedThreshold] = useState(false);
 
@@ -208,7 +145,14 @@ function ScrollThresholdHeaderBackground({
 
     const update = () => {
       frameId = null;
-      setHasPassedThreshold(window.scrollY >= window.innerHeight * 0.1);
+      const { scrollY, innerHeight } = window;
+      const passed =
+        thresholdPx !== undefined
+          ? thresholdPx === 0
+            ? scrollY > 0
+            : scrollY >= thresholdPx
+          : scrollY >= innerHeight * 0.1;
+      setHasPassedThreshold(passed);
     };
 
     const scheduleUpdate = () => {
@@ -225,7 +169,7 @@ function ScrollThresholdHeaderBackground({
       window.removeEventListener("scroll", scheduleUpdate);
       window.removeEventListener("resize", scheduleUpdate);
     };
-  }, []);
+  }, [thresholdPx]);
 
   return (
     <HeaderBackground
@@ -242,7 +186,6 @@ export interface NavProps {
 
 export function Nav({ solid = false }: NavProps) {
   const pathname = usePathname();
-  const headerRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const reduce = useReducedMotion();
 
@@ -271,23 +214,16 @@ export function Nav({ solid = false }: NavProps) {
   return (
     <>
       <header
-        ref={headerRef}
         className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:px-[clamp(0.9791875rem,calc(-3.36453125rem+9.0494140625vw),3.875rem)] min-[768px]:py-[clamp(0.8333125rem,calc(0.11453125rem+1.4974609375vw),1.3125rem)] min-[1280px]:h-24 min-[1280px]:px-desktop-gutter min-[1280px]:py-[1.3125rem]"
       >
         {isSolidRoute ? (
           <HeaderBackground visible immediate reduce={reduce} />
-        ) : isHeroRoute ? (
-          <HeroHeaderBackground
-            key={pathname}
-            headerRef={headerRef}
-            isOpen={isOpen}
-            reduce={reduce}
-          />
         ) : (
           <ScrollThresholdHeaderBackground
             key={pathname}
             isOpen={isOpen}
             reduce={reduce}
+            thresholdPx={isHeroRoute ? 0 : undefined}
           />
         )}
 
@@ -347,12 +283,18 @@ export function Nav({ solid = false }: NavProps) {
           <nav aria-label="Desktop main" className="hidden items-center gap-10 min-[1280px]:flex">
             <div className="flex items-center gap-10 font-body text-xl font-medium uppercase leading-[1.3] tracking-[0.08em]">
               {links.slice(1).map((link) => (
-                <Link key={link.href} href={link.href} className="whitespace-nowrap transition-opacity duration-150 hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                <Link key={link.href} href={link.href} className="whitespace-nowrap underline-offset-[0.18em] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
                   {link.label}
                 </Link>
               ))}
             </div>
-            <Link href="/locations" className="inline-flex h-[2.125rem] items-center justify-center rounded-none bg-white px-[1.35rem] font-body text-xl font-medium uppercase leading-[1.1] tracking-[0.08em] text-brand transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand">
+            <Link
+              href="/locations"
+              className={cn(
+                buttonVariants({ variant: "inverse" }),
+                "px-[1.35rem] text-xl leading-[1.1] tracking-[0.08em] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand",
+              )}
+            >
               Sign Up
             </Link>
           </nav>

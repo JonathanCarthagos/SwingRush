@@ -42,7 +42,7 @@ const CTA_VARIANTS: Record<
     headingWrap: false,
     buttonVariant: "outline",
     buttonClassName:
-      "min-[1280px]:h-[2.125rem] min-[1280px]:px-[1.35rem] min-[1280px]:py-0 min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
+      "min-[1280px]:px-[1.35rem] min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
   },
   solid: {
     heading: "CONQUER THE SKILLS GAUNTLET",

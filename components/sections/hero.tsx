@@ -288,7 +288,7 @@ export function Hero({
           className={buttonVariants({
             variant: "glass",
             className:
-              "relative z-20 min-[1280px]:h-[2.125rem] min-[1280px]:bg-white/30 min-[1280px]:px-[1.35rem] min-[1280px]:py-0 min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
+              "relative z-20 min-[1280px]:bg-white/30 min-[1280px]:px-[1.35rem] min-[1280px]:text-[1.25rem] min-[1280px]:leading-[1.1] min-[1280px]:tracking-[0.08em]",
           })}
         >
           Sign Up
@@ -296,12 +296,6 @@ export function Hero({
       </div>
 
       <HeroScrollCue reduce={shouldReduceMotion} />
-
-      <span
-        aria-hidden="true"
-        data-nav-hero-boundary=""
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5"
-      />
     </section>
   );
 }

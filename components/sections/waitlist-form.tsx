@@ -559,7 +559,7 @@ export function WaitlistForm({
         disabled={isPending}
         aria-busy={isPending || undefined}
         className={cn(
-          "mt-[1.432rem] h-[2.125rem] px-4 py-0 text-[0.875rem] transition-colors duration-150 hover:bg-white hover:text-black min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl",
+          "mt-[1.432rem] px-4 text-[0.875rem] min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl",
           compact &&
             "min-[768px]:mt-[clamp(1.432rem,calc(3.926vw-0.4525rem),2.6875rem)] min-[1280px]:mt-[2.6875rem]",
         )}

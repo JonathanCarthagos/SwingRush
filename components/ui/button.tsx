@@ -3,18 +3,23 @@ import { forwardRef } from "react";
 
 import { cn } from "@/lib/utils";
 
+// One hover for every button that changes: brand fill wipes in, label turns white.
+// Variants below only describe the resting paint.
+const BRAND_HOVER =
+  "before:bg-brand hover:border-brand hover:text-white focus-visible:border-brand focus-visible:text-white";
+
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-none px-5 py-[9px] font-body text-[1.0625rem] font-medium uppercase leading-[1.1] tracking-[0.08em] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current active:scale-[0.97] motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50",
+  "relative isolate inline-flex h-[2.375rem] items-center justify-center overflow-hidden rounded-none px-5 py-0 font-body text-[1.0625rem] font-medium uppercase leading-[1.1] tracking-[0.08em] [transition:color_480ms_cubic-bezier(0.23,1,0.32,1),border-color_480ms_cubic-bezier(0.23,1,0.32,1),transform_160ms_cubic-bezier(0.23,1,0.32,1)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:origin-left before:scale-x-0 before:content-[''] before:[transition:scale_480ms_cubic-bezier(0.23,1,0.32,1)] hover:before:scale-x-100 focus-visible:before:scale-x-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current active:scale-[0.97] motion-reduce:transition-none motion-reduce:before:transition-none motion-reduce:active:scale-100 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        outline: "border border-brand bg-transparent text-brand",
-        "outline-white": "border border-white bg-transparent text-white",
+        outline: `border border-brand bg-transparent text-brand ${BRAND_HOVER}`,
+        "outline-white": `border border-white bg-transparent text-white ${BRAND_HOVER}`,
         solid: "bg-brand text-white",
-        inverse: "bg-white text-brand",
+        inverse: `bg-white text-brand ${BRAND_HOVER}`,
         dark: "bg-brand-deep text-brand",
         "on-brand": "bg-brand text-brand-deep",
-        glass: "bg-white/20 text-white",
+        glass: `bg-white/20 text-white ${BRAND_HOVER}`,
       },
     },
     defaultVariants: {

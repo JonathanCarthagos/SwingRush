@@ -41,7 +41,7 @@ export function NotFoundSection() {
           href={action.href}
           className={cn(
             buttonVariants({ variant: "inverse" }),
-            "h-[2.125rem] px-4 py-0 text-[0.875rem] whitespace-nowrap transition-opacity duration-150 hover:opacity-90 focus-visible:outline-white min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl",
+            "px-4 text-[0.875rem] whitespace-nowrap focus-visible:outline-white min-[768px]:px-[clamp(1rem,calc(1.09375vw+0.475rem),1.35rem)] min-[768px]:text-[clamp(0.875rem,calc(1.171875vw+0.3125rem),1.25rem)] min-[1280px]:px-[1.35rem] min-[1280px]:text-xl",
           )}
         >
           {action.label}
