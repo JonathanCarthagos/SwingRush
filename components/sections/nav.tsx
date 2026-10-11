@@ -215,7 +215,7 @@ export function Nav({ solid = false }: NavProps) {
   return (
     <>
       <header
-        className="fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:px-[clamp(0.9791875rem,calc(-3.36453125rem+9.0494140625vw),3.875rem)] min-[768px]:py-[clamp(0.8333125rem,calc(0.11453125rem+1.4974609375vw),1.3125rem)] min-[1280px]:h-24 min-[1280px]:px-desktop-gutter min-[1280px]:py-[1.3125rem]"
+        className="site-nav-vt fixed inset-x-0 top-0 z-50 bg-transparent px-nav-bar-px pb-nav-bar-py pt-[max(0.8333125rem,env(safe-area-inset-top))] text-white min-[768px]:h-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:px-[clamp(0.9791875rem,calc(-3.36453125rem+9.0494140625vw),3.875rem)] min-[768px]:py-[clamp(0.8333125rem,calc(0.11453125rem+1.4974609375vw),1.3125rem)] min-[1280px]:h-24 min-[1280px]:px-desktop-gutter min-[1280px]:py-[1.3125rem]"
       >
         {isSolidRoute ? (
           <HeaderBackground visible immediate reduce={reduce} />

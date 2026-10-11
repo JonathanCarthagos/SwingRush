@@ -1,4 +1,3 @@
-import { Footer } from "@/components/sections/footer";
 import { Nav } from "@/components/sections/nav";
 
 export default function SiteLayout({
@@ -16,7 +15,6 @@ export default function SiteLayout({
       </a>
       <Nav />
       {children}
-      <Footer />
     </div>
   );
 }
