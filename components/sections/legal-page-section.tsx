@@ -17,15 +17,15 @@ export function LegalPageSection({ content }: LegalPageSectionProps) {
           as="h1"
           text={title}
           wrap
-          className="box-border max-w-full px-[0.08em] font-display text-[4.375rem] leading-none [text-wrap:balance] min-[768px]:text-[clamp(4.375rem,calc(25.39vw-7.8125rem),12.5rem)] min-[1280px]:text-[12.5rem]"
+          className="box-border max-w-full px-[0.08em] font-display text-[4rem] uppercase leading-[0.84] [text-wrap:balance] min-[768px]:text-[clamp(4rem,calc(100vw*200/1680),12.5rem)]"
         />
-        <p className="mt-4 font-body text-[1.0625rem] font-extrabold leading-[1.5] min-[768px]:mt-[clamp(1rem,calc(1.758vw+0.15625rem),1.5625rem)] min-[768px]:text-[clamp(1.0625rem,calc(1.367vw+0.40625rem),1.5rem)] min-[1280px]:mt-[1.5625rem] min-[1280px]:text-2xl">
+        <p className="mt-4 font-nav text-[1.0625rem] leading-[1.3] tracking-nav min-[768px]:mt-[clamp(1rem,calc(1.758vw+0.15625rem),1.5625rem)] min-[768px]:text-[clamp(1.0625rem,calc(1.367vw+0.40625rem),1.5rem)] min-[1280px]:mt-[1.5625rem] min-[1280px]:text-2xl">
           {lastPublished.label}:{" "}
           <time dateTime={lastPublished.isoDate}>{lastPublished.display}</time>
         </p>
       </header>
 
-      <div className="mx-auto mt-14 flex w-full flex-col gap-12 min-[768px]:mt-[clamp(3.5rem,calc(4.6875vw+1.25rem),5rem)] min-[768px]:max-w-challenge-tablet-copy min-[768px]:gap-[clamp(3rem,calc(3.125vw+1.5rem),4rem)] min-[1280px]:mt-20 min-[1280px]:max-w-[89.625rem] min-[1280px]:gap-16">
+      <div className="mx-auto mt-14 flex w-full flex-col gap-12 min-[768px]:mt-[clamp(3.5rem,calc(4.6875vw+1.25rem),5rem)] min-[768px]:max-w-challenge-tablet-copy min-[768px]:gap-[clamp(3rem,calc(3.125vw+1.5rem),4rem)] min-[1280px]:mx-0 min-[1280px]:mt-20 min-[1280px]:max-w-[89.625rem] min-[1280px]:gap-16">
         {sections.map((section) => (
           <section
             key={section.id}
@@ -34,7 +34,7 @@ export function LegalPageSection({ content }: LegalPageSectionProps) {
           >
             <h2
               id={`legal-${section.id}`}
-              className="font-display text-[2.5rem] leading-[1.1] tracking-[-0.01em] min-[768px]:text-[clamp(2.5rem,calc(3.906vw+0.625rem),3.75rem)] min-[1280px]:text-[3.75rem]"
+              className="font-display text-[2.5rem] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.85]"
             >
               {section.heading}
             </h2>
