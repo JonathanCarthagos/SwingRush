@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { LogoLockup } from "@/components/ui/logo-lockup";
+import { TextLink } from "@/components/ui/text-link";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -283,9 +284,13 @@ export function Nav({ solid = false }: NavProps) {
           <nav aria-label="Desktop main" className="hidden items-center gap-10 min-[1280px]:flex">
             <div className="flex items-center gap-10 font-body text-xl font-medium uppercase leading-[1.3] tracking-[0.08em]">
               {links.slice(1).map((link) => (
-                <Link key={link.href} href={link.href} className="whitespace-nowrap underline-offset-[0.18em] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                <TextLink
+                  key={link.href}
+                  href={link.href}
+                  className="whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
                   {link.label}
-                </Link>
+                </TextLink>
               ))}
             </div>
             <Link

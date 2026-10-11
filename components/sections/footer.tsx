@@ -1,10 +1,10 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import Link from "next/link";
 
 import {
   FooterSocialIcon,
   type FooterSocialIconName,
 } from "@/components/ui/footer-social-icon";
+import { TextLink } from "@/components/ui/text-link";
 import { cn } from "@/lib/utils";
 
 const footerVariants = cva(
@@ -67,9 +67,9 @@ export function Footer({ className, variant, ...props }: FooterProps) {
         className="flex items-center justify-center gap-5 min-[768px]:gap-[clamp(1.25rem,calc(-1.46875rem+5.6640625vw),3.0625rem)] min-[1280px]:gap-12.25"
       >
         {legalLinks.map((link) => (
-          <Link key={link.href} href={link.href} className={legalLinkClass}>
+          <TextLink key={link.href} href={link.href} className={legalLinkClass}>
             {link.label}
-          </Link>
+          </TextLink>
         ))}
       </nav>
     </footer>

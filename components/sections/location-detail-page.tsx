@@ -1,6 +1,7 @@
 import { LocationVideoHero } from "@/components/sections/location-video-hero";
 import { AnchorScrollLink } from "@/components/ui/anchor-scroll-link";
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { TextLink } from "@/components/ui/text-link";
 import {
   formatLocationDate,
   formatLocationDateRange,
@@ -27,7 +28,7 @@ const TEXT_SUBHEAD =
 const SECTION_HEADING =
   "font-display text-[2.5rem] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.85]";
 const TEXT_LINK =
-  "inline-flex min-h-[1.8045rem] touch-manipulation items-start font-bold leading-[1.1] underline decoration-[7%] underline-offset-2 [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[1280px]:h-[1.8045rem] min-[1280px]:leading-[1.3]";
+  "inline-flex min-h-[1.8045rem] touch-manipulation items-start font-bold leading-[1.1] [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[1280px]:h-[1.8045rem] min-[1280px]:leading-[1.3]";
 // Title above content below 1280px; title and content side by side (768 + 20 + 768 at 1680) from 1280px.
 const SPLIT_SECTION =
   "flex flex-col min-[1280px]:grid min-[1280px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] min-[1280px]:items-start min-[1280px]:gap-x-5 min-[1280px]:gap-y-0";
@@ -215,12 +216,12 @@ function TicketRelease({ release }: { release: LocationTicketRelease }) {
         </time>
       </p>
       {release.action ? (
-        <AnchorScrollLink
+        <TextLink
           href={release.action.href}
           className={cn(TEXT_LINK, "mt-1 min-[1280px]:mt-2.5")}
         >
           {release.action.label}
-        </AnchorScrollLink>
+        </TextLink>
       ) : null}
     </article>
   );
@@ -264,12 +265,12 @@ function LocationImportantInformation({
                 <li key={benefit}>{benefit}</li>
               ))}
             </ul>
-            <AnchorScrollLink
+            <TextLink
               href={volunteer.action.href}
               className={cn(TEXT_LINK, "mt-2 min-[1280px]:mt-[0.6875rem]")}
             >
               {volunteer.action.label}
-            </AnchorScrollLink>
+            </TextLink>
           </div>
         ) : null}
       </div>

@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { TextLink } from "@/components/ui/text-link";
 import { HOW_IT_WORKS_PAGE_CONTENT } from "@/data/how-it-works";
 import { cn } from "@/lib/utils";
 import type { HowItWorksItem } from "@/types/how-it-works";
@@ -69,12 +69,12 @@ function DetailRow({ item }: { item: HowItWorksItem }) {
         <DetailCopy item={item} />
 
         {item.link ? (
-          <Link
+          <TextLink
             href={item.link.href}
-            className="inline-flex min-h-11 w-fit items-start font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body underline decoration-[8%] transition-opacity duration-150 hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-reduce:transition-none min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:-mt-4 min-[1280px]:text-[1.5rem] min-[1280px]:font-bold min-[1280px]:leading-[1.3]"
+            className="inline-flex min-h-11 w-fit items-start font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:-mt-4 min-[1280px]:text-[1.5rem] min-[1280px]:font-bold min-[1280px]:leading-[1.3]"
           >
             {item.link.label}
-          </Link>
+          </TextLink>
         ) : null}
       </div>
     </article>
