@@ -1600,7 +1600,7 @@ export function SplitFlapNavigationBoard({
         className="pointer-events-none absolute inset-x-0 top-0 h-[var(--split-flap-navigation-row-height,4.684rem)]"
       />
 
-      <div className="relative flex flex-col">
+      <div className="relative flex flex-col gap-[var(--split-flap-navigation-row-gap,0px)]">
         {items.map((item, rowIndex) => {
           const isActive = activeItemId === item.id;
           const textClassName = isActive

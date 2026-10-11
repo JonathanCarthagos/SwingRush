@@ -377,7 +377,8 @@ function DesktopChallenges({
         .filter((card): card is HTMLElement => card !== undefined);
       if (cards.length === 0) return;
 
-      const bandTop = 115.2;
+      const bandTop =
+        Number.parseFloat(getComputedStyle(cards[0]).scrollMarginTop) || 0;
       observer = new IntersectionObserver(
         () => {
           if (ignoreSpyRef.current) return;
@@ -399,7 +400,7 @@ function DesktopChallenges({
           setActiveItemId(nextId);
         },
         {
-          rootMargin: "-115.2px 0px -70% 0px",
+          rootMargin: `-${bandTop}px 0px -70% 0px`,
           threshold: [0, 0.25, 0.5],
         },
       );
@@ -427,8 +428,10 @@ function DesktopChallenges({
   };
 
   const navigationStyle = {
+    "--split-flap-navigation-row-gap": "clamp(0.5rem, 0.75vw, 0.875rem)",
+    // Fits 10 rows + 9 gaps below the anchor offset (9.6rem) with 2rem to spare.
     "--split-flap-navigation-row-height":
-      "clamp(3.5rem, min(calc(0.4875rem + 4vw), calc((100svh - 8rem) / 10)), 4.684rem)",
+      "clamp(2.75rem, min(calc(0.4875rem + 4vw), calc((100svh - 11.6rem - 9 * var(--split-flap-navigation-row-gap)) / 10)), 4.684rem)",
     "--split-flap-navigation-glyph-size":
       "min(calc(var(--split-flap-navigation-row-height) * 0.747), calc(3.7468vw - 0.4364rem), 3.5rem)",
   } as CSSProperties;
@@ -436,11 +439,11 @@ function DesktopChallenges({
   return (
     <div
       data-challenges-desktop
-      className="mx-auto hidden w-full max-w-[105rem] px-[clamp(4.375rem,5.476vw,5.75rem)] py-[clamp(7.5rem,8.929vw,9.375rem)] min-[1280px]:block"
+      className="mx-auto hidden w-full max-w-[105rem] px-[clamp(4.375rem,5.476vw,5.75rem)] py-[clamp(7.5rem,8.929vw,9.375rem)] [--challenges-anchor-offset:9.6rem] min-[1280px]:block"
     >
       {items.length > 0 ? (
         <div className="grid w-full grid-cols-[minmax(0,43.186%)_minmax(0,37.695%)] items-start gap-x-[19.119%]">
-          <aside className="sticky top-[7.2rem] min-w-0 self-start">
+          <aside className="sticky top-[var(--challenges-anchor-offset)] min-w-0 self-start">
             <SplitFlapNavigationBoard
               items={navigationItems}
               activeItemId={activeItemId}
@@ -452,7 +455,7 @@ function DesktopChallenges({
             />
           </aside>
 
-          <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-col gap-12">
             {items.map((item) => (
               <div
                 key={item.id}
@@ -465,7 +468,7 @@ function DesktopChallenges({
                 role="tabpanel"
                 aria-labelledby={`desktop-challenge-tab-${item.id}`}
                 tabIndex={0}
-                className="scroll-mt-[7.2rem] min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
+                className="scroll-mt-[var(--challenges-anchor-offset)] min-w-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand"
               >
                 <DesktopChallengePanel item={item} />
               </div>
