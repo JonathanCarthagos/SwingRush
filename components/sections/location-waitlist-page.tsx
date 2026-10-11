@@ -30,7 +30,7 @@ export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
             as="h1"
             id="location-waitlist-title"
             text={content.city}
-            className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance] min-[768px]:text-[clamp(3.125rem,calc(9.766vw-1.5625rem),6.25rem)] min-[1280px]:text-[6.25rem] min-[1280px]:leading-[0.845]"
+            className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance] min-[768px]:text-[clamp(3.125rem,calc(4.892vw+0.777rem),4.6875rem)] min-[1280px]:px-0 min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.845]"
           />
 
           <p
