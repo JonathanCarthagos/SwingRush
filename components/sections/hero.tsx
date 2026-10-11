@@ -25,6 +25,15 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
 
+/**
+ * Tablet/desktop H1 is two lines, broken after "THE". The CMS line breaks
+ * (3 lines) belong to the locked mobile layout, so this is derived here.
+ */
+function breakAfterThe(heading: string) {
+  const flat = heading.replace(/\s+/g, " ").trim();
+  return flat.replace(/^(.*?\bTHE)\s+(.+)$/i, "$1\n$2");
+}
+
 export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
   webmSrc?: string;
   videoSrc?: string;
@@ -276,12 +285,12 @@ export function Hero({
         <DisplayHeading
           as="h1"
           text={heading}
-          className="pointer-events-none box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(7rem,12.5vw,10rem)] min-[1280px]:hidden"
+          className="pointer-events-none box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:hidden"
         />
         <DisplayHeading
           as="h1"
-          text={heading.replace(/\s+/g, " ")}
-          className="pointer-events-none relative z-0 box-border hidden max-w-none px-[0.08em] font-display leading-[0.84] text-white min-[1280px]:block min-[1280px]:text-[clamp(8.75rem,calc(-7.25rem+20vw),13.75rem)]"
+          text={breakAfterThe(heading)}
+          className="pointer-events-none relative z-0 box-border hidden max-w-none whitespace-pre-line px-[0.08em] font-display text-hero-wide text-white min-[768px]:block"
         />
         <Link
           href="/locations"

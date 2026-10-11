@@ -23,6 +23,10 @@ const config: Config = {
           "clamp(6.25rem, 4.7535rem + 0.399vw, 10.5rem)", // 100px -> 168px
           { lineHeight: "0.84" },
         ],
+        // Hero H1 from 768px up (2 lines). Proportional to the 1680px Figma
+        // frame (340px = 20.238vw), capped at 340px and at 31.5svh so the
+        // two-line block always fits a short hero.
+        "hero-wide": ["min(20.238vw, 31.5svh, 21.25rem)", { lineHeight: "0.8" }],
         h1: [
           "clamp(4rem, 3.1197rem + 0.2347vw, 6.5rem)", // 64px -> 104px
           { lineHeight: "1.05" },
