@@ -26,8 +26,18 @@ export const fontBody = localFont({
 });
 
 export const fontNav = localFont({
-  src: "../public/fonts/forma-djr-mono-regular.woff2",
+  src: [
+    {
+      path: "../public/fonts/forma-djr-mono-regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/forma-djr-mono-bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-nav",
-  weight: "400",
   display: "swap",
 });

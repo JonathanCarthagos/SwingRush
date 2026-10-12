@@ -585,7 +585,7 @@ function ChallengeDatum({
 }: ChallengeDatumProps) {
   return (
     <div className={cn("min-w-0", className)}>
-      <dt className="font-body text-[0.875rem] font-bold uppercase leading-[1.1]">
+      <dt className="font-nav text-[0.875rem] font-bold uppercase leading-[1.1]">
         {label}
       </dt>
       <dd className="mt-1 whitespace-pre-line break-words font-nav text-[0.9375rem] uppercase leading-[1.25]">
