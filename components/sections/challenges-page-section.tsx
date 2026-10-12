@@ -20,6 +20,7 @@ import {
   type SplitFlapSelectionSource,
 } from "@/components/ui/split-flap-board";
 import { CHALLENGES_PAGE_CONTENT } from "@/data/challenges";
+import { scrollToY } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
 import type { ChallengeItem } from "@/types/challenges";
 
@@ -74,7 +75,7 @@ function animateScrollTo(
   };
 
   if (reduce) {
-    window.scrollTo(0, destination());
+    scrollToY(destination());
     window.setTimeout(finish, 50);
     return;
   }
@@ -96,12 +97,12 @@ function animateScrollTo(
     const progress = Math.min(1, (now - startTime) / duration);
     const eased = easeOutStrong(progress);
     const nextDestination = destination();
-    window.scrollTo(0, start + (nextDestination - start) * eased);
+    scrollToY(start + (nextDestination - start) * eased);
     if (progress < 1) {
       window.requestAnimationFrame(step);
       return;
     }
-    window.scrollTo(0, destination());
+    scrollToY(destination());
     finish();
   };
   step(performance.now());
@@ -161,8 +162,7 @@ export function ChallengesPageSection({
         const margin = desktop
           ? Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0
           : (header?.getBoundingClientRect().height ?? 0) + 12;
-        window.scrollTo(
-          0,
+        scrollToY(
           Math.max(
             0,
             target.getBoundingClientRect().top + window.scrollY - margin,
@@ -171,7 +171,7 @@ export function ChallengesPageSection({
         return;
       }
 
-      window.scrollTo(0, 0);
+      scrollToY(0);
       arriveRef.current(nextId);
     };
 

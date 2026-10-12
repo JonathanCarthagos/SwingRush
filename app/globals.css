@@ -26,6 +26,21 @@ body {
   color: var(--foreground);
 }
 
+/* Lenis (desktop smooth scroll). Its stock `html.lenis { height: auto }` is left out on purpose:
+   the root keeps `h-full` so short pages still push the footer to the bottom. */
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+html.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+html.lenis [data-lenis-prevent],
+html.lenis [data-lenis-prevent-wheel] {
+  overscroll-behavior: contain;
+}
+
 .font-display {
   font-family: var(--font-display), sans-serif;
   font-style: italic;

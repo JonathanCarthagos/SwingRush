@@ -1,3 +1,4 @@
+import { SmoothScroll } from "@/components/motion/smooth-scroll";
 import { Nav } from "@/components/sections/nav";
 
 export default function SiteLayout({
@@ -13,6 +14,7 @@ export default function SiteLayout({
       >
         Skip to content
       </a>
+      <SmoothScroll />
       <Nav />
       {children}
     </div>

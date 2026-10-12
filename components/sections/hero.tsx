@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { HOME_PAGE_CONTENT } from "@/data/home";
+import { getLenis } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
 
 const CUE_INITIAL_DELAY_MS = 2000;
@@ -138,6 +139,12 @@ function HeroScrollCue({ reduce }: HeroScrollCueProps) {
           const reduce = window.matchMedia(
             "(prefers-reduced-motion: reduce)",
           ).matches;
+          const lenis = getLenis();
+          if (lenis) {
+            // Lenis already stops at the target's scroll-margin-top, like scrollIntoView does.
+            lenis.scrollTo(target);
+            return;
+          }
           target.scrollIntoView({
             behavior: reduce ? "auto" : "smooth",
             block: "start",

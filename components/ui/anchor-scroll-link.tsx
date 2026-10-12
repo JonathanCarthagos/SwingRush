@@ -2,6 +2,8 @@
 
 import type { AnchorHTMLAttributes, MouseEvent } from "react";
 
+import { getLenis } from "@/lib/smooth-scroll";
+
 export type AnchorScrollLinkProps = AnchorHTMLAttributes<HTMLAnchorElement>;
 
 /**
@@ -25,7 +27,13 @@ export function AnchorScrollLink({
 
     if (target) {
       event.preventDefault();
-      target.scrollIntoView({ block: "start" });
+      const lenis = getLenis();
+      if (lenis) {
+        // Lenis already stops at the target's scroll-margin-top, like scrollIntoView does.
+        lenis.scrollTo(target);
+      } else {
+        target.scrollIntoView({ block: "start" });
+      }
     }
   };
 
