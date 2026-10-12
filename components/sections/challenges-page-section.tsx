@@ -211,7 +211,7 @@ export function ChallengesPageSection({
   return (
     <section
       className={cn(
-        "bg-black px-4 py-16 text-white min-[1280px]:px-0 min-[1280px]:py-0",
+        "bg-black px-4 py-10 text-white min-[768px]:py-16 min-[1280px]:px-0 min-[1280px]:py-0",
         className,
       )}
       {...props}

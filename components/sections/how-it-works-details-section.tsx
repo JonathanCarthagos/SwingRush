@@ -3,6 +3,7 @@ import Image from "next/image";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { TextLink } from "@/components/ui/text-link";
 import { HOW_IT_WORKS_PAGE_CONTENT } from "@/data/how-it-works";
+import { cityTitleMobileClassName } from "@/lib/location-city-title";
 import { cn } from "@/lib/utils";
 import type { HowItWorksItem } from "@/types/how-it-works";
 
@@ -25,7 +26,7 @@ export function HowItWorksDetailsSection({
   return (
     <section
       className={cn(
-        "bg-black py-20 text-white min-[768px]:py-[clamp(5rem,calc(-1.5625rem+13.671875vw),9.375rem)] min-[1280px]:py-[9.375rem]",
+        "bg-black py-10 text-white min-[768px]:py-[clamp(5rem,calc(-1.5625rem+13.671875vw),9.375rem)] min-[1280px]:py-[9.375rem]",
         className,
       )}
       {...props}
@@ -51,6 +52,13 @@ function DetailRow({ item }: { item: HowItWorksItem }) {
         STACK_GAP,
         // The link's 44px hit area already closes the block, as in the frame.
         item.link ? "pb-0" : "pb-[1.375rem]",
+        // Below 768px the section padding alone closes the page, so the last block adds nothing.
+        "max-md:last:pb-0",
+        // Below 768px each block sits 2.5rem from the divider on both sides.
+        // The link already keeps ~1.6rem below its text inside the 44px hit area, so it only adds the rest.
+        // The title's own 10px inset (pt-2.5) completes the 2.5rem under the divider.
+        item.link ? "max-md:pb-[0.92rem]" : "max-md:pb-10",
+        "max-md:not-first:pt-[1.875rem]",
         "min-[1280px]:grid min-[1280px]:scroll-mt-desktop-anchor-tight min-[1280px]:grid-cols-[minmax(0,32.455%)_minmax(0,49.293%)] min-[1280px]:items-start min-[1280px]:justify-between min-[1280px]:gap-0 min-[1280px]:pb-0",
       )}
     >
@@ -62,7 +70,12 @@ function DetailRow({ item }: { item: HowItWorksItem }) {
           wrap
           // Desktop scales with the 1680px frame so titles keep one line as the columns narrow;
           // the tablet ramp ends where desktop starts (50px -> 57.14px) to avoid a jump at 1280.
-          className="flex min-h-[5.6875rem] flex-col justify-center font-display text-[3.125rem] uppercase leading-[2.625rem] text-white min-[768px]:text-[clamp(3.125rem,calc(2.4554rem+1.3951vw),3.5714rem)] min-[768px]:leading-[clamp(2.625rem,calc(2.0089rem+1.2835vw),3.0357rem)] min-[1280px]:sticky min-[1280px]:top-desktop-anchor-tight min-[1280px]:-mt-[0.04em] min-[1280px]:block min-[1280px]:min-h-0 min-[1280px]:text-[clamp(3.125rem,calc(100vw*75/1680),4.6875rem)] min-[1280px]:leading-[0.85]"
+          className={cn(
+            // Below 768px the title shares the Locations city scale and its 10px row inset.
+            "pt-2.5 font-display uppercase text-white",
+            cityTitleMobileClassName,
+            "min-[768px]:flex min-[768px]:min-h-[5.6875rem] min-[768px]:flex-col min-[768px]:justify-center min-[768px]:pt-0 min-[768px]:text-[clamp(3.125rem,calc(2.4554rem+1.3951vw),3.5714rem)] min-[768px]:leading-[clamp(2.625rem,calc(2.0089rem+1.2835vw),3.0357rem)] min-[1280px]:sticky min-[1280px]:top-desktop-anchor-tight min-[1280px]:-mt-[0.04em] min-[1280px]:block min-[1280px]:min-h-0 min-[1280px]:text-[clamp(3.125rem,calc(100vw*75/1680),4.6875rem)] min-[1280px]:leading-[0.85]",
+          )}
         />
       </div>
 

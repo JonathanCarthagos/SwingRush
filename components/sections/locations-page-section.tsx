@@ -5,6 +5,7 @@ import {
   LOCATION_SOLD_OUT_CLASS_NAME,
   locationActionClassName,
 } from "@/lib/location-action";
+import { cityTitleMobileClassName } from "@/lib/location-city-title";
 import { cn } from "@/lib/utils";
 import type {
   LocationListItem as LocationListItemData,
@@ -28,7 +29,7 @@ export function LocationsPageSection({
   return (
     <section
       className={cn(
-        "bg-black px-4 py-[4.375rem] text-white min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(4.375rem,calc(15.55vw-3.09rem),9.352rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[9.352rem]",
+        "bg-black px-4 py-10 text-white min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(4.375rem,calc(15.55vw-3.09rem),9.352rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[9.352rem]",
         className,
       )}
       {...props}
@@ -76,7 +77,8 @@ export interface LocationListItemProps {
 }
 
 const ROW_CLASS_NAME =
-  "flex touch-manipulation items-end justify-between gap-4 py-2.5 [-webkit-tap-highlight-color:transparent] min-[768px]:gap-6 min-[768px]:py-[clamp(0.625rem,calc(1.707vw-0.1944rem),1.1714rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:py-[1.1714rem]";
+  // Below 768px the 50px city title takes the full width, so the action sits under the date.
+  "flex touch-manipulation items-end justify-between gap-4 py-2.5 [-webkit-tap-highlight-color:transparent] max-md:flex-col max-md:items-start max-md:gap-3 max-md:pb-4 min-[768px]:gap-6 min-[768px]:py-[clamp(0.625rem,calc(1.707vw-0.1944rem),1.1714rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:py-[1.1714rem]";
 
 export function LocationListItem({ location }: LocationListItemProps) {
   const dateLabel = formatLocationDateRange(location.dates);
@@ -103,7 +105,12 @@ function LocationListItemDetails({
   return (
     <span className="flex min-w-0 flex-1 flex-col gap-1 min-[768px]:gap-[clamp(0.25rem,calc(0.0625rem+0.4vw),0.46856rem)] min-[1280px]:gap-[0.46856rem]">
       <h2
-        className="break-words font-display text-[min(2.5rem,calc((100vw-11.5625rem)/5.4))] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[1.0533]"
+        className={cn(
+          "break-words font-display uppercase",
+          cityTitleMobileClassName,
+          // The shared mobile scale sets a tighter leading; the tablet keeps its original 1.05.
+          "min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[768px]:leading-[1.05] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[1.0533]",
+        )}
         translate="no"
       >
         {city}
@@ -126,14 +133,14 @@ interface LocationListItemActionProps {
 function LocationListItemAction({ cta, status }: LocationListItemActionProps) {
   const actionClassName = cn(
     locationActionClassName(status),
-    "mb-1.5 touch-manipulation [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[768px]:mb-0",
+    "touch-manipulation [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[768px]:mb-0",
     status === "register"
       ? "[@media(hover:hover)]:hover:border-brand-dark [@media(hover:hover)]:hover:bg-brand-dark"
       : "[@media(hover:hover)]:hover:bg-white [@media(hover:hover)]:hover:text-black",
   );
 
   return (
-    <span className="flex shrink-0 flex-col items-end min-[1280px]:gap-[0.46856rem]">
+    <span className="flex shrink-0 flex-col items-end max-md:items-start min-[1280px]:gap-[0.46856rem]">
       {status === "soldOut" ? (
         <span className={LOCATION_SOLD_OUT_CLASS_NAME}>Sold out</span>
       ) : null}

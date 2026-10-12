@@ -2,6 +2,7 @@ import { LocationVideoHero } from "@/components/sections/location-video-hero";
 import { LocationWaitlistForm } from "@/components/sections/location-waitlist-form";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { formatLocationDateRange } from "@/lib/format-location-date";
+import { cityTitleMobileClassName } from "@/lib/location-city-title";
 import { cn } from "@/lib/utils";
 import type { LocationWaitlistContent } from "@/types/location-detail";
 
@@ -24,13 +25,18 @@ export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
         className="min-[1280px]:h-[47.125rem]"
       />
 
-      <div className="mx-auto w-full max-w-[105rem] px-4 pt-4 pb-16 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(0.9375rem,calc(21.29vw-9.28rem),7.75rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.75rem]">
+      <div className="mx-auto w-full max-w-[105rem] px-4 pt-10 pb-16 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(0.9375rem,calc(21.29vw-9.28rem),7.75rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.75rem]">
         <div className="flex max-w-[48.086rem] flex-col">
           <DisplayHeading
             as="h1"
             id="location-waitlist-title"
             text={content.city}
-            className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.84] [text-wrap:balance] min-[768px]:text-[clamp(3.125rem,calc(4.892vw+0.777rem),4.6875rem)] min-[1280px]:px-0 min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.845]"
+            // Below 768px the title shares the list and How It Works scale and the same 2.5rem + 10px top inset.
+            className={cn(
+              "box-border max-w-full px-[0.08em] pt-2.5 font-display uppercase [text-wrap:balance] min-[768px]:pt-0",
+              cityTitleMobileClassName,
+              "min-[768px]:text-[clamp(3.125rem,calc(4.892vw+0.777rem),4.6875rem)] min-[1280px]:px-0 min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.845]",
+            )}
           />
 
           <p
