@@ -102,9 +102,8 @@ function LocationIntroduction({
             className={cn(
               locationActionClassName(status),
               "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
-              status === "register"
-                ? "hover:border-brand-dark hover:bg-brand-dark"
-                : "hover:bg-white hover:text-black",
+              status === "register" &&
+                "hover:border-brand-dark hover:bg-brand-dark",
             )}
           >
             {primaryAction.label}

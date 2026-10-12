@@ -134,9 +134,8 @@ function LocationListItemAction({ cta, status }: LocationListItemActionProps) {
   const actionClassName = cn(
     locationActionClassName(status),
     "touch-manipulation [-webkit-tap-highlight-color:transparent] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand min-[768px]:mb-0",
-    status === "register"
-      ? "[@media(hover:hover)]:hover:border-brand-dark [@media(hover:hover)]:hover:bg-brand-dark"
-      : "[@media(hover:hover)]:hover:bg-white [@media(hover:hover)]:hover:text-black",
+    status === "register" &&
+      "[@media(hover:hover)]:hover:border-brand-dark [@media(hover:hover)]:hover:bg-brand-dark",
   );
 
   return (
