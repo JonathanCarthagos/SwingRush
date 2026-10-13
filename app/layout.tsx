@@ -38,9 +38,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fontDisplay.variable} ${fontBody.variable} ${fontNav.variable} h-full antialiased`}
+      className={`${fontDisplay.variable} ${fontBody.variable} ${fontNav.variable} min-h-dvh antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground font-body">
+      <body className="flex min-h-dvh flex-col bg-background text-foreground font-body">
         {children}
       </body>
     </html>

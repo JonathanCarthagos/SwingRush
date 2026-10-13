@@ -42,7 +42,7 @@ export function PageTransition({
       exit={embedded ? "none" : "page-out"}
       default="none"
     >
-      <div className="flex min-h-full flex-1 flex-col">{children}</div>
+      <div className="flex flex-1 flex-col">{children}</div>
     </ViewTransition>
   );
 }

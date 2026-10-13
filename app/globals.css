@@ -18,6 +18,11 @@
 html,
 body {
   max-width: 100%;
+}
+
+/* Clip the viewport only. The same rule on body computes overflow-y to auto
+   and makes body a second scrollport, which iOS Safari can scroll past the footer. */
+html {
   overflow-x: clip;
 }
 
@@ -27,7 +32,7 @@ body {
 }
 
 /* Lenis (desktop smooth scroll). Its stock `html.lenis { height: auto }` is left out on purpose:
-   the root keeps `h-full` so short pages still push the footer to the bottom. */
+   the root keeps `min-h-dvh` so short pages still push the footer to the bottom. */
 html.lenis.lenis-smooth {
   scroll-behavior: auto !important;
 }
