@@ -297,7 +297,7 @@ export function Nav({ solid = false }: NavProps) {
               href="/locations"
               className={cn(
                 buttonVariants({ variant: "inverse" }),
-                "px-[1.35rem] text-xl leading-[1.1] tracking-[0.08em] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand",
+                "px-[1.35rem] text-xl leading-[1.1] tracking-[0.08em] text-black hover:text-white focus-visible:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-brand",
               )}
             >
               Sign Up
