@@ -456,7 +456,7 @@ function DesktopChallenges({
             />
           </aside>
 
-          <div className="flex min-w-0 flex-col gap-12">
+          <div className="flex min-w-0 flex-col gap-16">
             {items.map((item) => (
               <div
                 key={item.id}
