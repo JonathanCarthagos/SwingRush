@@ -216,7 +216,8 @@ export function ChallengesPageSection({
       )}
       {...props}
     >
-      <div className="mx-auto w-full max-w-[25.125rem] min-[1280px]:hidden">
+      {/* 10px inset matches How It Works and Locations so hero-to-content is ~50px on mobile. */}
+      <div className="mx-auto w-full max-w-[25.125rem] max-md:pt-2.5 min-[1280px]:hidden">
         {boardItems.length > 0 ? (
           <SplitFlapAccordionBoard
             items={boardItems}
