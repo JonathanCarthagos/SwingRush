@@ -63,7 +63,7 @@ function ClubCard({ club, index }: { club: HomeStory; index: number }) {
           src={club.image.src}
           alt={club.image.alt}
           fill
-          sizes="(min-width: 1280px) 500px, (min-width: 768px) 46vw, 100vw"
+          sizes="(min-width: 1680px) 29.77vw, (min-width: 1280px) 500px, (min-width: 768px) 46vw, 100vw"
           className="object-cover object-center"
         />
       </div>

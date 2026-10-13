@@ -58,7 +58,7 @@ function ChallengeCard({ story, index }: { story: HomeStory; index: number }) {
           src={story.image.src}
           alt={story.image.alt}
           fill
-          sizes="(min-width: 1280px) 510px, (min-width: 768px) 46vw, 100vw"
+          sizes="(min-width: 1680px) 30.36vw, (min-width: 1280px) 510px, (min-width: 768px) 46vw, 100vw"
           className="object-cover object-center"
         />
       </div>

@@ -26,6 +26,16 @@ html {
   overflow-x: clip;
 }
 
+/* Above the 1680px Figma frame the whole layout scales with the viewport at 35% of its
+   growth rate (16px at 1697px, ~18.9px at 2560px), so wide screens get a slightly larger
+   layout without blowing it up. The 17px leaves room for a classic scrollbar, and max() keeps the
+   user's default size as the floor, so growth starts smoothly at ~1697px. */
+@media (min-width: 1680px) {
+  html {
+    font-size: max(100%, calc(10.4px + (100vw - 17px) * 0.35 / 105));
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

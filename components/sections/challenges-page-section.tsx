@@ -517,7 +517,7 @@ function DesktopChallengePanel({
           src={item.image}
           alt={item.imageAlt}
           fill
-          sizes="(min-width: 1680px) 556px, (min-width: 1280px) 38vw, 0px"
+          sizes="(min-width: 1680px) 33.1vw, (min-width: 1280px) 38vw, 0px"
           className="scale-[1.12] object-contain [object-position:46%_50%]"
         />
       </div>

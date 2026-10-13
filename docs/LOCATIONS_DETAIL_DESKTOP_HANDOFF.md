@@ -11,6 +11,7 @@
 
 - Mobile below `768px` is locked, unchanged.
 - There is no tablet design for this page — 768–1279px keeps rendering the same mobile-capped column it always has (`max-w-[25.125rem]`, centered). This is a pre-existing gap, not something this pass fixed; treat it as locked too until a tablet Figma frame is provided.
+- Tablet hero (client-approved 2026-10-13): from 768px to 1279px the video band shows the whole 16:9 frame (`min(56.25vw, 100svh − nav)`) below the nav, so the clip is never cropped top and bottom. Mobile (`20.4rem`) and desktop (`41.125rem` / `47.125rem`) heights are unchanged.
 - The desktop composition is additive from `1280px` upward via `min-[1280px]:` classes only. No `min-[768px]:` class was touched.
 
 ## Desktop composition (complete cities, e.g. New York)

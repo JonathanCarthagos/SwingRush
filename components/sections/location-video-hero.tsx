@@ -122,13 +122,15 @@ export function LocationVideoHero({
       aria-label={media.ariaLabel}
       className={cn(
         "relative h-[20.4rem] w-full overflow-hidden bg-black min-[1280px]:h-[41.125rem]",
-        // Tablet: the header offset plus a video band that grows with the width, capped by the height for landscape.
-        "min-[768px]:h-[calc(clamp(3.375rem,calc(-0.5625rem_+_8.203125vw),6rem)_+_min(45vw,55svh))]",
+        // Tablet: the header height plus the whole 16:9 frame (width × 9/16), never taller than the screen,
+        // so the clip is not cropped top and bottom.
+        "min-[768px]:[--location-hero-nav:clamp(3.375rem,calc(-0.5625rem_+_8.203125vw),6rem)]",
+        "min-[768px]:h-[calc(var(--location-hero-nav)_+_min(56.25vw,100svh_-_var(--location-hero-nav)))]",
         className,
       )}
     >
       {/* Starts below the solid header: the inset follows the header height at every breakpoint. */}
-      <div className="absolute inset-x-0 bottom-0 top-nav-offset overflow-hidden bg-black min-[768px]:top-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:top-24">
+      <div className="absolute inset-x-0 bottom-0 top-nav-offset overflow-hidden bg-black min-[768px]:top-[var(--location-hero-nav)] min-[1280px]:top-24">
         {shouldReduceMotion ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

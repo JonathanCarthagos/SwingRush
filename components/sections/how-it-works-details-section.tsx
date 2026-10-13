@@ -7,7 +7,7 @@ import { cityTitleMobileClassName } from "@/lib/location-city-title";
 import { cn } from "@/lib/utils";
 import type { HowItWorksItem } from "@/types/how-it-works";
 
-const IMAGE_SIZES = "(min-width: 1680px) 767px, (min-width: 1280px) 46vw, 100vw";
+const IMAGE_SIZES = "(min-width: 1680px) 45.65vw, (min-width: 1280px) 46vw, 100vw";
 
 // Stack spacing ramps from 17px (mobile) to 28px (desktop) across the tablet range.
 const STACK_GAP =
