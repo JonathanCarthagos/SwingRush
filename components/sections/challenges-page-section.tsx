@@ -217,12 +217,14 @@ export function ChallengesPageSection({
       {...props}
     >
       {/* 10px inset matches How It Works and Locations so hero-to-content is ~50px on mobile.
-          Tablet scales the same accordion with the viewport: wider with the width, capped by the
-          height so landscape rows stay compact, and slots, glyphs and gaps keep the mobile ratios. */}
+          Tablet scales the same accordion with the viewport, and slots, glyphs and gaps keep the
+          mobile ratios. The closed board is 1.1455 × its width + 1.25rem tall, so the height cap
+          keeps all ten rows on screen under the 6rem nav with 2rem to spare above and below.
+          No minimum, as on desktop: a floor clips the last rows on short landscape screens. */}
       <div
         className={cn(
           "mx-auto w-full max-w-[25.125rem] max-md:pt-2.5 min-[1280px]:hidden",
-          "min-[768px]:[--challenges-tablet-board:max(25.125rem,min(calc(55vw_+_2rem),42rem,75svh))]",
+          "min-[768px]:[--challenges-tablet-board:min(calc(55vw_+_2rem),42rem,calc((100svh_-_11.25rem)/1.1455))]",
           "min-[768px]:max-w-[var(--challenges-tablet-board)]",
           "min-[768px]:[--split-flap-compact-slot-height:calc(var(--challenges-tablet-board)*0.10448)]",
           "min-[768px]:[--split-flap-compact-glyph-size:calc(var(--challenges-tablet-board)*0.08458)]",

@@ -4,7 +4,7 @@
 
 - Full desktop page: Figma node `1760:6323` at 1680 px.
 - Mobile and tablet below 1280 px keep the approved split-flap accordion.
-- Tablet (768–1279 px) scales the same accordion: the board width is `max(402px, min(55vw + 32px, 672px, 75svh))`, and slots, glyphs and row gaps keep the mobile ratios through the `--split-flap-compact-*` variables. Approved by the client on 2026-10-13.
+- Tablet (768–1279 px) scales the same accordion: the board width is `min(55vw + 32px, 672px, (100svh − 11.25rem) / 1.1455)`, and slots, glyphs and row gaps keep the mobile ratios through the `--split-flap-compact-*` variables. The height term keeps the closed list (1.1455 × width + 1.25rem) fully on screen under the nav with 2rem to spare, as desktop does for short windows; there is no minimum. Approved by the client on 2026-10-13.
 - Desktop uses a split-flap tablist with one active challenge panel in the right column.
 
 ## Responsive contract
