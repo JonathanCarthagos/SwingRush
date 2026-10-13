@@ -431,8 +431,9 @@ function DesktopChallenges({
   const navigationStyle = {
     "--split-flap-navigation-row-gap": "clamp(0.5rem, 0.75vw, 0.875rem)",
     // Fits 10 rows + 9 gaps below the anchor offset (9.6rem) with 2rem to spare.
+    // No minimum: a floor clips rows 9 and 10 on short desktop windows.
     "--split-flap-navigation-row-height":
-      "clamp(2.75rem, min(calc(0.4875rem + 4vw), calc((100svh - 11.6rem - 9 * var(--split-flap-navigation-row-gap)) / 10)), 4.684rem)",
+      "min(4.684rem, calc(0.4875rem + 4vw), calc((100svh - 11.6rem - 9 * var(--split-flap-navigation-row-gap)) / 10))",
     "--split-flap-navigation-glyph-size":
       "min(calc(var(--split-flap-navigation-row-height) * 0.747), calc(3.7468vw - 0.4364rem), 3.5rem)",
   } as CSSProperties;
