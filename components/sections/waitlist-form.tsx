@@ -47,9 +47,9 @@ const AUTOFILL =
 // Mirrored fields keep the input transparent from 768px so the span is the only painted value.
 // Below that, the input paints the display face directly and can scroll when the value is long.
 const MIRROR_INPUT =
-  "peer h-full w-full overflow-x-auto bg-transparent text-black [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] min-[768px]:absolute min-[768px]:inset-0 min-[768px]:text-transparent min-[768px]:[-webkit-text-fill-color:transparent] min-[768px]:autofill:[-webkit-text-fill-color:transparent]";
+  "peer h-full w-full overflow-x-auto bg-transparent text-black [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] min-[768px]:absolute min-[768px]:inset-0 min-[768px]:text-transparent min-[768px]:[-webkit-text-fill-color:transparent]";
 const MIRROR_TEXT =
-  "pointer-events-none hidden h-full w-full items-center overflow-visible min-[768px]:flex [@media(scripting:none)]:invisible";
+  "waitlist-mirror-text pointer-events-none hidden h-full w-full items-center overflow-visible min-[768px]:flex [@media(scripting:none)]:invisible";
 const AUTOFILL_ANIMATION = "waitlist-autofill-watch";
 const MIRROR_INPUT_CLASS = "waitlist-mirror-input";
 const ERROR_TEXT =
@@ -150,6 +150,7 @@ export function WaitlistForm({
   const formRef = useRef<HTMLFormElement>(null);
   const successHeadingRef = useRef<HTMLHeadingElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
+  const autofillWatch = useRef(0);
 
   const [clientErrors, setClientErrors] = useState<
     Partial<Record<WaitlistFormErrorField, string>>
@@ -206,6 +207,26 @@ export function WaitlistForm({
     syncMirroredField(event.currentTarget);
     collapseAutofillSelection(event.currentTarget);
   };
+
+  // Safari writes the value without input, change, or the Chrome autofill animation.
+  const watchAutofillValue = (input: HTMLInputElement) => {
+    cancelAnimationFrame(autofillWatch.current);
+    const started = performance.now();
+    const tick = () => {
+      if (!input.isConnected) return;
+      if (input.value && input.dataset.autofillSeen !== input.value) {
+        syncMirroredField(input);
+        input.dataset.autofillSeen = input.value;
+        collapseAutofillSelection(input);
+      }
+      if (performance.now() - started < 500) {
+        autofillWatch.current = requestAnimationFrame(tick);
+      }
+    };
+    autofillWatch.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => () => cancelAnimationFrame(autofillWatch.current), []);
 
   useEffect(() => {
     const phoneInput = phoneRef.current;
@@ -327,25 +348,30 @@ export function WaitlistForm({
           .waitlist-autofill-watch:-webkit-autofill,
           .waitlist-autofill-watch:-webkit-autofill:hover,
           .waitlist-autofill-watch:-webkit-autofill:focus {
-            -webkit-text-fill-color: #000;
-            color: #000;
+            color-scheme: light;
+            -webkit-text-fill-color: #000 !important;
+            color: #000 !important;
           }
           .waitlist-mirror-input:-webkit-autofill::selection,
           .waitlist-autofill-watch:not(.waitlist-mirror-input):-webkit-autofill::selection {
             background-color: transparent;
-            color: #000;
-            -webkit-text-fill-color: #000;
+            color: #000 !important;
+            -webkit-text-fill-color: #000 !important;
+          }
+          .group:has(input.waitlist-mirror-input:-webkit-autofill:not([data-mirror="on"])) .waitlist-mirror-text {
+            visibility: hidden;
           }
           @media (min-width: 768px) {
-            .waitlist-mirror-input:-webkit-autofill::selection {
-              color: transparent;
-              -webkit-text-fill-color: transparent;
+            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill,
+            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill:hover,
+            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill:focus {
+              -webkit-text-fill-color: transparent !important;
+              color: transparent !important;
             }
-            .waitlist-autofill-watch.waitlist-mirror-input:-webkit-autofill,
-            .waitlist-autofill-watch.waitlist-mirror-input:-webkit-autofill:hover,
-            .waitlist-autofill-watch.waitlist-mirror-input:-webkit-autofill:focus {
-              -webkit-text-fill-color: transparent;
-              color: transparent;
+            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill::selection {
+              background-color: transparent;
+              color: transparent !important;
+              -webkit-text-fill-color: transparent !important;
             }
           }`}
       </style>
@@ -386,6 +412,8 @@ export function WaitlistForm({
               // A blank native placeholder drives :placeholder-shown; the visual one carries the drawn asterisk.
               placeholder=" "
               defaultValue={values?.email}
+              data-mirror={email ? "on" : undefined}
+              onFocus={(event) => watchAutofillValue(event.currentTarget)}
               onInput={(event) => syncMirroredField(event.currentTarget)}
               onChange={(event) => syncMirroredField(event.currentTarget)}
               onAnimationStart={onAutofill}
@@ -439,6 +467,8 @@ export function WaitlistForm({
                 placeholder=" "
                 maxLength={17}
                 defaultValue={values?.phone ? formatUsPhone(values.phone) : undefined}
+                data-mirror={phone ? "on" : undefined}
+                onFocus={(event) => watchAutofillValue(event.currentTarget)}
                 onInput={(event) => syncMirroredField(event.currentTarget)}
                 onChange={(event) => syncMirroredField(event.currentTarget)}
                 onAnimationStart={onAutofill}
@@ -474,6 +504,7 @@ export function WaitlistForm({
                 // Room for a pasted +1 before the mask keeps 10 national digits.
                 maxLength={17}
                 defaultValue={values?.phone ? formatUsPhone(values.phone) : undefined}
+                onFocus={(event) => watchAutofillValue(event.currentTarget)}
                 onInput={(event) => syncMirroredField(event.currentTarget)}
                 onChange={(event) => syncMirroredField(event.currentTarget)}
                 onAnimationStart={onAutofill}
