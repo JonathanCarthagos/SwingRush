@@ -54,7 +54,9 @@ export function PageHero({
       className={cn(
         // Sits below the solid header: the offsets mirror the header height in nav.tsx.
         "relative mt-nav-offset flex h-[16.75rem] items-center justify-center overflow-hidden bg-brand px-4 text-center text-white",
-        "min-[768px]:mt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:h-[clamp(20rem,calc(100vw*658/1680),41.125rem)]",
+        // Tablet: proportional to the 1680 frame, capped at 45svh so landscape tablets still show the content below.
+        "min-[768px]:mt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[768px]:h-[clamp(20rem,min(calc(100vw*658/1680),45svh),41.125rem)]",
+        "min-[1280px]:h-[clamp(20rem,calc(100vw*658/1680),41.125rem)]",
         "min-[1280px]:mt-24",
         className,
       )}

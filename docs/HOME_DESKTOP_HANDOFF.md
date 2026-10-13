@@ -42,8 +42,8 @@ O mobile da Home já foi aprovado pelo cliente. Não alterar estilos-base, estru
 
 O escopo atual é a seção preta com quatro histórias: Big Breaker, Ellie Snyder, Skill Divisions e equipe.
 
-- Tablet inteiro usa composição vertical: mídia centralizada, copy abaixo e alinhado à esquerda.
-- A grade alternada só começa em `1280px`.
+- Tablet usa a grade alternada (mídia e copy lado a lado) desde `768px`, aprovada pelo cliente em 2026-10-13. A mídia ocupa 46% da linha, limitada à largura do desktop, e o gap é fluido de 32px a 80px.
+- De `1280px` em diante, valem as medidas fixas do frame de 1680px.
 - Mídia tablet usa proporções naturais e `object-contain` para evitar cortes laterais.
 - O painel “Skill Divisions” não usa wrapper com altura artificial; sua altura acompanha o conteúdo real.
 - O painel escala slots e glifos fluidamente entre 768 e 1279 px e retorna às medidas do desktop em 1280 px.

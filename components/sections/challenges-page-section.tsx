@@ -216,8 +216,19 @@ export function ChallengesPageSection({
       )}
       {...props}
     >
-      {/* 10px inset matches How It Works and Locations so hero-to-content is ~50px on mobile. */}
-      <div className="mx-auto w-full max-w-[25.125rem] max-md:pt-2.5 min-[1280px]:hidden">
+      {/* 10px inset matches How It Works and Locations so hero-to-content is ~50px on mobile.
+          Tablet scales the same accordion with the viewport: wider with the width, capped by the
+          height so landscape rows stay compact, and slots, glyphs and gaps keep the mobile ratios. */}
+      <div
+        className={cn(
+          "mx-auto w-full max-w-[25.125rem] max-md:pt-2.5 min-[1280px]:hidden",
+          "min-[768px]:[--challenges-tablet-board:max(25.125rem,min(calc(55vw_+_2rem),42rem,75svh))]",
+          "min-[768px]:max-w-[var(--challenges-tablet-board)]",
+          "min-[768px]:[--split-flap-compact-slot-height:calc(var(--challenges-tablet-board)*0.10448)]",
+          "min-[768px]:[--split-flap-compact-glyph-size:calc(var(--challenges-tablet-board)*0.08458)]",
+          "min-[768px]:[--split-flap-compact-row-gap:calc(var(--challenges-tablet-board)*0.01119)]",
+        )}
+      >
         {boardItems.length > 0 ? (
           <SplitFlapAccordionBoard
             items={boardItems}
@@ -551,18 +562,18 @@ function DesktopChallengeDatum({
 
 function ChallengeDetails({ item }: { item: ChallengeItem }) {
   return (
-    <div className="pb-10 pt-12">
+    <div className="pb-10 pt-12 min-[768px]:pb-[clamp(2.5rem,5vw,3.5rem)] min-[768px]:pt-[clamp(3rem,6vw,4rem)]">
       <div className="relative aspect-[370/320] w-full">
         <Image
           src={item.image}
           alt={item.imageAlt}
           fill
-          sizes="(max-width: 767px) calc(100vw - 2rem), 0px"
+          sizes="(max-width: 767px) calc(100vw - 2rem), (max-width: 1279px) 42rem, 0px"
           className="scale-[1.1] object-contain"
         />
       </div>
 
-      <dl className="mt-8 text-white">
+      <dl className="mt-8 text-white min-[768px]:mt-10">
         <ChallengeDatum label="Club" value={item.club} />
         <ChallengeDatum
           label="Description"
@@ -587,10 +598,10 @@ function ChallengeDatum({
 }: ChallengeDatumProps) {
   return (
     <div className={cn("min-w-0", className)}>
-      <dt className="font-nav text-[0.875rem] font-bold uppercase leading-[1.1]">
+      <dt className="font-nav text-[0.875rem] font-bold uppercase leading-[1.1] min-[768px]:text-[clamp(1rem,calc(0.325rem+1vw),1.125rem)]">
         {label}
       </dt>
-      <dd className="mt-1 whitespace-pre-line break-words font-nav text-[0.9375rem] uppercase leading-[1.25]">
+      <dd className="mt-1 whitespace-pre-line break-words font-nav text-[0.9375rem] uppercase leading-[1.25] min-[768px]:text-[clamp(1.0625rem,calc(0.325rem+1vw),1.25rem)] min-[768px]:leading-[1.3]">
         {value}
       </dd>
     </div>

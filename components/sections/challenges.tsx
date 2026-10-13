@@ -39,7 +39,8 @@ function ChallengeCard({ story, index }: { story: HomeStory; index: number }) {
     <article
       className={cn(
         "flex w-full flex-col items-start gap-6",
-        "min-[1280px]:flex-row min-[1280px]:items-center",
+        // Tablet alternates media and copy side by side, as desktop does, instead of the mobile stack.
+        "min-[768px]:flex-row min-[768px]:items-center min-[768px]:gap-[clamp(2rem,calc(-2rem+8vw),5rem)]",
         imageOnRight
           ? "min-[1280px]:gap-[13.5625rem]"
           : "min-[1280px]:gap-[11.375rem]",
@@ -48,20 +49,20 @@ function ChallengeCard({ story, index }: { story: HomeStory; index: number }) {
       <div
         className={cn(
           "relative aspect-[510/500] w-full overflow-hidden",
-          "min-[768px]:w-[clamp(23.15125rem,calc(10rem+27.34375vw),31.875rem)]",
-          "min-[1280px]:h-[31.25rem] min-[1280px]:shrink-0",
-          imageOnRight && "min-[1280px]:order-2",
+          "min-[768px]:w-[min(46%,31.875rem)] min-[768px]:shrink-0",
+          "min-[1280px]:h-[31.25rem] min-[1280px]:w-[31.875rem]",
+          imageOnRight && "min-[768px]:order-2",
         )}
       >
         <Image
           src={story.image.src}
           alt={story.image.alt}
           fill
-          sizes="(min-width: 1280px) 510px, (min-width: 768px) 510px, 100vw"
+          sizes="(min-width: 1280px) 510px, (min-width: 768px) 46vw, 100vw"
           className="object-cover object-center"
         />
       </div>
-      <div className="flex w-full max-w-full flex-col text-left text-white min-[768px]:max-w-[clamp(23.15125rem,calc(10rem+27.34375vw),31.875rem)] min-[1280px]:w-[33rem] min-[1280px]:max-w-none min-[1280px]:shrink-0">
+      <div className="flex w-full max-w-full flex-col text-left text-white min-[768px]:min-w-0 min-[768px]:max-w-none min-[768px]:flex-1 min-[1280px]:w-[33rem] min-[1280px]:flex-none min-[1280px]:max-w-none min-[1280px]:shrink-0">
         <div className="flex flex-col gap-[0.8125rem]">
           <DisplayHeading
             as="h3"

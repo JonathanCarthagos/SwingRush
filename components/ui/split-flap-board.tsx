@@ -58,12 +58,13 @@ const collapseTransition: Transition = {
 type SplitFlapDensity = "display" | "compact" | "navigation";
 
 // Display metrics preserve the Home board. Compact metrics reproduce the
-// denser station-board rows used by the Challenges page.
+// denser station-board rows used by the Challenges page; their CSS variables
+// default to the mobile values so only the tablet wrapper scales them.
 const slotClasses: Record<SplitFlapDensity, string> = {
   display:
     "relative h-[var(--split-flap-display-slot-height,5.375rem)] w-[var(--split-flap-display-slot-width,2.5rem)] shrink-0 overflow-hidden rounded-[0.5625rem] bg-[#3f3f3f] [perspective:1000px]",
   compact:
-    "relative h-[2.625rem] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:600px]",
+    "relative h-[var(--split-flap-compact-slot-height,2.625rem)] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:600px]",
   navigation:
     "relative h-[var(--split-flap-navigation-row-height,4.684rem)] min-w-0 overflow-hidden rounded-[0.25rem] bg-[#3f3f3f] [perspective:800px]",
 };
@@ -71,7 +72,7 @@ const glyphClasses: Record<SplitFlapDensity, string> = {
   display:
     "absolute inset-x-0 flex h-[var(--split-flap-display-slot-height,5.375rem)] items-center justify-center font-nav text-[length:var(--split-flap-display-glyph-size,4rem)] leading-none",
   compact:
-    "absolute inset-x-0 flex h-[2.625rem] items-center justify-center font-nav text-[clamp(1.625rem,8.3vw,2.125rem)] leading-none",
+    "absolute inset-x-0 flex h-[var(--split-flap-compact-slot-height,2.625rem)] items-center justify-center font-nav text-[length:var(--split-flap-compact-glyph-size,clamp(1.625rem,8.3vw,2.125rem))] leading-none",
   navigation:
     "absolute inset-x-0 flex h-[var(--split-flap-navigation-row-height,4.684rem)] items-center justify-center font-nav text-[length:var(--split-flap-navigation-glyph-size,3.5rem)] leading-none",
 };
@@ -362,8 +363,11 @@ function usePreparedVisibilitySession(ref: RefObject<Element | null>) {
       });
     };
 
+    // One callback can batch several entries for the same element (e.g. the initial
+    // state and a scroll right after load); only the latest reflects where it is now.
     const prepareObserver = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = entries[entries.length - 1];
         if (!entry?.isIntersecting) return;
         prepare();
       },
@@ -371,7 +375,8 @@ function usePreparedVisibilitySession(ref: RefObject<Element | null>) {
     );
 
     const enterObserver = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = entries[entries.length - 1];
         if (
           !entry ||
           entry.intersectionRatio < SESSION_ENTER_VISIBILITY
@@ -1425,10 +1430,11 @@ export function SplitFlapAccordionBoard({
       ),
     [rows],
   );
-  const closedBoardHeight = `calc(${items.length} * 2.75rem + ${Math.max(
+  // Each closed row is one slot plus the trigger's 1px top and bottom padding.
+  const closedBoardHeight = `calc(${items.length} * (var(--split-flap-compact-slot-height, 2.625rem) + 0.125rem) + ${Math.max(
     items.length - 1,
     0,
-  )} * 0.28125rem)`;
+  )} * var(--split-flap-compact-row-gap, 0.28125rem))`;
 
   return (
     <FlapClockContext.Provider value={register}>
@@ -1443,7 +1449,7 @@ export function SplitFlapAccordionBoard({
         style={{ height: closedBoardHeight }}
       />
 
-      <div className="relative flex flex-col gap-[0.28125rem]">
+      <div className="relative flex flex-col gap-[var(--split-flap-compact-row-gap,0.28125rem)]">
         {items.map((item, rowIndex) => {
           const isOpen = openItemId === item.id;
           const contentId = `split-flap-panel-${item.id}`;

@@ -29,11 +29,27 @@ export function LocationVideoHero({
   const stillRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
     const desktopQuery = window.matchMedia(DESKTOP_MEDIA_QUERY);
     const reducedQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+    const video = videoRef.current;
+
+    // Reduced motion renders only the still: give it the poster for the current breakpoint.
+    if (!video) {
+      const applyStill = () => {
+        const still = stillRef.current;
+        const nextPoster = desktopQuery.matches
+          ? media.posterSrc
+          : media.mobilePosterSrc;
+        if (still && still.getAttribute("src") !== nextPoster) {
+          still.src = nextPoster;
+        }
+      };
+
+      applyStill();
+      desktopQuery.addEventListener("change", applyStill);
+      return () => desktopQuery.removeEventListener("change", applyStill);
+    }
+
     const sources = video.querySelectorAll("source");
     const webmSource = sources[0];
     const mp4Source = sources[1];
@@ -92,6 +108,7 @@ export function LocationVideoHero({
       window.removeEventListener("resize", applySource);
     };
   }, [
+    shouldReduceMotion,
     media.mobileMp4Src,
     media.mobilePosterSrc,
     media.mobileWebmSrc,
@@ -105,6 +122,8 @@ export function LocationVideoHero({
       aria-label={media.ariaLabel}
       className={cn(
         "relative h-[20.4rem] w-full overflow-hidden bg-black min-[1280px]:h-[41.125rem]",
+        // Tablet: the header offset plus a video band that grows with the width, capped by the height for landscape.
+        "min-[768px]:h-[calc(clamp(3.375rem,calc(-0.5625rem_+_8.203125vw),6rem)_+_min(45vw,55svh))]",
         className,
       )}
     >

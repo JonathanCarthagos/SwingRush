@@ -46,27 +46,28 @@ function ClubCard({ club, index }: { club: HomeStory; index: number }) {
     <article
       className={cn(
         "flex w-full flex-col items-start gap-6",
-        "min-[1280px]:flex-row min-[1280px]:items-center",
+        // Tablet alternates media and copy side by side, as desktop does, instead of the mobile stack.
+        "min-[768px]:flex-row min-[768px]:items-center min-[768px]:gap-[clamp(2rem,calc(-2rem+8vw),5rem)]",
         rowGap(index),
       )}
     >
       <div
         className={cn(
           "relative aspect-[370.42/356.17] w-full overflow-hidden",
-          "min-[768px]:aspect-square min-[768px]:w-[clamp(23.15125rem,calc(11.003125rem+25.30859375vw),31.25rem)]",
-          "min-[1280px]:w-[31.25rem] min-[1280px]:shrink-0",
-          imageOnRight && "min-[1280px]:order-2",
+          "min-[768px]:aspect-square min-[768px]:w-[min(46%,31.25rem)] min-[768px]:shrink-0",
+          "min-[1280px]:w-[31.25rem]",
+          imageOnRight && "min-[768px]:order-2",
         )}
       >
         <Image
           src={club.image.src}
           alt={club.image.alt}
           fill
-          sizes="(min-width: 1280px) 500px, (min-width: 768px) 500px, 100vw"
+          sizes="(min-width: 1280px) 500px, (min-width: 768px) 46vw, 100vw"
           className="object-cover object-center"
         />
       </div>
-      <div className="flex w-full max-w-[21.75rem] flex-col text-left text-white min-[768px]:max-w-[clamp(21.75rem,calc(4.875rem+35.15625vw),33rem)] min-[1280px]:w-[33rem] min-[1280px]:max-w-none min-[1280px]:shrink-0">
+      <div className="flex w-full max-w-[21.75rem] flex-col text-left text-white min-[768px]:min-w-0 min-[768px]:max-w-none min-[768px]:flex-1 min-[1280px]:w-[33rem] min-[1280px]:flex-none min-[1280px]:max-w-none min-[1280px]:shrink-0">
         <div className="flex flex-col gap-[0.83375rem]">
           <DisplayHeading
             as="h2"
