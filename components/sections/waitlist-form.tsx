@@ -43,15 +43,41 @@ const CONTROL =
   "min-w-0 rounded-none border-0 py-0 caret-[#f92524] outline-none selection:bg-[#f92524] selection:text-white placeholder:text-black placeholder:uppercase placeholder:opacity-100";
 // Keeps browser autofill from repainting the white field blue or yellow.
 const AUTOFILL =
-  "autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000]";
-// Mirrored fields keep the input transparent from 768px so the span is the only painted value.
+  "[color-scheme:light] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000]";
+// From 768px a mirrored input goes transparent only once the span holds its value (data-mirror="on"),
+// so a value the browser wrote without events still paints black on the input itself.
 // Below that, the input paints the display face directly and can scroll when the value is long.
 const MIRROR_INPUT =
-  "peer h-full w-full overflow-x-auto bg-transparent text-black [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] min-[768px]:absolute min-[768px]:inset-0 min-[768px]:text-transparent min-[768px]:[-webkit-text-fill-color:transparent]";
+  "peer h-full w-full overflow-x-auto bg-transparent text-black [color-scheme:light] [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] min-[768px]:absolute min-[768px]:inset-0 min-[768px]:data-[mirror=on]:text-transparent min-[768px]:data-[mirror=on]:[-webkit-text-fill-color:transparent]";
 const MIRROR_TEXT =
   "waitlist-mirror-text pointer-events-none hidden h-full w-full items-center overflow-visible min-[768px]:flex [@media(scripting:none)]:invisible";
 const AUTOFILL_ANIMATION = "waitlist-autofill-watch";
 const MIRROR_INPUT_CLASS = "waitlist-mirror-input";
+// While the browser marks a field as autofilled, the input itself paints the value black
+// (also when hovered, focused or selected) and its mirror span steps aside so the two
+// layers never double. Safari can fill without input or change events, so the span may be
+// stale or empty; it must never be the only thing drawing an autofilled value.
+// Each pseudo gets its own rules: an unknown pseudo would drop a shared selector list.
+const AUTOFILL_STYLES = [":-webkit-autofill", ":autofill"]
+  .map(
+    (pseudo) => `
+      .waitlist-autofill-watch${pseudo},
+      .waitlist-autofill-watch${pseudo}:hover,
+      .waitlist-autofill-watch${pseudo}:focus {
+        color-scheme: light;
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+      }
+      .waitlist-autofill-watch${pseudo}::selection {
+        background-color: rgb(249 37 36 / 0.25);
+        color: #000 !important;
+        -webkit-text-fill-color: #000 !important;
+      }
+      .waitlist-mirror-text:has(+ .waitlist-mirror-input${pseudo}) {
+        visibility: hidden;
+      }`,
+  )
+  .join("");
 const ERROR_TEXT =
   "mt-2 font-body text-[0.9375rem] leading-[1.3] tracking-body text-brand min-[768px]:text-[clamp(0.9375rem,calc(0.9766vw+0.46875rem),1.25rem)] min-[1280px]:mt-3 min-[1280px]:text-xl";
 const CHEVRON =
@@ -188,7 +214,7 @@ export function WaitlistForm({
   };
 
   // Chrome and Safari select the whole autofilled value. type="email" rejects
-  // setSelectionRange, so the mirrored field also hides that selection in CSS.
+  // setSelectionRange, so that selection keeps black text in CSS instead.
   const collapseAutofillSelection = (input: HTMLInputElement) => {
     try {
       if (!input.matches(":-webkit-autofill")) return;
@@ -345,35 +371,7 @@ export function WaitlistForm({
       <style>
         {`@keyframes waitlist-autofill { from { opacity: 1; } to { opacity: 1; } }
           .waitlist-autofill-watch:-webkit-autofill { animation-name: waitlist-autofill; animation-duration: 1ms; }
-          .waitlist-autofill-watch:-webkit-autofill,
-          .waitlist-autofill-watch:-webkit-autofill:hover,
-          .waitlist-autofill-watch:-webkit-autofill:focus {
-            color-scheme: light;
-            -webkit-text-fill-color: #000 !important;
-            color: #000 !important;
-          }
-          .waitlist-mirror-input:-webkit-autofill::selection,
-          .waitlist-autofill-watch:not(.waitlist-mirror-input):-webkit-autofill::selection {
-            background-color: transparent;
-            color: #000 !important;
-            -webkit-text-fill-color: #000 !important;
-          }
-          .group:has(input.waitlist-mirror-input:-webkit-autofill:not([data-mirror="on"])) .waitlist-mirror-text {
-            visibility: hidden;
-          }
-          @media (min-width: 768px) {
-            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill,
-            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill:hover,
-            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill:focus {
-              -webkit-text-fill-color: transparent !important;
-              color: transparent !important;
-            }
-            .waitlist-mirror-input[data-mirror="on"]:-webkit-autofill::selection {
-              background-color: transparent;
-              color: transparent !important;
-              -webkit-text-fill-color: transparent !important;
-            }
-          }`}
+          ${AUTOFILL_STYLES}`}
       </style>
       {fixedLocation ? (
         <>
