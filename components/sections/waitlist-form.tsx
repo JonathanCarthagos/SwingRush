@@ -51,6 +51,7 @@ const MIRROR_INPUT =
 const MIRROR_TEXT =
   "pointer-events-none hidden h-full w-full items-center overflow-visible min-[768px]:flex [@media(scripting:none)]:invisible";
 const AUTOFILL_ANIMATION = "waitlist-autofill-watch";
+const MIRROR_INPUT_CLASS = "waitlist-mirror-input";
 const ERROR_TEXT =
   "mt-2 font-body text-[0.9375rem] leading-[1.3] tracking-body text-brand min-[768px]:text-[clamp(0.9375rem,calc(0.9766vw+0.46875rem),1.25rem)] min-[1280px]:mt-3 min-[1280px]:text-xl";
 const CHEVRON =
@@ -185,9 +186,25 @@ export function WaitlistForm({
     if (input.name === "email") setEmail(input.value);
   };
 
+  // Chrome and Safari select the whole autofilled value. type="email" rejects
+  // setSelectionRange, so the mirrored field also hides that selection in CSS.
+  const collapseAutofillSelection = (input: HTMLInputElement) => {
+    try {
+      if (!input.matches(":-webkit-autofill")) return;
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      if (start === 0 && end === input.value.length && end > 0) {
+        input.setSelectionRange(end, end);
+      }
+    } catch {
+      // Firefox rejects :-webkit-autofill. type="email" cannot move the caret.
+    }
+  };
+
   const onAutofill = (event: React.AnimationEvent<HTMLInputElement>) => {
     if (event.animationName !== "waitlist-autofill") return;
     syncMirroredField(event.currentTarget);
+    collapseAutofillSelection(event.currentTarget);
   };
 
   useEffect(() => {
@@ -204,10 +221,14 @@ export function WaitlistForm({
     const applyAutofill = () => {
       const emailInput = form.querySelector<HTMLInputElement>('input[name="email"]');
       const phoneInput = form.querySelector<HTMLInputElement>('input[name="phone"]');
-      if (emailInput?.value) setEmail(emailInput.value);
+      if (emailInput?.value) {
+        setEmail(emailInput.value);
+        collapseAutofillSelection(emailInput);
+      }
       if (phoneInput?.value) {
         formatPhoneInput(phoneInput);
         setPhone(phoneInput.value);
+        collapseAutofillSelection(phoneInput);
       }
     };
 
@@ -302,7 +323,31 @@ export function WaitlistForm({
     >
       <style>
         {`@keyframes waitlist-autofill { from { opacity: 1; } to { opacity: 1; } }
-          .waitlist-autofill-watch:-webkit-autofill { animation-name: waitlist-autofill; animation-duration: 1ms; }`}
+          .waitlist-autofill-watch:-webkit-autofill { animation-name: waitlist-autofill; animation-duration: 1ms; }
+          .waitlist-autofill-watch:-webkit-autofill,
+          .waitlist-autofill-watch:-webkit-autofill:hover,
+          .waitlist-autofill-watch:-webkit-autofill:focus {
+            -webkit-text-fill-color: #000;
+            color: #000;
+          }
+          .waitlist-mirror-input:-webkit-autofill::selection,
+          .waitlist-autofill-watch:not(.waitlist-mirror-input):-webkit-autofill::selection {
+            background-color: transparent;
+            color: #000;
+            -webkit-text-fill-color: #000;
+          }
+          @media (min-width: 768px) {
+            .waitlist-mirror-input:-webkit-autofill::selection {
+              color: transparent;
+              -webkit-text-fill-color: transparent;
+            }
+            .waitlist-autofill-watch.waitlist-mirror-input:-webkit-autofill,
+            .waitlist-autofill-watch.waitlist-mirror-input:-webkit-autofill:hover,
+            .waitlist-autofill-watch.waitlist-mirror-input:-webkit-autofill:focus {
+              -webkit-text-fill-color: transparent;
+              color: transparent;
+            }
+          }`}
       </style>
       {fixedLocation ? (
         <>
@@ -348,6 +393,7 @@ export function WaitlistForm({
               aria-describedby={describedBy("email")}
               className={cn(
                 MIRROR_INPUT,
+                MIRROR_INPUT_CLASS,
                 AUTOFILL_ANIMATION,
                 FIELD_INSET,
                 FIELD_TEXT,
@@ -400,6 +446,7 @@ export function WaitlistForm({
                 aria-describedby={describedBy("phone")}
                 className={cn(
                   MIRROR_INPUT,
+                  MIRROR_INPUT_CLASS,
                   AUTOFILL_ANIMATION,
                   FIELD_INSET,
                   FIELD_TEXT,
