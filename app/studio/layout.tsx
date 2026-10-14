@@ -1,6 +1,6 @@
 /**
  * Studio must stay full-bleed on every viewport. It sits outside the (site)
- * route group so Nav and DesktopNotice never wrap it.
+ * route group so the site nav never wraps it. DesktopNotice is not mounted.
  */
 export default function StudioLayout({
   children,

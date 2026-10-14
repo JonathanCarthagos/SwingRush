@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SiteMain } from "@/components/layout/site-main";
 import { buttonVariants } from "@/components/ui/button";
 import { NOT_FOUND_CONTENT } from "@/data/not-found";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,7 @@ export function NotFoundSection() {
   const { code, title, lines, action } = NOT_FOUND_CONTENT;
 
   return (
-    <main id="main" className="flex flex-1 bg-black pt-nav-offset text-white min-[768px]:pt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:pt-24">
+    <SiteMain variant="solidNavNotFound">
       <div
         className={cn(
           "mx-auto flex w-full max-w-[105rem] flex-col items-center justify-center px-4 py-12 text-center min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(3rem,calc(14.0625vw-3.75rem),7.5rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[clamp(2.5rem,8dvh,7.5rem)]",
@@ -47,6 +48,6 @@ export function NotFoundSection() {
           {action.label}
         </Link>
       </div>
-    </main>
+    </SiteMain>
   );
 }

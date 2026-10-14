@@ -8,7 +8,7 @@ import type { LocationWaitlistContent } from "@/types/location-detail";
 
 // Type and spacing ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
 const TEXT_SUBHEAD =
-  "font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:text-[1.875rem]";
+  "font-body text-ramp-subhead leading-[1.3] tracking-body";
 
 export interface LocationWaitlistPageProps {
   content: LocationWaitlistContent;
@@ -16,7 +16,7 @@ export interface LocationWaitlistPageProps {
 
 export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
   return (
-    <main id="main" className="flex-1 overflow-x-hidden bg-black text-white">
+    <>
       {/* The waitlist frame plays 658px of video below the 96px header on desktop. */}
       <LocationVideoHero
         media={content.hero}
@@ -67,6 +67,6 @@ export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
           />
         </div>
       </div>
-    </main>
+    </>
   );
 }

@@ -1,31 +1,24 @@
 import type { Metadata } from "next";
 
+import { SiteMain } from "@/components/layout/site-main";
 import { LegalPageSection } from "@/components/sections/legal-page-section";
 import { TERMS_CONTENT } from "@/data/legal";
+import { buildPageMetadata } from "@/lib/seo/build-page-metadata";
 
 const { seo } = TERMS_CONTENT;
 
 // Placeholder copy: keep out of search results until the real text replaces it (see data/legal.ts).
-export const metadata: Metadata = {
-  title: { absolute: seo.title },
+export const metadata: Metadata = buildPageMetadata({
+  title: seo.title,
   description: seo.description,
-  alternates: {
-    canonical: "/terms",
-  },
-  openGraph: {
-    title: seo.title,
-    description: seo.description,
-    url: "/terms",
-    type: "website",
-    images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
-  },
+  canonical: "/terms",
   robots: { index: false, follow: false },
-};
+});
 
 export default function Page() {
   return (
-    <main id="main" className="flex-1 overflow-x-hidden bg-black pt-nav-offset min-[768px]:pt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:pt-24">
+    <SiteMain variant="solidNav">
       <LegalPageSection content={TERMS_CONTENT} />
-    </main>
+    </SiteMain>
   );
 }

@@ -122,7 +122,7 @@ export function Cta({
           />
           <p
             className={cn(
-              "max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)]",
+              "max-w-[16.85rem] font-body text-ramp-body leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem]",
               mobileDescription && "min-[1280px]:hidden",
               styles.bodyClassName,
             )}
@@ -132,7 +132,7 @@ export function Cta({
           {mobileDescription ? (
             <p
               className={cn(
-                "hidden max-w-[16.85rem] font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:block",
+                "hidden max-w-[16.85rem] font-body text-ramp-body leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem] min-[1280px]:block",
                 styles.bodyClassName,
               )}
             >

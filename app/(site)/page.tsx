@@ -7,16 +7,17 @@ import { Clubs } from "@/components/sections/clubs";
 import { Cta } from "@/components/sections/cta";
 import { Hero } from "@/components/sections/hero";
 import { getHomePage } from "@/lib/cms/home";
+import { SCROLL_MARGIN_NAV_DESKTOP_CLASS } from "@/lib/layout/hero-shell";
+import { buildPageMetadata } from "@/lib/seo/build-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { seo } = await getHomePage({ clean: true });
 
-  return {
-    title: { absolute: seo.title },
+  return buildPageMetadata({
+    title: seo.title,
     description: seo.description,
-    alternates: {
-      canonical: "/",
-    },
+    canonical: "/",
+    twitter: true,
     keywords: [
       "arena golf",
       "golf challenges",
@@ -25,20 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "skills golf challenges",
       "indoor golf competition",
     ],
-    openGraph: {
-      title: seo.title,
-      description: seo.description,
-      url: "/",
-      type: "website",
-      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: seo.title,
-      description: seo.description,
-      images: ["/twitter-image.jpg"],
-    },
-  };
+  });
 }
 
 export default async function HomePage() {
@@ -61,7 +49,7 @@ export default async function HomePage() {
           variant="inverted"
           keepBreaks
           heading={"10 CHALLENGES\n1 FINISH LINE"}
-          className="scroll-mt-nav-offset min-[1280px]:scroll-mt-24"
+          className={SCROLL_MARGIN_NAV_DESKTOP_CLASS}
           description="The world’s first arena golf experience"
           ctaLabel="Learn More"
           ctaHref="/how-it-works"

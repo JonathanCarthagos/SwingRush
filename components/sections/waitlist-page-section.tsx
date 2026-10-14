@@ -28,7 +28,7 @@ export function WaitlistPageSection({
           wrap
           className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[0.845] [text-wrap:balance] min-[768px]:text-[clamp(3.125rem,calc(9.765625vw-1.5625rem),6.25rem)] min-[1280px]:text-[6.25rem]"
         />
-        <p className="mt-[0.9375rem] max-w-[47.8125rem] font-body text-[1.0625rem] leading-[1.3] tracking-body min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:mt-6 min-[1280px]:text-[1.875rem]">
+        <p className="mt-[0.9375rem] max-w-[47.8125rem] font-body text-ramp-subhead leading-[1.3] tracking-body min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[1280px]:mt-6">
           {content.introduction}
         </p>
         <WaitlistForm

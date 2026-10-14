@@ -8,6 +8,7 @@ import {
   formatScheduleDate,
   formatScheduleTime,
 } from "@/lib/format-location-date";
+import { SCROLL_MARGIN_NAV_TABLET_CLASS } from "@/lib/layout/hero-shell";
 import {
   LOCATION_SOLD_OUT_CLASS_NAME,
   locationActionClassName,
@@ -21,10 +22,8 @@ import type {
 } from "@/types/location-detail";
 
 // Type and spacing ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
-const TEXT_BODY =
-  "font-body text-[1.0625rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:text-[1.5rem]";
-const TEXT_SUBHEAD =
-  "font-body text-[1.0625rem] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:text-[1.875rem]";
+const TEXT_BODY = "font-body text-ramp-body";
+const TEXT_SUBHEAD = "font-body text-ramp-subhead";
 const SECTION_HEADING =
   "font-display text-[2.5rem] uppercase leading-[1.05] min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.85]";
 const TEXT_LINK =
@@ -32,8 +31,7 @@ const TEXT_LINK =
 // Title above content below 1280px; title and content side by side (768 + 20 + 768 at 1680) from 1280px.
 const SPLIT_SECTION =
   "flex flex-col min-[1280px]:grid min-[1280px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] min-[1280px]:items-start min-[1280px]:gap-x-5 min-[1280px]:gap-y-0";
-const SCROLL_MARGIN =
-  "scroll-mt-nav-offset min-[768px]:scroll-mt-[clamp(3.375rem,calc(-0.5625rem+8.203125vw),6rem)] min-[1280px]:scroll-mt-24";
+const SCROLL_MARGIN = SCROLL_MARGIN_NAV_TABLET_CLASS;
 // The time column is a share of the row (121.5px at 402, 243px at 1680) so long categories never clip.
 const SCHEDULE_ROW =
   "grid h-[2.2269rem] grid-cols-[minmax(0,1fr)_33.49%] items-center gap-x-[0.894rem] pl-[0.4472rem] min-[768px]:h-[clamp(2.2269rem,calc(1.442rem+1.635vw),2.75rem)] min-[768px]:grid-cols-[minmax(0,1fr)_32.06%] min-[768px]:gap-x-[clamp(0.894rem,calc(0.359rem+1.113vw),1.25rem)] min-[768px]:pl-[clamp(0.4472rem,calc(0.18rem+0.557vw),0.625rem)] min-[1280px]:h-11 min-[1280px]:gap-x-5 min-[1280px]:pl-[0.625rem]";
@@ -44,7 +42,7 @@ export interface LocationDetailPageProps {
 
 export function LocationDetailPage({ content }: LocationDetailPageProps) {
   return (
-    <main id="main" className="flex-1 overflow-x-hidden bg-black text-white">
+    <>
       <LocationVideoHero media={content.hero} title={content.city} />
 
       <div className="mx-auto w-full max-w-[105rem] px-4 py-20 min-[768px]:px-tablet-gutter min-[768px]:py-[clamp(5rem,calc(1.25rem+7.8125vw),7.5rem)] min-[1280px]:px-desktop-gutter min-[1280px]:py-[7.5rem]">
@@ -63,7 +61,7 @@ export function LocationDetailPage({ content }: LocationDetailPageProps) {
           </div>
         </div>
       </div>
-    </main>
+    </>
   );
 }
 

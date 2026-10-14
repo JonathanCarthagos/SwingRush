@@ -18,7 +18,7 @@ import {
   type SplitFlapAccordionItem,
   type SplitFlapNavigationItem,
   type SplitFlapSelectionSource,
-} from "@/components/ui/split-flap-board";
+} from "@/components/challenges/split-flap-board";
 import { CHALLENGES_PAGE_CONTENT } from "@/data/challenges";
 import { scrollToY } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";

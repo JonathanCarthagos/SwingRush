@@ -5,24 +5,16 @@ import { Cta } from "@/components/sections/cta";
 import { HowItWorksDetailsSection } from "@/components/sections/how-it-works-details-section";
 import { PageHero } from "@/components/sections/page-hero";
 import { getHowItWorksPage } from "@/lib/cms/how-it-works";
+import { buildPageMetadata } from "@/lib/seo/build-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { seo } = await getHowItWorksPage({ clean: true });
 
-  return {
-    title: { absolute: seo.title },
+  return buildPageMetadata({
+    title: seo.title,
     description: seo.description,
-    alternates: {
-      canonical: "/how-it-works",
-    },
-    openGraph: {
-      title: seo.title,
-      description: seo.description,
-      url: "/how-it-works",
-      type: "website",
-      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
-    },
-  };
+    canonical: "/how-it-works",
+  });
 }
 
 export default async function HowItWorksPage() {

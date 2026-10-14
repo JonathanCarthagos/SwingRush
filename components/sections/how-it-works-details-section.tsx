@@ -87,7 +87,7 @@ function DetailRow({ item }: { item: HowItWorksItem }) {
         {item.link ? (
           <TextLink
             href={item.link.href}
-            className="inline-flex min-h-11 w-fit items-start font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:-mt-4 min-[1280px]:text-[1.5rem] min-[1280px]:font-bold min-[1280px]:leading-[1.3]"
+            className="inline-flex min-h-11 w-fit items-start font-body text-ramp-body font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[1280px]:-mt-4 min-[1280px]:font-bold min-[1280px]:leading-[1.3]"
           >
             {item.link.label}
           </TextLink>
@@ -136,7 +136,7 @@ function DetailImage({ image }: { image: NonNullable<HowItWorksItem["image"]> })
 function DetailCopy({ item }: { item: HowItWorksItem }) {
   return (
     // Paragraph gaps equal one blank line (1.3em) at every type size.
-    <div className="space-y-[1.3em] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:text-[1.5rem]">
+    <div className="space-y-[1.3em] font-body text-ramp-body leading-[1.3] tracking-body text-white">
       {item.content.split("\n\n").map((paragraph, index) => (
         <p key={index}>{paragraph}</p>
       ))}

@@ -223,9 +223,8 @@ Os três assets de feature foram exportados do Figma para `public/images/locatio
 
 ### Responsividade
 
-- Somente viewports abaixo de `480px` exibem a aplicação.
-- A partir de `480px`, o layout global oculta o app e exibe `DesktopNotice`.
-- A regra é por largura, sem detecção de dispositivo.
+- O site responsivo (mobile, tablet e desktop) é a experiência aprovada. `DesktopNotice` (`components/sections/desktop-notice.tsx`) existe no repositório, mas **não está montado** em nenhum layout — não ligar esse aviso sem aprovação explícita do cliente.
+- A regra de breakpoint é por largura, sem detecção de dispositivo.
 - Conteúdo mobile usa gutter lateral de `1rem` e largura máxima aproximada de `402px`.
 
 ### Navbar
@@ -403,7 +402,7 @@ Usar o estado nativo draft/published do Sanity para publicação editorial. `det
 - Draft Mode mostra alterações não publicadas; produção não mostra drafts.
 - Componentes de UI continuam sem imports de `sanity`, queries ou clientes.
 - A aplicação funciona sem overflow entre 320px e 479px.
-- A partir de 480px, somente o aviso global aparece.
+- `DesktopNotice` permanece desmontado. A partir de 480px o site responsivo continua visível.
 - Navbar, âncoras, foco, reduced motion e footer mantêm o comportamento atual.
 - Lint, TypeScript e build passam.
 

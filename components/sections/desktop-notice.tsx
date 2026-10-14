@@ -1,5 +1,9 @@
 import { LogoLockup } from "@/components/ui/logo-lockup";
 
+/**
+ * Intentionally unmounted. The approved site is responsive at every width.
+ * Do not add this to a layout without an explicit client request.
+ */
 export function DesktopNotice() {
   return (
     <div className="hidden min-h-dvh w-full flex-col items-center justify-center gap-6 bg-black px-8 text-center min-[480px]:flex">

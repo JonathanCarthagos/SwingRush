@@ -4,6 +4,7 @@ import { useReducedMotion } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { LOCATION_HERO_NAV_VAR_CLASS } from "@/lib/layout/hero-shell";
 import { cn } from "@/lib/utils";
 import type { LocationHeroMedia } from "@/types/location-detail";
 
@@ -124,7 +125,7 @@ export function LocationVideoHero({
         "relative h-[20.4rem] w-full overflow-hidden bg-black min-[1280px]:h-[41.125rem]",
         // Tablet: the header height plus the whole 16:9 frame (width × 9/16), never taller than the screen,
         // so the clip is not cropped top and bottom.
-        "min-[768px]:[--location-hero-nav:clamp(3.375rem,calc(-0.5625rem_+_8.203125vw),6rem)]",
+        LOCATION_HERO_NAV_VAR_CLASS,
         "min-[768px]:h-[calc(var(--location-hero-nav)_+_min(56.25vw,100svh_-_var(--location-hero-nav)))]",
         className,
       )}

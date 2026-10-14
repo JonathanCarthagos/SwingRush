@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 @plugin "@tailwindcss/typography";
+@source "../lib";
 
 :root {
   --background: #ffffff;
@@ -137,6 +138,32 @@ html.lenis [data-lenis-prevent-wheel] {
 
 html[data-embedded] .site-nav-vt {
   view-transition-name: none;
+}
+
+/* Shared type ramps. Mobile stays 1.0625rem; tablet interpolates; desktop locks.
+   Registered as utilities so Tailwind v4 emits them and a later utility can override. */
+@utility text-ramp-body {
+  font-size: 1.0625rem;
+
+  @media (min-width: 768px) {
+    font-size: clamp(1.0625rem, calc(0.40625rem + 1.3671875vw), 1.5rem);
+  }
+
+  @media (min-width: 1280px) {
+    font-size: 1.5rem;
+  }
+}
+
+@utility text-ramp-subhead {
+  font-size: 1.0625rem;
+
+  @media (min-width: 768px) {
+    font-size: clamp(1.0625rem, calc(2.539vw - 0.15625rem), 1.875rem);
+  }
+
+  @media (min-width: 1280px) {
+    font-size: 1.875rem;
+  }
 }
 
 /* Reduced motion: keep a short cross-fade, drop the positional movement. */

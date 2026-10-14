@@ -5,24 +5,16 @@ import { ChallengesPageSection } from "@/components/sections/challenges-page-sec
 import { Cta } from "@/components/sections/cta";
 import { PageHero } from "@/components/sections/page-hero";
 import { getChallengesPage } from "@/lib/cms/challenges";
+import { buildPageMetadata } from "@/lib/seo/build-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { seo } = await getChallengesPage({ clean: true });
 
-  return {
-    title: { absolute: seo.title },
+  return buildPageMetadata({
+    title: seo.title,
     description: seo.description,
-    alternates: {
-      canonical: "/challenges",
-    },
-    openGraph: {
-      title: seo.title,
-      description: seo.description,
-      url: "/challenges",
-      type: "website",
-      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
-    },
-  };
+    canonical: "/challenges",
+  });
 }
 
 export default async function ChallengesPage() {

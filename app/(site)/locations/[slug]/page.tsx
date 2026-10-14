@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { LocationDetailPage } from "@/components/sections/location-detail-page";
 import { LocationWaitlistPage } from "@/components/sections/location-waitlist-page";
 import { getLocationRoute, getLocationSlugs } from "@/lib/cms/locations";
+import { LOCATION_ROUTE_MAIN_CLASS } from "@/lib/layout/hero-shell";
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -36,9 +37,13 @@ export default async function LocationPage({ params }: LocationPageProps) {
     notFound();
   }
 
-  if (route.status === "sales") {
-    return <LocationDetailPage content={route.detail} />;
-  }
-
-  return <LocationWaitlistPage content={route.waitlist} />;
+  return (
+    <main id="main" className={LOCATION_ROUTE_MAIN_CLASS}>
+      {route.status === "sales" ? (
+        <LocationDetailPage content={route.detail} />
+      ) : (
+        <LocationWaitlistPage content={route.waitlist} />
+      )}
+    </main>
+  );
 }

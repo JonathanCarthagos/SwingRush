@@ -79,7 +79,7 @@ Esse commit contém a implementação da Home desktop/tablet, a preservação do
 Arquivos centrais para continuar:
 
 - `components/sections/challenges.tsx`
-- `components/ui/split-flap-board.tsx`
+- `components/challenges/split-flap-board.tsx`
 - `components/sections/hero.tsx`
 - `components/sections/nav.tsx`
 - `components/sections/arena.tsx`

@@ -3,24 +3,16 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/page-hero";
 import { LocationsPageSection } from "@/components/sections/locations-page-section";
 import { getLocationsPage } from "@/lib/cms/locations";
+import { buildPageMetadata } from "@/lib/seo/build-page-metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { seo } = await getLocationsPage({ clean: true });
 
-  return {
-    title: { absolute: seo.title },
+  return buildPageMetadata({
+    title: seo.title,
     description: seo.description,
-    alternates: {
-      canonical: "/locations",
-    },
-    openGraph: {
-      title: seo.title,
-      description: seo.description,
-      url: "/locations",
-      type: "website",
-      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
-    },
-  };
+    canonical: "/locations",
+  });
 }
 
 export default async function LocationsPage() {

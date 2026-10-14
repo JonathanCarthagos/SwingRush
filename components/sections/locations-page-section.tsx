@@ -18,8 +18,7 @@ export interface LocationsPageSectionProps
 }
 
 // Sizes ramp from the mobile frame (402px) to the desktop frame (1680px) across the tablet range.
-const TEXT_DATE =
-  "text-[1.0625rem] min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:text-[1.5rem]";
+const TEXT_DATE = "text-ramp-body";
 
 export function LocationsPageSection({
   pageContent,

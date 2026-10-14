@@ -69,13 +69,13 @@ function ChallengeCard({ story, index }: { story: HomeStory; index: number }) {
             text={story.title}
             className="box-border max-w-full px-[0.08em] font-display text-[3.125rem] uppercase leading-[2.625rem] min-[768px]:text-[clamp(3.125rem,calc(0.78125rem+4.8828125vw),4.6875rem)] min-[768px]:leading-[clamp(2.625rem,calc(0.5859375rem+4.248046875vw),3.984375rem)]"
           />
-          <p className="font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:font-normal min-[1280px]:leading-[1.3]">
+          <p className="font-body text-ramp-body font-medium leading-[1.1] tracking-body min-[1280px]:font-normal min-[1280px]:leading-[1.3]">
             {story.subtitle}
           </p>
         </div>
         <TextLink
           href={story.href}
-          className="mt-[0.8125rem] inline-flex min-h-11 w-fit items-center font-body text-[1.0625rem] font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[768px]:text-[clamp(1.0625rem,calc(0.40625rem+1.3671875vw),1.5rem)] min-[1280px]:mt-6 min-[1280px]:leading-[1.3]"
+          className="mt-[0.8125rem] inline-flex min-h-11 w-fit items-center font-body text-ramp-body font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[1280px]:mt-6 min-[1280px]:leading-[1.3]"
         >
           {story.linkLabel}
         </TextLink>

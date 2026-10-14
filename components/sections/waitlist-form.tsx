@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-import { joinWaitlist } from "@/app/(site)/waitlist/actions";
+import { joinWaitlist } from "@/lib/actions/waitlist";
 import { Button } from "@/components/ui/button";
 import { validateWaitlistFields } from "@/lib/waitlist-fields";
 import { cn } from "@/lib/utils";
@@ -317,7 +317,7 @@ export function WaitlistForm({
             : content.success.title}
         </h2>
         {state.status === "success" ? (
-          <p className="mt-[0.9375rem] font-body text-[1.0625rem] leading-[1.3] tracking-body text-white min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[768px]:text-[clamp(1.0625rem,calc(2.539vw-0.15625rem),1.875rem)] min-[1280px]:mt-6 min-[1280px]:text-[1.875rem]">
+          <p className="mt-[0.9375rem] font-body text-ramp-subhead leading-[1.3] tracking-body text-white min-[768px]:mt-[clamp(0.9375rem,calc(1.758vw+0.09375rem),1.5rem)] min-[1280px]:mt-6">
             {content.success.message}
           </p>
         ) : null}
