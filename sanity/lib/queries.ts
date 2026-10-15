@@ -10,6 +10,12 @@ export const HOME_PAGE_QUERY = defineQuery(`
       "webmSrc": webm.asset->url,
       "mp4Src": mp4.asset->url
     },
+    promoCta{
+      heading,
+      description,
+      action{label, href}
+    },
+    skillsBanner{heading, description},
     clubs[]{
       _key,
       title,
@@ -43,7 +49,11 @@ export const HOW_IT_WORKS_PAGE_QUERY = defineQuery(`
       "webmSrc": webm.asset->url,
       "mp4Src": mp4.asset->url
     },
-    arena{heading, description},
+    arena{
+      heading,
+      description,
+      action{label, href}
+    },
     introduction,
     items[]{
       _key,
@@ -189,6 +199,11 @@ export const CHALLENGES_PAGE_QUERY = defineQuery(`
       title,
       introduction,
       emptyState,
+      closingCta{
+        heading,
+        description,
+        action{label, href}
+      },
       seo{title, description}
     },
     "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){

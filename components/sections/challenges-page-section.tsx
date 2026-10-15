@@ -111,6 +111,7 @@ function animateScrollTo(
 export interface ChallengesPageSectionProps
   extends React.HTMLAttributes<HTMLElement> {
   emptyState?: string;
+  introduction?: string;
   items?: readonly ChallengeItem[];
 }
 
@@ -125,6 +126,7 @@ function challengeIndexFromHash(hash: string, itemCount: number) {
 
 export function ChallengesPageSection({
   emptyState = CHALLENGES_PAGE_CONTENT.emptyState,
+  introduction = CHALLENGES_PAGE_CONTENT.introduction,
   items = CHALLENGES_PAGE_CONTENT.items,
   className,
   ...props
@@ -251,6 +253,7 @@ export function ChallengesPageSection({
 
       <DesktopChallenges
         emptyState={emptyState}
+        introduction={introduction}
         items={items}
         requestedItemId={requestedItemId}
         arrivalTokenRef={arrivalTokenRef}
@@ -263,6 +266,7 @@ export function ChallengesPageSection({
 
 interface DesktopChallengesProps {
   emptyState: string;
+  introduction: string;
   items: readonly ChallengeItem[];
   requestedItemId: string | null;
   arrivalTokenRef: { current: number };
@@ -272,6 +276,7 @@ interface DesktopChallengesProps {
 
 function DesktopChallenges({
   emptyState,
+  introduction,
   items,
   requestedItemId,
   arrivalTokenRef,
@@ -456,6 +461,11 @@ function DesktopChallenges({
       data-challenges-desktop
       className="mx-auto hidden w-full max-w-[105rem] px-desktop-gutter py-[clamp(7.5rem,8.929vw,9.375rem)] [--challenges-anchor-offset:theme(spacing.desktop-anchor)] min-[1280px]:block"
     >
+      {introduction ? (
+        <p className="mb-6 max-w-[48rem] font-body text-[1.875rem] leading-[1.3] tracking-body">
+          {introduction}
+        </p>
+      ) : null}
       {items.length > 0 ? (
         <div className="grid w-full grid-cols-[minmax(0,43.186%)_minmax(0,37.695%)] items-start gap-x-[19.119%]">
           <aside className="sticky top-[var(--challenges-anchor-offset)] min-w-0 self-start">

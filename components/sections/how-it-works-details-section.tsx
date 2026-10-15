@@ -15,11 +15,13 @@ const STACK_GAP =
 
 export interface HowItWorksDetailsSectionProps
   extends React.HTMLAttributes<HTMLElement> {
+  introduction?: string;
   items?: readonly HowItWorksItem[];
 }
 
 export function HowItWorksDetailsSection({
   className,
+  introduction = HOW_IT_WORKS_PAGE_CONTENT.introduction,
   items = HOW_IT_WORKS_PAGE_CONTENT.items,
   ...props
 }: HowItWorksDetailsSectionProps) {
@@ -32,6 +34,11 @@ export function HowItWorksDetailsSection({
       {...props}
     >
       <div className="mx-auto w-full px-4 min-[768px]:px-tablet-gutter min-[1280px]:max-w-[105rem] min-[1280px]:px-desktop-gutter">
+        {introduction ? (
+          <p className="mb-[clamp(2.5rem,calc(5vw+0.5rem),3.75rem)] hidden max-w-[48rem] font-body text-[1.875rem] leading-[1.3] tracking-body min-[1280px]:block">
+            {introduction}
+          </p>
+        ) : null}
         {/* Tablet keeps the mobile stack in a centred reading column; desktop splits into two columns. */}
         <div className="flex flex-col divide-y divide-white min-[768px]:mx-auto min-[768px]:max-w-challenge-tablet-copy min-[1280px]:mx-0 min-[1280px]:max-w-none min-[1280px]:gap-[5.125rem] min-[1280px]:divide-y-0">
           {items.map((item) => (

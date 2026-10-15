@@ -30,7 +30,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const { hero, clubs, arena, stories, cta } = await getHomePage();
+  const { hero, promoCta, skillsBanner, clubs, arena, stories, cta } =
+    await getHomePage();
 
   return (
     <>
@@ -48,26 +49,27 @@ export default async function HomePage() {
           id="next-section"
           variant="inverted"
           keepBreaks
-          heading={"10 CHALLENGES\n1 FINISH LINE"}
+          heading={promoCta.heading}
           className={SCROLL_MARGIN_NAV_DESKTOP_CLASS}
-          description="The world’s first arena golf experience"
-          ctaLabel="Learn More"
-          ctaHref="/how-it-works"
+          description={promoCta.description}
+          ctaLabel={promoCta.ctaLabel}
+          ctaHref={promoCta.ctaHref}
         />
         <Cta
           variant="solid"
-          heading="CONQUER THE SKILLS GAUNTLET"
-          description="Do you have what it takes to complete all ten skills challenges?"
+          heading={skillsBanner.heading}
+          description={skillsBanner.description}
         />
         <Clubs clubs={clubs} />
         <Arena heading={arena.heading} description={arena.description} />
         <Challenges stories={stories} />
         <Cta
           variant="inverted"
-          heading={"JUMP INTO\nTHE ARENA"}
+          keepBreaks
+          heading={cta.heading}
           description={cta.description}
-          ctaLabel="Sign Up"
-          ctaHref="/locations"
+          ctaLabel={cta.ctaLabel}
+          ctaHref={cta.ctaHref}
         />
       </main>
       <CmsLive />

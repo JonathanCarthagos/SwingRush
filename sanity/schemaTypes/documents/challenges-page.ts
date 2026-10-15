@@ -36,6 +36,13 @@ export const challengesPage = defineType({
       description: "Shown when no challenge is published.",
     }),
     defineField({
+      name: "closingCta",
+      title: "Closing call to action",
+      type: "ctaBlock",
+      group: "content",
+      description: "Inverted band at the bottom of the page.",
+    }),
+    defineField({
       name: "seo",
       title: "SEO",
       type: "seo",

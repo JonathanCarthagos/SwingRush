@@ -155,5 +155,12 @@ export const CHALLENGES_PAGE_CONTENT = {
   introduction:
     "One by one, you must navigate a gauntlet of ten golf challenges. Each will test a specific skill to see if you have what it takes to stand in the winners circle and be crowned a Swingrusher.",
   emptyState: "Challenge details are coming soon.",
+  closingCta: {
+    heading: "THE ARENA\nGOLF GAUNTLET",
+    description:
+      "Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?",
+    ctaLabel: "Sign Up",
+    ctaHref: "/locations",
+  },
   items: CHALLENGE_ITEMS,
 } satisfies ChallengesPageContent;

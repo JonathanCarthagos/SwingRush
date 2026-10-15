@@ -20,7 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ChallengesPage() {
-  const { title, emptyState, items } = await getChallengesPage();
+  const { title, introduction, emptyState, closingCta, items } =
+    await getChallengesPage();
 
   return (
     <>
@@ -34,14 +35,19 @@ export default async function ChallengesPage() {
           }}
         />
         <ChallengesSeoIndex items={items} />
-        <ChallengesPageSection emptyState={emptyState} items={items} />
+        <ChallengesPageSection
+          emptyState={emptyState}
+          introduction={introduction}
+          items={items}
+        />
         <Cta
           variant="inverted"
-          heading={"THE ARENA\nGOLF GAUNTLET"}
-          mobileDescription="Do you have the skills to complete each golf challenge as fast as you can and become a Swingrusher?"
-          description="Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?"
-          ctaLabel="Sign Up"
-          ctaHref="/locations"
+          keepBreaks
+          heading={closingCta.heading}
+          mobileDescription={closingCta.description}
+          description={closingCta.description}
+          ctaLabel={closingCta.ctaLabel}
+          ctaHref={closingCta.ctaHref}
           className="min-[1280px]:[&>div]:max-w-none min-[1280px]:[&_h2]:whitespace-nowrap"
         />
       </main>

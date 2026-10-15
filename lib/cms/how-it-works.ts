@@ -68,7 +68,11 @@ interface RawHowItWorksPage {
     webmSrc?: string | null;
     mp4Src?: string | null;
   } | null;
-  arena?: { heading?: string | null; description?: string | null } | null;
+  arena?: {
+    heading?: string | null;
+    description?: string | null;
+    action?: { label?: string | null; href?: string | null } | null;
+  } | null;
   introduction?: string | null;
   items?: RawItem[] | null;
 }
@@ -125,11 +129,15 @@ function adaptHowItWorksPage(
       webmSrc: text(raw.hero?.webmSrc) ?? fallback.hero.webmSrc,
       mp4Src: text(raw.hero?.mp4Src) ?? fallback.hero.mp4Src,
       posterSrc: text(raw.hero?.posterSrc) ?? fallback.hero.posterSrc,
-      arenaHeading: text(raw.arena?.heading) ?? fallback.hero.arenaHeading,
-      arenaDescription:
-        text(raw.arena?.description) ?? fallback.hero.arenaDescription,
     },
     introduction: text(raw.introduction) ?? fallback.introduction,
+    closingCta: {
+      heading: text(raw.arena?.heading) ?? fallback.closingCta.heading,
+      description:
+        text(raw.arena?.description) ?? fallback.closingCta.description,
+      ctaLabel: text(raw.arena?.action?.label) ?? fallback.closingCta.ctaLabel,
+      ctaHref: text(raw.arena?.action?.href) ?? fallback.closingCta.ctaHref,
+    },
     items: items.length > 0 ? items : fallback.items,
   };
 }

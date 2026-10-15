@@ -6,6 +6,17 @@ export const HOME_PAGE_CONTENT = {
     description:
       "Ten one-of-a-kind golf skills challenges, hundreds of golfers, one finish line. Race to the finish line solo or as a team.",
   },
+  promoCta: {
+    heading: "10 CHALLENGES\n1 FINISH LINE",
+    description: "The world’s first arena golf experience",
+    ctaLabel: "Learn More",
+    ctaHref: "/how-it-works",
+  },
+  skillsBanner: {
+    heading: "CONQUER THE SKILLS GAUNTLET",
+    description:
+      "Do you have what it takes to complete all ten skills challenges?",
+  },
   hero: {
     heading: "ENTER\nTHE GOLF\nARENA",
     webmSrc: "/videos/hero-desktop.webm",
@@ -91,9 +102,10 @@ export const HOME_PAGE_CONTENT = {
     },
   ],
   cta: {
-    heading: "SWING IN\nTHE ARENA",
+    heading: "JUMP INTO\nTHE ARENA",
     description:
       "Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?",
-    ctaLabel: "Contact Us",
+    ctaLabel: "Sign Up",
+    ctaHref: "/locations",
   },
 } as const satisfies HomePageContent;

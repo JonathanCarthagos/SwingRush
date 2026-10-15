@@ -309,6 +309,7 @@ export type ChallengesPage = {
   title: string;
   introduction?: string;
   emptyState?: string;
+  closingCta?: CtaBlock;
   seo?: Seo;
 };
 
@@ -334,7 +335,7 @@ export type HowItWorksPage = {
   _rev: string;
   title?: string;
   hero?: VideoHero;
-  arena?: HeadlineBlock;
+  arena?: CtaBlock;
   introduction?: string;
   items?: Array<
     {
@@ -352,6 +353,8 @@ export type HomePage = {
   _rev: string;
   title?: string;
   hero?: VideoHero;
+  promoCta?: CtaBlock;
+  skillsBanner?: HeadlineBlock;
   clubs?: Array<
     {
       _key: string;
@@ -521,12 +524,14 @@ export type AllSanitySchemaTypes =
 
 // Source: sanity/lib/queries.ts
 // Variable: HOME_PAGE_QUERY
-// Query: *[_id == "homePage"][0]{    title,    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    clubs[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    arena{heading, description},    stories[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    cta{      heading,      description,      action{label, href}    }  }
+// Query: *[_id == "homePage"][0]{    title,    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    promoCta{      heading,      description,      action{label, href}    },    skillsBanner{heading, description},    clubs[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    arena{heading, description},    stories[]{      _key,      title,      subtitle,      link{label, href},      "image": image{"src": asset->url, alt}    },    cta{      heading,      description,      action{label, href}    }  }
 export type HOME_PAGE_QUERY_RESULT =
   | {
       title: null;
       seo: null;
       hero: null;
+      promoCta: null;
+      skillsBanner: null;
       clubs: null;
       arena: null;
       stories: null;
@@ -536,6 +541,8 @@ export type HOME_PAGE_QUERY_RESULT =
       title: string;
       seo: null;
       hero: null;
+      promoCta: null;
+      skillsBanner: null;
       clubs: null;
       arena: null;
       stories: null;
@@ -545,6 +552,8 @@ export type HOME_PAGE_QUERY_RESULT =
       title: string | null;
       seo: null;
       hero: null;
+      promoCta: null;
+      skillsBanner: null;
       clubs: null;
       arena: null;
       stories: null;
@@ -557,6 +566,8 @@ export type HOME_PAGE_QUERY_RESULT =
         description: string;
       } | null;
       hero: null;
+      promoCta: null;
+      skillsBanner: null;
       clubs: null;
       arena: null;
       stories: null;
@@ -574,6 +585,8 @@ export type HOME_PAGE_QUERY_RESULT =
         webmSrc: string | null;
         mp4Src: string | null;
       } | null;
+      promoCta: null;
+      skillsBanner: null;
       clubs: null;
       arena: null;
       stories: null;
@@ -591,6 +604,8 @@ export type HOME_PAGE_QUERY_RESULT =
         webmSrc: string | null;
         mp4Src: string | null;
       } | null;
+      promoCta: null;
+      skillsBanner: null;
       clubs: null;
       arena: {
         heading: string;
@@ -610,6 +625,18 @@ export type HOME_PAGE_QUERY_RESULT =
         posterSrc: string | null;
         webmSrc: string | null;
         mp4Src: string | null;
+      } | null;
+      promoCta: {
+        heading: string;
+        description: string;
+        action: {
+          label: string;
+          href: string;
+        } | null;
+      } | null;
+      skillsBanner: {
+        heading: string;
+        description: string;
       } | null;
       clubs: Array<{
         _key: string;
@@ -654,7 +681,7 @@ export type HOME_PAGE_QUERY_RESULT =
 
 // Source: sanity/lib/queries.ts
 // Variable: HOW_IT_WORKS_PAGE_QUERY
-// Query: *[_id == "howItWorksPage"][0]{    title,    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{heading, description},    introduction,    items[]{      _key,      title,      "slug": slug.current,      content,      sections[]{_key, heading, body},      link{label, href},      "image": image{"src": asset->url, alt}    }  }
+// Query: *[_id == "howItWorksPage"][0]{    title,    seo{title, description},    hero{      heading,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    arena{      heading,      description,      action{label, href}    },    introduction,    items[]{      _key,      title,      "slug": slug.current,      content,      sections[]{_key, heading, body},      link{label, href},      "image": image{"src": asset->url, alt}    }  }
 export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
   | {
       title: null;
@@ -733,6 +760,7 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       arena: {
         heading: string;
         description: string;
+        action: null;
       } | null;
       introduction: null;
       items: null;
@@ -752,6 +780,10 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       arena: {
         heading: string;
         description: string;
+        action: {
+          label: string;
+          href: string;
+        } | null;
       } | null;
       introduction: string | null;
       items: Array<{
@@ -1062,31 +1094,35 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
 
 // Source: sanity/lib/queries.ts
 // Variable: CHALLENGES_PAGE_QUERY
-// Query: {    "page": *[_id == "challengesPage"][0]{      title,      introduction,      emptyState,      seo{title, description}    },    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){      _id,      "slug": slug.current,      sortOrder,      title,      club,      shot,      distance,      targetHeight{open, elite},      timeLimit,      description,      "image": image{"src": asset->url, alt}    }  }
+// Query: {    "page": *[_id == "challengesPage"][0]{      title,      introduction,      emptyState,      closingCta{        heading,        description,        action{label, href}      },      seo{title, description}    },    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){      _id,      "slug": slug.current,      sortOrder,      title,      club,      shot,      distance,      targetHeight{open, elite},      timeLimit,      description,      "image": image{"src": asset->url, alt}    }  }
 export type CHALLENGES_PAGE_QUERY_RESULT = {
   page:
     | {
         title: null;
         introduction: null;
         emptyState: null;
+        closingCta: null;
         seo: null;
       }
     | {
         title: string;
         introduction: null;
         emptyState: null;
+        closingCta: null;
         seo: null;
       }
     | {
         title: string | null;
         introduction: null;
         emptyState: null;
+        closingCta: null;
         seo: null;
       }
     | {
         title: string | null;
         introduction: null;
         emptyState: null;
+        closingCta: null;
         seo: {
           title: string;
           description: string;
@@ -1096,6 +1132,7 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         title: string;
         introduction: string;
         emptyState: null;
+        closingCta: null;
         seo: {
           title: string;
           description: string;
@@ -1105,6 +1142,7 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         title: null;
         introduction: string | null;
         emptyState: null;
+        closingCta: null;
         seo: {
           title: string;
           description: string;
@@ -1114,6 +1152,7 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         title: string | null;
         introduction: string | null;
         emptyState: null;
+        closingCta: null;
         seo: {
           title: string;
           description: string;
@@ -1123,6 +1162,24 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         title: string;
         introduction: string | null;
         emptyState: string | null;
+        closingCta: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
+        title: string;
+        introduction: string | null;
+        emptyState: string | null;
+        closingCta: {
+          heading: string;
+          description: string;
+          action: {
+            label: string;
+            href: string;
+          } | null;
+        } | null;
         seo: {
           title: string;
           description: string;
@@ -1154,14 +1211,14 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
-    '\n  *[_id == "homePage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
-    '\n  *[_id == "howItWorksPage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
+    '\n  *[_id == "homePage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    promoCta{\n      heading,\n      description,\n      action{label, href}\n    },\n    skillsBanner{heading, description},\n    clubs[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    arena{heading, description},\n    stories[]{\n      _key,\n      title,\n      subtitle,\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    },\n    cta{\n      heading,\n      description,\n      action{label, href}\n    }\n  }\n': HOME_PAGE_QUERY_RESULT;
+    '\n  *[_id == "howItWorksPage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{\n      heading,\n      description,\n      action{label, href}\n    },\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel,\n      registrationStatus\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
     '\n  *[_id == "waitlistPage"][0]{\n    title,\n    introduction,\n    seo{title, description}\n  }\n': WAITLIST_PAGE_QUERY_RESULT;
     '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    waitlistForm{ showEmail, showSms, showConsent }\n  }\n': WAITLIST_LOCATION_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;
     '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    registrationStatus,\n    waitlistForm{ showEmail, showSms, showConsent },\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url,\n      "mobilePosterSrc": mobilePoster.asset->url,\n      "mobileWebmSrc": mobileWebm.asset->url,\n      "mobileMp4Src": mobileMp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    },\n    "shared": *[_id == "locationsPage"][0]{\n      locationHero{\n        ariaLabel,\n        "posterSrc": poster.asset->url,\n        "webmSrc": webm.asset->url,\n        "mp4Src": mp4.asset->url,\n        "mobilePosterSrc": mobilePoster.asset->url,\n        "mobileWebmSrc": mobileWebm.asset->url,\n        "mobileMp4Src": mobileMp4.asset->url\n      },\n      defaultIntroduction\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;
-    '\n  {\n    "page": *[_id == "challengesPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      "slug": slug.current,\n      sortOrder,\n      title,\n      club,\n      shot,\n      distance,\n      targetHeight{open, elite},\n      timeLimit,\n      description,\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': CHALLENGES_PAGE_QUERY_RESULT;
+    '\n  {\n    "page": *[_id == "challengesPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      closingCta{\n        heading,\n        description,\n        action{label, href}\n      },\n      seo{title, description}\n    },\n    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      "slug": slug.current,\n      sortOrder,\n      title,\n      club,\n      shot,\n      distance,\n      targetHeight{open, elite},\n      timeLimit,\n      description,\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': CHALLENGES_PAGE_QUERY_RESULT;
   }
 }

@@ -29,11 +29,36 @@ interface RawHomePage {
   clubs?: RawStory[] | null;
   arena?: { heading?: string | null; description?: string | null } | null;
   stories?: RawStory[] | null;
+  promoCta?: {
+    heading?: string | null;
+    description?: string | null;
+    action?: { label?: string | null; href?: string | null } | null;
+  } | null;
+  skillsBanner?: { heading?: string | null; description?: string | null } | null;
   cta?: {
     heading?: string | null;
     description?: string | null;
     action?: { label?: string | null; href?: string | null } | null;
   } | null;
+}
+
+function adaptCtaBlock(
+  raw:
+    | {
+        heading?: string | null;
+        description?: string | null;
+        action?: { label?: string | null; href?: string | null } | null;
+      }
+    | null
+    | undefined,
+  fallback: HomePageContent["cta"],
+): HomePageContent["cta"] {
+  return {
+    heading: text(raw?.heading) ?? fallback.heading,
+    description: text(raw?.description) ?? fallback.description,
+    ctaLabel: text(raw?.action?.label) ?? fallback.ctaLabel,
+    ctaHref: text(raw?.action?.href) ?? fallback.ctaHref,
+  };
 }
 
 const CLUB_CHALLENGE_HREFS_BY_KEY: Record<string, string> = {
@@ -121,12 +146,15 @@ function adaptHomePage(raw: RawHomePage | null): HomePageContent {
       description: text(raw.arena?.description) ?? fallback.arena.description,
     },
     stories: stories.length > 0 ? stories : fallback.stories,
-    cta: {
-      heading: text(raw.cta?.heading) ?? fallback.cta.heading,
-      description: text(raw.cta?.description) ?? fallback.cta.description,
-      ctaLabel: text(raw.cta?.action?.label) ?? fallback.cta.ctaLabel,
-      ctaHref: text(raw.cta?.action?.href),
+    promoCta: adaptCtaBlock(raw.promoCta, fallback.promoCta),
+    skillsBanner: {
+      heading:
+        text(raw.skillsBanner?.heading) ?? fallback.skillsBanner.heading,
+      description:
+        text(raw.skillsBanner?.description) ??
+        fallback.skillsBanner.description,
     },
+    cta: adaptCtaBlock(raw.cta, fallback.cta),
   };
 }
 

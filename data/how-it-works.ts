@@ -10,9 +10,13 @@ export const HOW_IT_WORKS_PAGE_CONTENT = {
     webmSrc: "/videos/Sizzzle%20one.webm",
     mp4Src: "/videos/Sizzzle%20one.mp4",
     posterSrc: "/images/hero-poster.jpg",
-    arenaHeading: "THE ARENA\nGOLF GAUNTLET",
-    arenaDescription:
-      "Do you have the skills to complete each golf challenge as fast as you can and become a Swingrusher?",
+  },
+  closingCta: {
+    heading: "THE ARENA\nGOLF GAUNTLET",
+    description:
+      "Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?",
+    ctaLabel: "Sign Up",
+    ctaHref: "/locations",
   },
   introduction:
     "Swingrush combines the thrill of competing under arena spotlights with the adrenaline of sinking your favorite clutch golf shots. This is your chance to test all of your golf skills and see if you have what it takes to complete a golf gauntlet packed with 10 one-of-a-kind skills challenges. Feel the pressure and experience the thrill of victory or the agony of defeat.",

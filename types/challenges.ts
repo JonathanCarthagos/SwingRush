@@ -17,10 +17,18 @@ export interface ChallengeItem {
   description: string;
 }
 
+export interface ChallengesClosingCta {
+  heading: string;
+  description: string;
+  ctaLabel: string;
+  ctaHref: string;
+}
+
 export interface ChallengesPageContent {
   seo: SeoContent;
   title: string;
   introduction: string;
   emptyState: string;
+  closingCta: ChallengesClosingCta;
   items: readonly ChallengeItem[];
 }

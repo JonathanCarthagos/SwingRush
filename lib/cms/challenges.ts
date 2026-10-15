@@ -26,6 +26,11 @@ interface RawChallengesPage {
     title?: string | null;
     introduction?: string | null;
     emptyState?: string | null;
+    closingCta?: {
+      heading?: string | null;
+      description?: string | null;
+      action?: { label?: string | null; href?: string | null } | null;
+    } | null;
     seo?: { title?: string | null; description?: string | null } | null;
   } | null;
   challenges?: RawChallenge[] | null;
@@ -78,6 +83,18 @@ function adaptChallengesPage(
     title: text(raw.page?.title) ?? fallback.title,
     introduction: text(raw.page?.introduction) ?? fallback.introduction,
     emptyState: text(raw.page?.emptyState) ?? fallback.emptyState,
+    closingCta: {
+      heading:
+        text(raw.page?.closingCta?.heading) ?? fallback.closingCta.heading,
+      description:
+        text(raw.page?.closingCta?.description) ??
+        fallback.closingCta.description,
+      ctaLabel:
+        text(raw.page?.closingCta?.action?.label) ??
+        fallback.closingCta.ctaLabel,
+      ctaHref:
+        text(raw.page?.closingCta?.action?.href) ?? fallback.closingCta.ctaHref,
+    },
     items: items.length > 0 ? items : fallback.items,
   };
 }

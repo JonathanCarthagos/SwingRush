@@ -36,9 +36,16 @@ export interface HomeCtaContent {
   ctaHref?: string;
 }
 
+export interface HomeHeadlineContent {
+  heading: string;
+  description: string;
+}
+
 export interface HomePageContent {
   seo: SeoContent;
   hero: HomeHeroContent;
+  promoCta: HomeCtaContent;
+  skillsBanner: HomeHeadlineContent;
   clubs: readonly HomeStory[];
   arena: HomeArenaContent;
   stories: readonly HomeStory[];

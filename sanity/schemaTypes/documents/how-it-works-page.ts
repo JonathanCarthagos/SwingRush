@@ -30,10 +30,10 @@ export const howItWorksPage = defineType({
     }),
     defineField({
       name: "arena",
-      title: "Arena",
-      type: "headlineBlock",
+      title: "Closing call to action",
+      type: "ctaBlock",
       group: "content",
-      description: "The brand-coloured block that overlaps the hero video.",
+      description: "Inverted band at the bottom of the page.",
     }),
     defineField({
       name: "introduction",

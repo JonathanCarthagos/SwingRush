@@ -29,6 +29,20 @@ export const homePage = defineType({
       group: "content",
     }),
     defineField({
+      name: "promoCta",
+      title: "Promo call to action",
+      type: "ctaBlock",
+      group: "content",
+      description: "Inverted band directly below the hero video.",
+    }),
+    defineField({
+      name: "skillsBanner",
+      title: "Skills banner",
+      type: "headlineBlock",
+      group: "content",
+      description: "Solid brand band before the club cards.",
+    }),
+    defineField({
       name: "clubs",
       title: "Clubs",
       type: "array",
