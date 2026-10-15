@@ -23,7 +23,7 @@ export const waitlistContact = defineType({
       title: "Phone",
       type: "string",
       readOnly: true,
-      validation: (rule) => rule.required(),
+      description: "Empty when this city's waitlist form hides the SMS field.",
     }),
     defineField({
       name: "city",
@@ -52,20 +52,14 @@ export const waitlistContact = defineType({
       title: "Email opt-in",
       type: "boolean",
       readOnly: true,
-      validation: (rule) =>
-        rule.required().custom((value) =>
-          value === true ? true : "Email consent is required",
-        ),
+      description: "False when this city's waitlist form hides the consent checkbox.",
     }),
     defineField({
       name: "smsOptIn",
       title: "SMS opt-in",
       type: "boolean",
       readOnly: true,
-      validation: (rule) =>
-        rule.required().custom((value) =>
-          value === true ? true : "SMS consent is required",
-        ),
+      description: "False when this city's waitlist form hides the consent checkbox.",
     }),
     defineField({
       name: "consentText",
@@ -73,7 +67,7 @@ export const waitlistContact = defineType({
       type: "text",
       rows: 4,
       readOnly: true,
-      validation: (rule) => rule.required(),
+      description: "Empty when this city's waitlist form hides the consent checkbox.",
     }),
     defineField({
       name: "consentedAt",

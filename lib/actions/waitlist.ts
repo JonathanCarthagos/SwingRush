@@ -87,24 +87,40 @@ export async function joinWaitlist(
   }
 
   const values = readValues(formData);
+  const sourcePath = readSourcePath(formData);
+  const isCityPage = sourcePath !== WAITLIST_SOURCE_PATH;
+  const optIn = formData.get("optIn") === "on";
   const fieldErrors = validateWaitlistFields({
     email: values.email,
     phone: values.phone,
     location: values.location,
-    optIn: formData.get("optIn") === "on",
+    optIn,
+    requirePhone: !isCityPage,
+    requireConsent: !isCityPage,
   });
   if (Object.keys(fieldErrors).length > 0) {
     return { status: "error", errors: fieldErrors, values };
   }
 
   const email = values.email.toLowerCase();
-  const phone = values.phone.replace(/\D/g, "");
-  let location: { _id?: string; city?: string | null; slug?: string | null } | null;
+  let location: {
+    _id?: string;
+    city?: string | null;
+    slug?: string | null;
+    waitlistForm?: {
+      showSms?: boolean | null;
+      showConsent?: boolean | null;
+    } | null;
+  } | null;
   try {
     location = await cmsFetch<{
       _id?: string;
       city?: string | null;
       slug?: string | null;
+      waitlistForm?: {
+        showSms?: boolean | null;
+        showConsent?: boolean | null;
+      } | null;
     }>({
       query: WAITLIST_LOCATION_QUERY,
       params: { slug: values.location },
@@ -127,11 +143,7 @@ export async function joinWaitlist(
     };
   }
 
-  const city = location?.city?.trim();
-  const locationSlug = location?.slug?.trim();
-  const locationId = location?._id;
-
-  if (!locationId || !city || !locationSlug) {
+  if (!location || !location._id || !location.city?.trim() || !location.slug?.trim()) {
     return {
       status: "error",
       errors: {},
@@ -139,6 +151,29 @@ export async function joinWaitlist(
       values,
     };
   }
+
+  const city = location.city.trim();
+  const locationSlug = location.slug.trim();
+  const locationId = location._id;
+  const showSms = isCityPage ? location.waitlistForm?.showSms === true : true;
+  const showConsent = isCityPage
+    ? location.waitlistForm?.showConsent === true
+    : true;
+  if (isCityPage) {
+    const cityFieldErrors = validateWaitlistFields({
+      email: values.email,
+      phone: values.phone,
+      location: values.location,
+      optIn,
+      requirePhone: showSms,
+      requireConsent: showConsent,
+    });
+    if (Object.keys(cityFieldErrors).length > 0) {
+      return { status: "error", errors: cityFieldErrors, values };
+    }
+  }
+
+  const phone = showSms ? values.phone.replace(/\D/g, "") : "";
 
   const writeClient = getWriteClient();
   if (!writeClient) {
@@ -190,16 +225,16 @@ export async function joinWaitlist(
       city,
       location: { _type: "reference", _ref: locationId },
       locationSlug,
-      marketingOptIn: true,
-      smsOptIn: true,
-      consentText: WAITLIST_CONSENT_TEXT,
+      marketingOptIn: showConsent,
+      smsOptIn: showConsent,
+      consentText: showConsent ? WAITLIST_CONSENT_TEXT : "",
       consentedAt:
         typeof existing?.consentedAt === "string" ? existing.consentedAt : now,
       lastSubmittedAt: now,
       submissionCount: alreadyRegistered
         ? (existing?.submissionCount ?? 1) + 1
         : 1,
-      sourcePath: readSourcePath(formData),
+      sourcePath,
     });
   } catch (error) {
     logWaitlistFailure({

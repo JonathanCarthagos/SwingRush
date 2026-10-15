@@ -69,6 +69,12 @@ export interface LocationVolunteerInformation {
   action: LocationAction;
 }
 
+export interface LocationWaitlistFormFields {
+  showEmail: boolean;
+  showSms: boolean;
+  showConsent: boolean;
+}
+
 export interface LocationWaitlistContent {
   slug: LocationSlug;
   city: string;
@@ -80,6 +86,7 @@ export interface LocationWaitlistContent {
     description: string;
   };
   hero: LocationHeroMedia;
+  form: LocationWaitlistFormFields;
 }
 
 export interface LocationDetailPageContent {

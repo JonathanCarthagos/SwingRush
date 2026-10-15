@@ -88,7 +88,8 @@ export const WAITLIST_LOCATION_QUERY = defineQuery(`
   *[_type == "location" && slug.current == $slug][0]{
     _id,
     city,
-    "slug": slug.current
+    "slug": slug.current,
+    waitlistForm{ showEmail, showSms, showConsent }
   }
 `);
 
@@ -115,6 +116,7 @@ export const LOCATION_BY_SLUG_QUERY = defineQuery(`
     introduction,
     ctaLabel,
     registrationStatus,
+    waitlistForm{ showEmail, showSms, showConsent },
     dates{startDate, endDate},
     seo{title, description},
     hero{

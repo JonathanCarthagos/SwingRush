@@ -159,6 +159,8 @@ export interface WaitlistFormProps {
   headingId: string;
   /** Locks the signup to one city: the location picker is replaced by a hidden field and the fields get the compact city-page size. */
   fixedLocation?: { slug: string; sourcePath: string };
+  /** City pages say which optional fields the CMS turned on. Omitted, the form keeps phone and consent. */
+  fieldVisibility?: { showSms: boolean; showConsent: boolean };
   className?: string;
 }
 
@@ -167,6 +169,7 @@ export function WaitlistForm({
   locations,
   headingId,
   fixedLocation,
+  fieldVisibility,
   className,
 }: WaitlistFormProps) {
   const [state, formAction, isPending] = useActionState(
@@ -195,6 +198,8 @@ export function WaitlistForm({
   );
   const selectedLocation = locations.find((option) => option.value === location);
   const compact = Boolean(fixedLocation);
+  const showPhone = fieldVisibility?.showSms ?? true;
+  const showConsent = fieldVisibility?.showConsent ?? true;
   const fieldBox = compact ? FIELD_BOX_COMPACT : FIELD_BOX;
   // A fixed city can only fail validation if it was unpublished mid-visit; surface that as a form message.
   const formMessage =
@@ -351,6 +356,8 @@ export function WaitlistForm({
           phone: readField("phone"),
           location: readField("location"),
           optIn: formData.get("optIn") === "on",
+          requirePhone: showPhone,
+          requireConsent: showConsent,
         });
         if (Object.keys(nextErrors).length > 0) {
           setClientErrors(nextErrors);
@@ -435,6 +442,7 @@ export function WaitlistForm({
           </div>
         </Field>
 
+        {showPhone ? (
         <Field
           field="phone"
           label={content.fields.phone.label}
@@ -526,6 +534,7 @@ export function WaitlistForm({
             </>
           )}
         </Field>
+        ) : null}
 
         {fixedLocation ? null : (
         <Field
@@ -603,6 +612,7 @@ export function WaitlistForm({
         />
       </div>
 
+      {showConsent ? (
       <div className="mt-[1.432rem] flex w-full flex-col min-[768px]:mt-[clamp(1.432rem,calc(5.29vw-1.1075rem),3.125rem)] min-[1280px]:mt-[3.125rem]">
         <label className="flex items-start gap-3 font-body text-[0.9375rem] leading-[1.3] tracking-body text-white min-[768px]:text-[clamp(0.9375rem,calc(0.9766vw+0.46875rem),1.25rem)] min-[1280px]:text-xl">
           <input
@@ -622,6 +632,7 @@ export function WaitlistForm({
           </p>
         ) : null}
       </div>
+      ) : null}
 
       {formMessage ? (
         <p role="alert" className={ERROR_TEXT}>

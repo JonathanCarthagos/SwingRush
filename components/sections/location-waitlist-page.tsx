@@ -63,6 +63,8 @@ export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
           <LocationWaitlistForm
             slug={content.slug}
             headingId="location-waitlist-title"
+            showSms={content.form.showSms}
+            showConsent={content.form.showConsent}
             className="mt-12 min-[1280px]:mt-[3.125rem]"
           />
         </div>

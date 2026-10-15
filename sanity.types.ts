@@ -137,6 +137,23 @@ export type VideoHero = {
     media?: unknown;
     _type: "file";
   };
+  mobilePoster?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  };
+  mobileWebm?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: "file";
+  };
+  mobileMp4?: {
+    asset?: SanityFileAssetReference;
+    media?: unknown;
+    _type: "file";
+  };
 };
 
 export type ContentImage = {
@@ -174,14 +191,16 @@ export type WaitlistContact = {
   _updatedAt: string;
   _rev: string;
   email: string;
-  phone: string;
+  phone?: string;
   city: string;
   location: LocationReference;
   locationSlug: string;
-  marketingOptIn: boolean;
-  smsOptIn: boolean;
-  consentText: string;
+  marketingOptIn?: boolean;
+  smsOptIn?: boolean;
+  consentText?: string;
   consentedAt: string;
+  lastSubmittedAt?: string;
+  submissionCount?: number;
   sourcePath: string;
 };
 
@@ -227,6 +246,11 @@ export type Location = {
   };
   ctaLabel: string;
   registrationStatus: "waitlist" | "register" | "soldOut";
+  waitlistForm?: {
+    showEmail?: boolean;
+    showSms?: boolean;
+    showConsent?: boolean;
+  };
   detailStatus: "comingSoon" | "complete";
   venueName?: string;
   introduction?: string;
@@ -297,6 +321,8 @@ export type LocationsPage = {
   title: string;
   introduction?: string;
   emptyState?: string;
+  locationHero?: VideoHero;
+  defaultIntroduction?: string;
   seo?: Seo;
 };
 
@@ -895,11 +921,16 @@ export type WAITLIST_PAGE_QUERY_RESULT =
 
 // Source: sanity/lib/queries.ts
 // Variable: WAITLIST_LOCATION_QUERY
-// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current  }
+// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current,    waitlistForm{ showEmail, showSms, showConsent }  }
 export type WAITLIST_LOCATION_QUERY_RESULT = {
   _id: string;
   city: string;
   slug: string;
+  waitlistForm: {
+    showEmail: boolean | null;
+    showSms: boolean | null;
+    showConsent: boolean | null;
+  } | null;
 } | null;
 
 // Source: sanity/lib/queries.ts
@@ -919,7 +950,7 @@ export type LOCATION_SITEMAP_QUERY_RESULT = Array<{
 
 // Source: sanity/lib/queries.ts
 // Variable: LOCATION_BY_SLUG_QUERY
-// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current,    detailStatus,    venueName,    introduction,    ctaLabel,    registrationStatus,    dates{startDate, endDate},    seo{title, description},    hero{      ariaLabel,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url    },    primaryAction{label, href},    features[]{      _key,      title,      description,      "image": image{        "src": asset->url,        alt,        "width": asset->metadata.dimensions.width,        "height": asset->metadata.dimensions.height      }    },    schedule{      title,      days[]{        _key,        date,        sessions[]{_key, category, startTime, endTime}      }    },    ticketInfo{      title,      releases[]{        _key,        title,        description,        releaseDate,        action{label, href}      }    },    importantInformation{      title,      blocks[]{_key, title, lines},      volunteer{        title,        description,        benefits,        action{label, href}      }    }  }
+// Query: *[_type == "location" && slug.current == $slug][0]{    _id,    city,    "slug": slug.current,    detailStatus,    venueName,    introduction,    ctaLabel,    registrationStatus,    waitlistForm{ showEmail, showSms, showConsent },    dates{startDate, endDate},    seo{title, description},    hero{      ariaLabel,      "posterSrc": poster.asset->url,      "webmSrc": webm.asset->url,      "mp4Src": mp4.asset->url,      "mobilePosterSrc": mobilePoster.asset->url,      "mobileWebmSrc": mobileWebm.asset->url,      "mobileMp4Src": mobileMp4.asset->url    },    primaryAction{label, href},    features[]{      _key,      title,      description,      "image": image{        "src": asset->url,        alt,        "width": asset->metadata.dimensions.width,        "height": asset->metadata.dimensions.height      }    },    schedule{      title,      days[]{        _key,        date,        sessions[]{_key, category, startTime, endTime}      }    },    ticketInfo{      title,      releases[]{        _key,        title,        description,        releaseDate,        action{label, href}      }    },    importantInformation{      title,      blocks[]{_key, title, lines},      volunteer{        title,        description,        benefits,        action{label, href}      }    },    "shared": *[_id == "locationsPage"][0]{      locationHero{        ariaLabel,        "posterSrc": poster.asset->url,        "webmSrc": webm.asset->url,        "mp4Src": mp4.asset->url,        "mobilePosterSrc": mobilePoster.asset->url,        "mobileWebmSrc": mobileWebm.asset->url,        "mobileMp4Src": mobileMp4.asset->url      },      defaultIntroduction    }  }
 export type LOCATION_BY_SLUG_QUERY_RESULT = {
   _id: string;
   city: string;
@@ -929,6 +960,11 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
   introduction: string | null;
   ctaLabel: string;
   registrationStatus: "register" | "soldOut" | "waitlist";
+  waitlistForm: {
+    showEmail: boolean | null;
+    showSms: boolean | null;
+    showConsent: boolean | null;
+  } | null;
   dates: {
     startDate: string;
     endDate: string;
@@ -942,6 +978,9 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
     posterSrc: string | null;
     webmSrc: string | null;
     mp4Src: string | null;
+    mobilePosterSrc: string | null;
+    mobileWebmSrc: string | null;
+    mobileMp4Src: string | null;
   } | null;
   primaryAction: {
     label: string;
@@ -1001,6 +1040,24 @@ export type LOCATION_BY_SLUG_QUERY_RESULT = {
       };
     } | null;
   } | null;
+  shared:
+    | {
+        locationHero: null;
+        defaultIntroduction: null;
+      }
+    | {
+        locationHero: {
+          ariaLabel: string | null;
+          posterSrc: string | null;
+          webmSrc: string | null;
+          mp4Src: string | null;
+          mobilePosterSrc: string | null;
+          mobileWebmSrc: string | null;
+          mobileMp4Src: string | null;
+        } | null;
+        defaultIntroduction: string | null;
+      }
+    | null;
 } | null;
 
 // Source: sanity/lib/queries.ts
@@ -1101,10 +1158,10 @@ declare module "@sanity/client" {
     '\n  *[_id == "howItWorksPage"][0]{\n    title,\n    seo{title, description},\n    hero{\n      heading,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    arena{heading, description},\n    introduction,\n    items[]{\n      _key,\n      title,\n      "slug": slug.current,\n      content,\n      sections[]{_key, heading, body},\n      link{label, href},\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': HOW_IT_WORKS_PAGE_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "locationsPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "locations": *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      city,\n      "slug": slug.current,\n      dates{startDate, endDate},\n      ctaLabel,\n      registrationStatus\n    }\n  }\n': LOCATIONS_PAGE_QUERY_RESULT;
     '\n  *[_id == "waitlistPage"][0]{\n    title,\n    introduction,\n    seo{title, description}\n  }\n': WAITLIST_PAGE_QUERY_RESULT;
-    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current\n  }\n': WAITLIST_LOCATION_QUERY_RESULT;
+    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    waitlistForm{ showEmail, showSms, showConsent }\n  }\n': WAITLIST_LOCATION_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current\n  }\n': LOCATION_SLUGS_QUERY_RESULT;
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;
-    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    registrationStatus,\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;
+    '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    registrationStatus,\n    waitlistForm{ showEmail, showSms, showConsent },\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url,\n      "mobilePosterSrc": mobilePoster.asset->url,\n      "mobileWebmSrc": mobileWebm.asset->url,\n      "mobileMp4Src": mobileMp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    },\n    "shared": *[_id == "locationsPage"][0]{\n      locationHero{\n        ariaLabel,\n        "posterSrc": poster.asset->url,\n        "webmSrc": webm.asset->url,\n        "mp4Src": mp4.asset->url,\n        "mobilePosterSrc": mobilePoster.asset->url,\n        "mobileWebmSrc": mobileWebm.asset->url,\n        "mobileMp4Src": mobileMp4.asset->url\n      },\n      defaultIntroduction\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "challengesPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      seo{title, description}\n    },\n    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      "slug": slug.current,\n      sortOrder,\n      title,\n      club,\n      shot,\n      distance,\n      targetHeight{open, elite},\n      timeLimit,\n      description,\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': CHALLENGES_PAGE_QUERY_RESULT;
   }
 }

@@ -113,6 +113,40 @@ export const location = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "waitlistForm",
+      title: "Waitlist form",
+      type: "object",
+      group: "content",
+      description:
+        "Which fields this city's waitlist page shows. Email stays on because signups are stored by email.",
+      fields: [
+        defineField({
+          name: "showEmail",
+          title: "Display email form field",
+          type: "boolean",
+          initialValue: true,
+          validation: (rule) =>
+            rule.custom((value) =>
+              value === false
+                ? "Email stays on. Signups are stored and matched by email."
+                : true,
+            ),
+        }),
+        defineField({
+          name: "showSms",
+          title: "Display sms form field",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "showConsent",
+          title: "Display consent checkbox",
+          type: "boolean",
+          initialValue: false,
+        }),
+      ],
+    }),
+    defineField({
       name: "detailStatus",
       title: "Detail page",
       type: "string",

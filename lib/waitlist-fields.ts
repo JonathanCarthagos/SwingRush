@@ -22,22 +22,28 @@ export function validateWaitlistFields(input: {
   phone: string;
   location: string;
   optIn: boolean;
+  requirePhone?: boolean;
+  requireConsent?: boolean;
 }): Partial<Record<WaitlistFormErrorField, string>> {
   const errors: Partial<Record<WaitlistFormErrorField, string>> = {};
   const email = normalizeWaitlistEmail(input.email);
-  const digits = input.phone.replace(/\D/g, "");
+  const requirePhone = input.requirePhone !== false;
+  const requireConsent = input.requireConsent !== false;
 
   if (!z.email().safeParse(email).success) {
     errors.email = WAITLIST_ERROR_MESSAGES.email;
   }
-  if (digits.length < 10 || digits.length > 15) {
-    errors.phone = WAITLIST_ERROR_MESSAGES.phone;
+  if (requirePhone) {
+    const digits = input.phone.replace(/\D/g, "");
+    if (digits.length < 10 || digits.length > 15) {
+      errors.phone = WAITLIST_ERROR_MESSAGES.phone;
+    }
   }
   if (!LOCATION_SLUG.test(input.location.trim())) {
     errors.location = WAITLIST_ERROR_MESSAGES.location;
   }
   if (errors.email || errors.phone || errors.location) return errors;
 
-  if (!input.optIn) errors.optIn = WAITLIST_OPT_IN_ERROR;
+  if (requireConsent && !input.optIn) errors.optIn = WAITLIST_OPT_IN_ERROR;
   return errors;
 }

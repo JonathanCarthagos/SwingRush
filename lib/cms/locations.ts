@@ -71,10 +71,17 @@ interface RawHeroMedia {
   mobileMp4Src?: string | null;
 }
 
+interface RawWaitlistForm {
+  showEmail?: boolean | null;
+  showSms?: boolean | null;
+  showConsent?: boolean | null;
+}
+
 interface RawLocationDetail extends RawLocationSummary {
   detailStatus?: string | null;
   venueName?: string | null;
   introduction?: string | null;
+  waitlistForm?: RawWaitlistForm | null;
   seo?: { title?: string | null; description?: string | null } | null;
   hero?: RawHeroMedia | null;
   shared?: {
@@ -325,12 +332,18 @@ function adaptWaitlist(
 ): LocationWaitlistContent {
   const venueName = text(raw.venueName);
 
+  const form = raw.waitlistForm;
   return {
     slug: summary.slug,
     city: summary.city,
     ...(venueName ? { venueName } : {}),
     dates: summary.dates,
     introduction: adaptIntroduction(raw),
+    form: {
+      showEmail: form?.showEmail !== false,
+      showSms: form?.showSms === true,
+      showConsent: form?.showConsent === true,
+    },
     seo: {
       title: text(raw.seo?.title) ?? summary.city,
       description:
