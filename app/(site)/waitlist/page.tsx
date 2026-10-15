@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: seo.title,
     description: seo.description,
     canonical: "/waitlist",
+    twitter: true,
   });
 }
 

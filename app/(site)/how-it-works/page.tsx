@@ -14,6 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: seo.title,
     description: seo.description,
     canonical: "/how-it-works",
+    twitter: true,
   });
 }
 

@@ -1,0 +1,27 @@
+# SwingRush
+
+> The world’s first arena golf gauntlet: ten skills challenges, hundreds of golfers, one finish line.
+
+Canonical site: https://www.swingrushgolf.com
+
+## Primary pages
+
+- Home: https://www.swingrushgolf.com/
+- Skills challenges: https://www.swingrushgolf.com/challenges
+- How it works: https://www.swingrushgolf.com/how-it-works
+- Locations: https://www.swingrushgolf.com/locations
+- Join the waitlist: https://www.swingrushgolf.com/waitlist
+
+## About
+
+SwingRush is a timed arena golf experience. Players complete ten skills challenges solo or on a team and race to the finish line — no traditional scorecard.
+
+## Contact & policies
+
+- Privacy policy: https://www.swingrushgolf.com/privacy-policy
+- Terms: https://www.swingrushgolf.com/terms
+
+## Crawling
+
+- Sitemap: https://www.swingrushgolf.com/sitemap.xml
+- Robots: https://www.swingrushgolf.com/robots.txt

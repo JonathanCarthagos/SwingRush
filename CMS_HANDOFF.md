@@ -109,9 +109,16 @@ flowchart TD
 | `/api/draft-mode/enable` | GET | Ativa Draft Mode via `next-sanity`. |
 | `/api/rsvp` | POST | Valida com Zod e envia e-mail via Resend. Nenhum formulário atual chama essa rota. |
 
-### SEO técnico ainda ausente
+### SEO técnico (atualizado 2026-10-15)
 
-- Não existe `app/sitemap.ts` ou `sitemap.xml` gerado.
+- **Domínio canônico:** `https://www.swingrushgolf.com` via `SITE_URL` em [`lib/site.ts`](lib/site.ts) (definir também no Vercel Production).
+- Existem [`app/sitemap.ts`](app/sitemap.ts) e [`app/robots.ts`](app/robots.ts).
+- JSON-LD `Organization` + `WebSite` no layout; `Event` nas cidades em sales.
+- [`public/llms.txt`](public/llms.txt) para GEO.
+
+### SEO técnico — histórico
+
+- ~~Não existe `app/sitemap.ts` ou `sitemap.xml` gerado.~~ (implementado)
 - Não existe `app/robots.ts`.
 - Metadata existe por página, e Locations detail deriva metadata do mock.
 - A futura geração do sitemap deve incluir somente documentos públicos/visíveis do Sanity.

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 
+import { JsonLd } from "@/components/seo/json-ld";
 import { fontBody, fontDisplay, fontNav } from "@/lib/fonts";
+import { siteStructuredDataGraph } from "@/lib/seo/site-graph";
 import { SITE_URL } from "@/lib/site";
 
 import "./globals.css";
@@ -41,6 +43,7 @@ export default function RootLayout({
       className={`${fontDisplay.variable} ${fontBody.variable} ${fontNav.variable} min-h-dvh antialiased`}
     >
       <body className="flex min-h-dvh flex-col bg-background text-foreground font-body">
+        <JsonLd data={siteStructuredDataGraph()} />
         {children}
       </body>
     </html>

@@ -26,7 +26,7 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Fill in Sanity and Resend credentials in `.env.local`.
+3. Fill in Sanity and Resend credentials in `.env.local`. Set `SITE_URL=https://www.swingrushgolf.com` locally when testing canonicals (Vercel Production should use the same).
 
 4. Run the development server:
 

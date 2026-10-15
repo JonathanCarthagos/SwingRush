@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { CmsLive } from "@/components/cms/cms-live";
 import { ChallengesPageSection } from "@/components/sections/challenges-page-section";
+import { ChallengesSeoIndex } from "@/components/sections/challenges-seo-index";
 import { Cta } from "@/components/sections/cta";
 import { PageHero } from "@/components/sections/page-hero";
 import { getChallengesPage } from "@/lib/cms/challenges";
@@ -14,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: seo.title,
     description: seo.description,
     canonical: "/challenges",
+    twitter: true,
   });
 }
 
@@ -31,6 +33,7 @@ export default async function ChallengesPage() {
             desktop: "/images/challenges/hero-desktop.jpg",
           }}
         />
+        <ChallengesSeoIndex items={items} />
         <ChallengesPageSection emptyState={emptyState} items={items} />
         <Cta
           variant="inverted"
