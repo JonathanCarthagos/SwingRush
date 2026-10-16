@@ -1,4 +1,4 @@
-import type { SeoContent } from "@/types/seo";
+import type { PortableTextBlock } from "@portabletext/types";
 
 export interface LegalSection {
   id: string;
@@ -14,6 +14,8 @@ export interface LegalPageContent {
     isoDate: `${number}-${number}-${number}`;
     display: string;
   };
+  /** Structured placeholder used when the CMS body is empty. */
   sections: readonly LegalSection[];
-  seo: SeoContent;
+  /** Portable Text from Sanity. Null keeps the placeholder sections. */
+  body: readonly PortableTextBlock[] | null;
 }

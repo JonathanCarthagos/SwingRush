@@ -5,6 +5,10 @@ import { CHALLENGES_PAGE_ID } from "@/sanity/schemaTypes/documents/challenges-pa
 import { HOME_PAGE_ID } from "@/sanity/schemaTypes/documents/home-page";
 import { HOW_IT_WORKS_PAGE_ID } from "@/sanity/schemaTypes/documents/how-it-works-page";
 import { LOCATIONS_PAGE_ID } from "@/sanity/schemaTypes/documents/locations-page";
+import {
+  PRIVACY_POLICY_ID,
+  TERMS_OF_USE_ID,
+} from "@/sanity/schemaTypes/documents/legal-page";
 import { WAITLIST_PAGE_ID } from "@/sanity/schemaTypes/documents/waitlist-page";
 import { privateDocumentTypes, singletonTypes } from "@/sanity/schemaTypes";
 
@@ -79,6 +83,16 @@ export const structure: StructureResolver = async (S, context) => {
                 id: WAITLIST_PAGE_ID,
                 type: "waitlistPage",
                 title: "Waitlist Page",
+              }),
+              singleton(S, {
+                id: PRIVACY_POLICY_ID,
+                type: "privacyPolicy",
+                title: "Privacy Policy",
+              }),
+              singleton(S, {
+                id: TERMS_OF_USE_ID,
+                type: "termsOfUse",
+                title: "Terms of Use",
               }),
             ]),
         ),

@@ -2,6 +2,10 @@ import { challenge } from "./documents/challenge";
 import { challengesPage } from "./documents/challenges-page";
 import { homePage } from "./documents/home-page";
 import { howItWorksPage } from "./documents/how-it-works-page";
+import {
+  privacyPolicy,
+  termsOfUse,
+} from "./documents/legal-page";
 import { location } from "./documents/location";
 import { locationsPage } from "./documents/locations-page";
 import { waitlistPage } from "./documents/waitlist-page";
@@ -34,6 +38,8 @@ export const singletonTypes = [
   "locationsPage",
   "challengesPage",
   "waitlistPage",
+  "privacyPolicy",
+  "termsOfUse",
 ] as const;
 
 export const privateDocumentTypes = [WAITLIST_CONTACT_TYPE] as const;
@@ -44,6 +50,8 @@ export const schemaTypes = [
   locationsPage,
   challengesPage,
   waitlistPage,
+  privacyPolicy,
+  termsOfUse,
   location,
   challenge,
   waitlistContact,

@@ -1,24 +1,32 @@
 import type { Metadata } from "next";
 
+import { CmsLive } from "@/components/cms/cms-live";
 import { SiteMain } from "@/components/layout/site-main";
 import { LegalPageSection } from "@/components/sections/legal-page-section";
-import { TERMS_CONTENT } from "@/data/legal";
+import { getTermsOfUse } from "@/lib/cms/legal";
 import { buildPageMetadata } from "@/lib/seo/build-page-metadata";
 
-const { seo } = TERMS_CONTENT;
+export async function generateMetadata(): Promise<Metadata> {
+  const { seo } = await getTermsOfUse({ clean: true });
 
-// Placeholder copy: keep out of search results until the real text replaces it (see data/legal.ts).
-export const metadata: Metadata = buildPageMetadata({
-  title: seo.title,
-  description: seo.description,
-  canonical: "/terms",
-  robots: { index: false, follow: false },
-});
+  // Placeholder copy: keep out of search results until the client replaces it.
+  return buildPageMetadata({
+    title: seo.title,
+    description: seo.description,
+    canonical: "/terms",
+    robots: { index: false, follow: false },
+  });
+}
 
-export default function Page() {
+export default async function Page() {
+  const { content } = await getTermsOfUse();
+
   return (
-    <SiteMain variant="solidNav">
-      <LegalPageSection content={TERMS_CONTENT} />
-    </SiteMain>
+    <>
+      <SiteMain variant="solidNav">
+        <LegalPageSection content={content} />
+      </SiteMain>
+      <CmsLive />
+    </>
   );
 }

@@ -289,6 +289,64 @@ export type Location = {
   seo?: Seo;
 };
 
+export type TermsOfUse = {
+  _id: string;
+  _type: "termsOfUse";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  lastPublished: string;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  seo?: Seo;
+};
+
+export type PrivacyPolicy = {
+  _id: string;
+  _type: "privacyPolicy";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title: string;
+  lastPublished: string;
+  body: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "normal" | "h2" | "h3";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }>;
+  seo?: Seo;
+};
+
 export type WaitlistPage = {
   _id: string;
   _type: "waitlistPage";
@@ -506,6 +564,8 @@ export type AllSanitySchemaTypes =
   | Challenge
   | Slug
   | Location
+  | TermsOfUse
+  | PrivacyPolicy
   | WaitlistPage
   | ChallengesPage
   | LocationsPage
@@ -715,6 +775,17 @@ export type HOW_IT_WORKS_PAGE_QUERY_RESULT =
       } | null;
       hero: null;
       arena: null;
+      introduction: null;
+      items: null;
+    }
+  | {
+      title: string;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+      hero: null;
+      arena: null;
       introduction: string;
       items: null;
     }
@@ -832,6 +903,15 @@ export type LOCATIONS_PAGE_QUERY_RESULT = {
         seo: null;
       }
     | {
+        title: string;
+        introduction: null;
+        emptyState: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
         title: string | null;
         introduction: null;
         emptyState: null;
@@ -908,6 +988,14 @@ export type WAITLIST_PAGE_QUERY_RESULT =
       title: string | null;
       introduction: null;
       seo: null;
+    }
+  | {
+      title: string;
+      introduction: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
     }
   | {
       title: string | null;
@@ -1119,6 +1207,16 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
         seo: null;
       }
     | {
+        title: string;
+        introduction: null;
+        emptyState: null;
+        closingCta: null;
+        seo: {
+          title: string;
+          description: string;
+        } | null;
+      }
+    | {
         title: string | null;
         introduction: null;
         emptyState: null;
@@ -1207,6 +1305,160 @@ export type CHALLENGES_PAGE_QUERY_RESULT = {
   }>;
 };
 
+// Source: sanity/lib/queries.ts
+// Variable: PRIVACY_POLICY_QUERY
+// Query: *[_id == "privacyPolicy"][0]{    title,    lastPublished,    body,    seo{title, description}  }
+export type PRIVACY_POLICY_QUERY_RESULT =
+  | {
+      title: string;
+      lastPublished: string;
+      body: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "h2" | "h3" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: null;
+      lastPublished: null;
+      body: null;
+      seo: null;
+    }
+  | {
+      title: string;
+      lastPublished: null;
+      body: null;
+      seo: null;
+    }
+  | {
+      title: string | null;
+      lastPublished: null;
+      body: null;
+      seo: null;
+    }
+  | {
+      title: null;
+      lastPublished: null;
+      body: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string;
+      lastPublished: null;
+      body: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string | null;
+      lastPublished: null;
+      body: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | null;
+
+// Source: sanity/lib/queries.ts
+// Variable: TERMS_OF_USE_QUERY
+// Query: *[_id == "termsOfUse"][0]{    title,    lastPublished,    body,    seo{title, description}  }
+export type TERMS_OF_USE_QUERY_RESULT =
+  | {
+      title: string;
+      lastPublished: string;
+      body: Array<{
+        children?: Array<{
+          marks?: Array<string>;
+          text?: string;
+          _type: "span";
+          _key: string;
+        }>;
+        style?: "h2" | "h3" | "normal";
+        listItem?: "bullet" | "number";
+        markDefs?: Array<{
+          href?: string;
+          _type: "link";
+          _key: string;
+        }>;
+        level?: number;
+        _type: "block";
+        _key: string;
+      }>;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: null;
+      lastPublished: null;
+      body: null;
+      seo: null;
+    }
+  | {
+      title: string;
+      lastPublished: null;
+      body: null;
+      seo: null;
+    }
+  | {
+      title: string | null;
+      lastPublished: null;
+      body: null;
+      seo: null;
+    }
+  | {
+      title: null;
+      lastPublished: null;
+      body: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string;
+      lastPublished: null;
+      body: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | {
+      title: string | null;
+      lastPublished: null;
+      body: null;
+      seo: {
+        title: string;
+        description: string;
+      } | null;
+    }
+  | null;
+
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
@@ -1220,5 +1472,7 @@ declare module "@sanity/client" {
     '\n  *[_type == "location" && defined(slug.current)]|order(sortOrder asc){\n    "slug": slug.current,\n    _updatedAt\n  }\n': LOCATION_SITEMAP_QUERY_RESULT;
     '\n  *[_type == "location" && slug.current == $slug][0]{\n    _id,\n    city,\n    "slug": slug.current,\n    detailStatus,\n    venueName,\n    introduction,\n    ctaLabel,\n    registrationStatus,\n    waitlistForm{ showEmail, showSms, showConsent },\n    dates{startDate, endDate},\n    seo{title, description},\n    hero{\n      ariaLabel,\n      "posterSrc": poster.asset->url,\n      "webmSrc": webm.asset->url,\n      "mp4Src": mp4.asset->url,\n      "mobilePosterSrc": mobilePoster.asset->url,\n      "mobileWebmSrc": mobileWebm.asset->url,\n      "mobileMp4Src": mobileMp4.asset->url\n    },\n    primaryAction{label, href},\n    features[]{\n      _key,\n      title,\n      description,\n      "image": image{\n        "src": asset->url,\n        alt,\n        "width": asset->metadata.dimensions.width,\n        "height": asset->metadata.dimensions.height\n      }\n    },\n    schedule{\n      title,\n      days[]{\n        _key,\n        date,\n        sessions[]{_key, category, startTime, endTime}\n      }\n    },\n    ticketInfo{\n      title,\n      releases[]{\n        _key,\n        title,\n        description,\n        releaseDate,\n        action{label, href}\n      }\n    },\n    importantInformation{\n      title,\n      blocks[]{_key, title, lines},\n      volunteer{\n        title,\n        description,\n        benefits,\n        action{label, href}\n      }\n    },\n    "shared": *[_id == "locationsPage"][0]{\n      locationHero{\n        ariaLabel,\n        "posterSrc": poster.asset->url,\n        "webmSrc": webm.asset->url,\n        "mp4Src": mp4.asset->url,\n        "mobilePosterSrc": mobilePoster.asset->url,\n        "mobileWebmSrc": mobileWebm.asset->url,\n        "mobileMp4Src": mobileMp4.asset->url\n      },\n      defaultIntroduction\n    }\n  }\n': LOCATION_BY_SLUG_QUERY_RESULT;
     '\n  {\n    "page": *[_id == "challengesPage"][0]{\n      title,\n      introduction,\n      emptyState,\n      closingCta{\n        heading,\n        description,\n        action{label, href}\n      },\n      seo{title, description}\n    },\n    "challenges": *[_type == "challenge" && defined(slug.current)]|order(sortOrder asc){\n      _id,\n      "slug": slug.current,\n      sortOrder,\n      title,\n      club,\n      shot,\n      distance,\n      targetHeight{open, elite},\n      timeLimit,\n      description,\n      "image": image{"src": asset->url, alt}\n    }\n  }\n': CHALLENGES_PAGE_QUERY_RESULT;
+    '\n  *[_id == "privacyPolicy"][0]{\n    title,\n    lastPublished,\n    body,\n    seo{title, description}\n  }\n': PRIVACY_POLICY_QUERY_RESULT;
+    '\n  *[_id == "termsOfUse"][0]{\n    title,\n    lastPublished,\n    body,\n    seo{title, description}\n  }\n': TERMS_OF_USE_QUERY_RESULT;
   }
 }

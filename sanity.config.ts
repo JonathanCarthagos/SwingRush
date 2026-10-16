@@ -51,6 +51,11 @@ export default defineConfig({
           locationsPage: singletonPageLocations("Locations", "/locations"),
           challengesPage: singletonPageLocations("Challenges", "/challenges"),
           waitlistPage: singletonPageLocations("Waitlist", "/waitlist"),
+          privacyPolicy: singletonPageLocations(
+            "Privacy Policy",
+            "/privacy-policy",
+          ),
+          termsOfUse: singletonPageLocations("Terms of Use", "/terms"),
           location: defineLocations({
             select: { title: "city", slug: "slug.current" },
             resolve: (doc) => ({

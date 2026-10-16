@@ -221,3 +221,21 @@ export const CHALLENGES_PAGE_QUERY = defineQuery(`
     }
   }
 `);
+
+export const PRIVACY_POLICY_QUERY = defineQuery(`
+  *[_id == "privacyPolicy"][0]{
+    title,
+    lastPublished,
+    body,
+    seo{title, description}
+  }
+`);
+
+export const TERMS_OF_USE_QUERY = defineQuery(`
+  *[_id == "termsOfUse"][0]{
+    title,
+    lastPublished,
+    body,
+    seo{title, description}
+  }
+`);
