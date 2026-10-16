@@ -28,7 +28,7 @@ function singletonPageLocations(title: string, href: string) {
 
 export default defineConfig({
   name: "swingrush",
-  title: "SwingRush",
+  title: "Swingrush",
   projectId,
   dataset,
   basePath: "/studio",
