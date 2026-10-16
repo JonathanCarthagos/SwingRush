@@ -23,10 +23,12 @@ export const challengesPage = defineType({
     }),
     defineField({
       name: "introduction",
-      title: "Introduction",
+      title: "Introduction (reserved)",
       type: "text",
       rows: 5,
       group: "content",
+      description:
+        "Not shown on the public Challenges page today. Keep for future layout or SEO notes only.",
     }),
     defineField({
       name: "emptyState",

@@ -20,8 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ChallengesPage() {
-  const { title, introduction, emptyState, closingCta, items } =
-    await getChallengesPage();
+  const { title, emptyState, closingCta, items } = await getChallengesPage();
 
   return (
     <>
@@ -35,11 +34,7 @@ export default async function ChallengesPage() {
           }}
         />
         <ChallengesSeoIndex items={items} />
-        <ChallengesPageSection
-          emptyState={emptyState}
-          introduction={introduction}
-          items={items}
-        />
+        <ChallengesPageSection emptyState={emptyState} items={items} />
         <Cta
           variant="inverted"
           keepBreaks
