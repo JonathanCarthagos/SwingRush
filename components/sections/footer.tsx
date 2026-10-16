@@ -32,10 +32,14 @@ const legalLinks = [
 ] as const;
 
 const socialLinks = [
-  { name: "facebook", label: "Facebook", href: "#" },
-  { name: "instagram", label: "Instagram", href: "#" },
-  { name: "tiktok", label: "TikTok", href: "#" },
-  { name: "youtube", label: "YouTube", href: "#" },
+  { name: "facebook", label: "Facebook", href: "https://www.facebook.com/swingrush" },
+  {
+    name: "instagram",
+    label: "Instagram",
+    href: "https://www.instagram.com/swingrushgolf",
+  },
+  { name: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@swingrushgolf" },
+  { name: "youtube", label: "YouTube", href: "https://www.youtube.com/@swingrush" },
 ] as const satisfies ReadonlyArray<{
   name: FooterSocialIconName;
   label: string;
@@ -54,6 +58,8 @@ export function Footer({ className, variant, ...props }: FooterProps) {
           <a
             key={name}
             href={href}
+            target="_blank"
+            rel="noopener noreferrer"
             aria-label={label}
             className="inline-flex size-11 items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
           >
