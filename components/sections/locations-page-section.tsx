@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { DisplayHeading } from "@/components/ui/display-heading";
 import { formatLocationDateRange } from "@/lib/format-location-date";
 import {
   LOCATION_SOLD_OUT_CLASS_NAME,
@@ -35,38 +34,18 @@ export function LocationsPageSection({
       {...props}
     >
       <div className="w-full min-[1280px]:mx-auto min-[1280px]:max-w-[calc(105rem-2*3.875rem)]">
-        <div className="min-[1280px]:grid min-[1280px]:grid-cols-[minmax(0,44.58%)_minmax(0,37.99%)] min-[1280px]:items-start min-[1280px]:gap-x-[10.12%]">
-          <aside className="hidden min-[1280px]:sticky min-[1280px]:top-desktop-anchor-tight min-[1280px]:block min-[1280px]:self-start">
-            <DisplayHeading
-              as="h1"
-              text={pageContent.title}
-              wrap
-              className="font-display text-[6.25rem] uppercase leading-[0.845] text-white"
-            />
-            <p
-              className={cn(
-                TEXT_DATE,
-                "mt-6 max-w-[48rem] font-body text-[1.875rem] leading-[1.3] tracking-body",
-              )}
-            >
-              {pageContent.introduction}
-            </p>
-          </aside>
-          <div className="min-w-0">
-            {pageContent.locations.length > 0 ? (
-              <LocationList locations={pageContent.locations} />
-            ) : (
-              <p
-                className={cn(
-                  TEXT_DATE,
-                  "border-y border-white py-6 font-body leading-[1.3] tracking-body",
-                )}
-              >
-                {pageContent.emptyState}
-              </p>
+        {pageContent.locations.length > 0 ? (
+          <LocationList locations={pageContent.locations} />
+        ) : (
+          <p
+            className={cn(
+              TEXT_DATE,
+              "border-y border-white py-6 font-body leading-[1.3] tracking-body",
             )}
-          </div>
-        </div>
+          >
+            {pageContent.emptyState}
+          </p>
+        )}
       </div>
     </section>
   );

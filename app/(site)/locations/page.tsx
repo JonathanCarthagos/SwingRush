@@ -28,7 +28,6 @@ export default async function LocationsPage() {
             mobile: "/images/locations/hero-mobile.jpg",
             desktop: "/images/locations/hero-desktop.jpg",
           }}
-          className="min-[1280px]:[&_h1]:sr-only"
         />
         <LocationsPageSection pageContent={content} />
       </main>
