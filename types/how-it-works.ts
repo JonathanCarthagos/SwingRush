@@ -31,19 +31,13 @@ export interface HowItWorksHeroContent {
   webmSrc: string;
   mp4Src: string;
   posterSrc: string;
-}
-
-export interface HowItWorksClosingCta {
-  heading: string;
-  description: string;
-  ctaLabel: string;
-  ctaHref: string;
+  arenaHeading: string;
+  arenaDescription: string;
 }
 
 export interface HowItWorksPageContent {
   seo: SeoContent;
   hero: HowItWorksHeroContent;
   introduction: string;
-  closingCta: HowItWorksClosingCta;
   items: readonly HowItWorksItem[];
 }

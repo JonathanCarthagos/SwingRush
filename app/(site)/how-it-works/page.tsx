@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HowItWorksPage() {
-  const { hero, introduction, closingCta, items } = await getHowItWorksPage();
+  const { hero, items } = await getHowItWorksPage();
 
   return (
     <>
@@ -32,16 +32,15 @@ export default async function HowItWorksPage() {
             desktop: "/images/how-it-works/hero-desktop.jpg",
           }}
         />
-        <HowItWorksDetailsSection introduction={introduction} items={items} />
+        <HowItWorksDetailsSection items={items} />
         <Cta
           id="how-it-works-arena"
           variant="inverted"
-          keepBreaks
-          heading={closingCta.heading}
-          description={closingCta.description}
-          mobileDescription={closingCta.description}
-          ctaLabel={closingCta.ctaLabel}
-          ctaHref={closingCta.ctaHref}
+          heading={hero.arenaHeading}
+          mobileDescription={hero.arenaDescription}
+          description="Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?"
+          ctaLabel="Sign Up"
+          ctaHref="/locations"
           className="min-[1280px]:[&>div]:max-w-none min-[1280px]:[&_h2]:whitespace-nowrap"
         />
       </main>
