@@ -81,6 +81,7 @@ function ClubCard({ club, index }: { club: HomeStory; index: number }) {
         <TextLink
           href={club.href}
           scroll={false}
+          persistentUnderline
           className="mt-[0.83375rem] inline-flex min-h-11 w-fit items-center font-body text-ramp-body font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[1280px]:mt-6 min-[1280px]:leading-[1.3]"
         >
           {club.linkLabel}
