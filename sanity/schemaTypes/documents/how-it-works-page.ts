@@ -16,11 +16,11 @@ export const howItWorksPage = defineType({
     defineField({
       name: "title",
       title: "Page title (H1)",
-      type: "text",
-      rows: 3,
+      type: "string",
       group: "content",
       description:
-        "Shown as the main page heading in the hero. Line breaks create multiple lines.",
+        "The words of the hero. Shown on one line, centered. Line breaks are not used.",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "hero",

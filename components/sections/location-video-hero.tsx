@@ -4,6 +4,7 @@ import { useReducedMotion } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { heroLineEm, heroWords } from "@/lib/hero-title";
 import { LOCATION_HERO_NAV_VAR_CLASS } from "@/lib/layout/hero-shell";
 import { cn } from "@/lib/utils";
 import type { LocationHeroMedia } from "@/types/location-detail";
@@ -161,8 +162,9 @@ export function LocationVideoHero({
         <div className="absolute inset-0 z-10 hidden items-center justify-center min-[1280px]:flex">
           <DisplayHeading
             as="h1"
-            text={title}
-            className="box-border max-w-none whitespace-nowrap px-[0.08em] text-center font-display text-[12.5rem] uppercase leading-[0.845] text-white"
+            text={heroWords(title)}
+            style={{ "--page-hero-title-em": heroLineEm(title) } as React.CSSProperties}
+            className="box-border w-full min-w-0 max-w-full whitespace-nowrap px-[0.08em] text-center font-display text-[min(12.5rem,calc((100vw-3rem)/var(--page-hero-title-em)))] uppercase leading-[0.845] text-white"
           />
         </div>
       ) : null}

@@ -19,7 +19,8 @@ export const locationsPage = defineType({
       title: "Page title (H1)",
       type: "string",
       group: "content",
-      description: "Shown as the main page heading in the hero.",
+      description:
+        "The words of the hero. Shown on one line, centered. Line breaks are not used.",
       validation: (rule) => rule.required(),
     }),
     defineField({

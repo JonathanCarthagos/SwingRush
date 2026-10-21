@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
+import { heroLineEm, heroWords, pageHeroHeading } from "@/lib/hero-title";
 import { PAGE_HERO_FRAME_CLASS } from "@/lib/layout/hero-shell";
 import { cn } from "@/lib/utils";
 
@@ -30,17 +31,6 @@ export interface PageHeroProps
   imageClassName?: string;
 }
 
-function stackedTitle(title: string, stack: boolean) {
-  const trimmed = title.trim().replace(/\s+/g, " ");
-  const breakAt = trimmed.indexOf(" ");
-
-  if (!stack) return trimmed;
-
-  if (breakAt === -1) return trimmed;
-
-  return `${trimmed.slice(0, breakAt)}\n${trimmed.slice(breakAt + 1)}`;
-}
-
 export function PageHero({
   title,
   image,
@@ -50,6 +40,8 @@ export function PageHero({
   className,
   ...props
 }: PageHeroProps) {
+  const words = heroWords(title);
+
   return (
     <section
       className={cn(
@@ -89,9 +81,10 @@ export function PageHero({
 
       <DisplayHeading
         as="h1"
-        text={stackedTitle(title, stackTitleOnMobile)}
+        text={pageHeroHeading(words, stackTitleOnMobile)}
         lineClassName="min-[768px]:inline min-[768px]:not-last:after:content-['\00a0']"
-        className="relative z-10 box-border max-w-full px-[0.08em] font-display text-[clamp(3.25rem,calc((100vw-2rem)/4.55),5.7rem)] uppercase leading-[0.84] text-white min-[768px]:whitespace-nowrap min-[768px]:text-[clamp(4rem,calc(100vw*200/1680),12.5rem)] min-[768px]:leading-[0.84]"
+        style={{ "--page-hero-title-em": heroLineEm(words) } as React.CSSProperties}
+        className="relative z-10 box-border w-full min-w-0 max-w-full px-[0.08em] text-center font-display text-[clamp(3.25rem,calc((100vw-2rem)/4.55),5.7rem)] uppercase leading-[0.84] text-white min-[768px]:text-[min(12.5rem,max(4rem,calc(100vw*200/1680)),calc((100vw-3rem)/var(--page-hero-title-em)))] min-[768px]:leading-[0.84] min-[768px]:whitespace-nowrap"
       />
     </section>
   );

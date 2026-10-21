@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { HOME_PAGE_CONTENT } from "@/data/home";
+import { homeMobileHeading, homeWideHeading, homeWideLineEm } from "@/lib/hero-title";
 import { getLenis } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
 
@@ -25,15 +26,6 @@ const CUE_REST_STATE = {
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 const DESKTOP_MEDIA_QUERY = "(min-width: 768px)";
-
-/**
- * Tablet/desktop H1 is two lines, broken after "THE". The CMS line breaks
- * (3 lines) belong to the locked mobile layout, so this is derived here.
- */
-function breakAfterThe(heading: string) {
-  const flat = heading.replace(/\s+/g, " ").trim();
-  return flat.replace(/^(.*?\bTHE)\s+(.+)$/i, "$1\n$2");
-}
 
 export interface HeroProps extends React.HTMLAttributes<HTMLElement> {
   webmSrc?: string;
@@ -191,6 +183,8 @@ export function Hero({
   heading = HOME_PAGE_CONTENT.hero.heading,
   ...props
 }: HeroProps) {
+  const mobileHeading = homeMobileHeading(heading);
+  const wideHeading = homeWideHeading(heading);
   const shouldReduceMotion = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
   const stillRef = useRef<HTMLImageElement>(null);
@@ -291,13 +285,14 @@ export function Hero({
       <div className="relative z-10 flex flex-col items-center gap-[1.9375rem] px-4 text-center min-[1280px]:gap-[1.8125rem]">
         <DisplayHeading
           as="h1"
-          text={heading}
+          text={mobileHeading}
           className="pointer-events-none box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-hero leading-[0.84] text-white min-[768px]:hidden"
         />
         <DisplayHeading
           as="h1"
-          text={breakAfterThe(heading)}
-          className="pointer-events-none relative z-0 box-border hidden max-w-none whitespace-pre-line px-[0.08em] font-display text-hero-wide text-white min-[768px]:block"
+          text={wideHeading}
+          style={{ "--hero-title-em": homeWideLineEm(heading) } as React.CSSProperties}
+          className="pointer-events-none relative z-0 box-border hidden max-w-full whitespace-pre-line px-[0.08em] text-center font-display text-white min-[768px]:block min-[768px]:text-[min(20.238vw,31.5svh,21.25rem,calc((100vw-2rem)/var(--hero-title-em)))] min-[768px]:leading-[0.8]"
         />
         <Link
           href="/locations"

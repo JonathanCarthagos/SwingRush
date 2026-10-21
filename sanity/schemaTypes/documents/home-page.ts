@@ -20,7 +20,7 @@ export const homePage = defineType({
       rows: 3,
       group: "content",
       description:
-        "Shown as the main page heading in the hero. Line breaks create multiple lines.",
+        "The words of the home hero. The site sets the line breaks: three lines on phones, and a break after “THE” from tablet up. Pressing Enter does not change the layout.",
     }),
     defineField({
       name: "hero",
