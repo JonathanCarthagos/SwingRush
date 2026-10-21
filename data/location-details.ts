@@ -31,6 +31,7 @@ export const NEW_YORK_LOCATION_DETAIL = {
     startDate: "2027-02-18",
     endDate: "2027-02-21",
   },
+  displayComingSoon: false,
   introduction:
     "This is it - the inaugural SwingRush. The first time anybody will see 10 one-of-a-kind skills challenges. The first time anybody will play the arena golf gauntlet. The first time a golf skills champion will be crowned.",
   seo: {

@@ -1,7 +1,10 @@
 import { LocationVideoHero } from "@/components/sections/location-video-hero";
 import { LocationWaitlistForm } from "@/components/sections/location-waitlist-form";
 import { DisplayHeading } from "@/components/ui/display-heading";
-import { formatLocationDateRange } from "@/lib/format-location-date";
+import {
+  COMING_SOON_DATE_LABEL,
+  formatLocationDateRange,
+} from "@/lib/format-location-date";
 import { cityTitleMobileClassName } from "@/lib/location-city-title";
 import { cn } from "@/lib/utils";
 import type { LocationWaitlistContent } from "@/types/location-detail";
@@ -47,7 +50,9 @@ export function LocationWaitlistPage({ content }: LocationWaitlistPageProps) {
             )}
           >
             <span className="block min-[1280px]:font-bold">
-              {formatLocationDateRange(content.dates)}
+              {content.displayComingSoon
+                ? COMING_SOON_DATE_LABEL
+                : formatLocationDateRange(content.dates)}
             </span>
             {content.venueName ? (
               <span className="block" translate="no">

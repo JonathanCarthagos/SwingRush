@@ -40,6 +40,7 @@ interface RawAction {
 interface RawDates {
   startDate?: string | null;
   endDate?: string | null;
+  displayComingSoon?: boolean | null;
 }
 
 interface RawLocationSummary {
@@ -175,6 +176,7 @@ function adaptSummary(
     city,
     slug,
     dates,
+    displayComingSoon: raw.dates?.displayComingSoon === true,
     status,
     cta: {
       label:
@@ -338,6 +340,7 @@ function adaptWaitlist(
     city: summary.city,
     ...(venueName ? { venueName } : {}),
     dates: summary.dates,
+    displayComingSoon: summary.displayComingSoon,
     introduction: adaptIntroduction(raw),
     form: {
       showEmail: form?.showEmail !== false,
@@ -368,6 +371,7 @@ function adaptDetail(
     city: summary.city,
     venueName: text(raw.venueName) ?? "",
     dates: summary.dates,
+    displayComingSoon: summary.displayComingSoon,
     introduction: adaptIntroduction(raw),
     seo: {
       title: text(raw.seo?.title) ?? summary.city,

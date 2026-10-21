@@ -3,6 +3,7 @@ import { AnchorScrollLink } from "@/components/ui/anchor-scroll-link";
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { TextLink } from "@/components/ui/text-link";
 import {
+  COMING_SOON_DATE_LABEL,
   formatLocationDate,
   formatLocationDateRange,
   formatScheduleDate,
@@ -84,7 +85,9 @@ function LocationIntroduction({
       <div className="mt-[0.9375rem] grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 min-[1280px]:mt-0 min-[1280px]:flex min-[1280px]:flex-col min-[1280px]:items-start min-[1280px]:gap-6">
         <p className={cn(TEXT_SUBHEAD, "leading-[1.3] tracking-body")}>
           <span className="block min-[1280px]:font-bold">
-            {formatLocationDateRange(content.dates)}
+            {content.displayComingSoon
+              ? COMING_SOON_DATE_LABEL
+              : formatLocationDateRange(content.dates)}
           </span>
           <span className="block min-[1280px]:leading-[1.8125rem]">
             {content.venueName}

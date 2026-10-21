@@ -79,7 +79,7 @@ export const LOCATIONS_PAGE_QUERY = defineQuery(`
       _id,
       city,
       "slug": slug.current,
-      dates{startDate, endDate},
+      dates{startDate, endDate, displayComingSoon},
       ctaLabel,
       registrationStatus
     }
@@ -127,7 +127,7 @@ export const LOCATION_BY_SLUG_QUERY = defineQuery(`
     ctaLabel,
     registrationStatus,
     waitlistForm{ showEmail, showSms, showConsent },
-    dates{startDate, endDate},
+    dates{startDate, endDate, displayComingSoon},
     seo{title, description},
     hero{
       ariaLabel,

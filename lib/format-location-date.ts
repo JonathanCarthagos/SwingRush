@@ -31,6 +31,8 @@ function parseDate(date: IsoDate) {
   return new Date(`${date}T00:00:00Z`);
 }
 
+export const COMING_SOON_DATE_LABEL = "Coming Soon";
+
 export function formatLocationDateRange({
   startDate,
   endDate,

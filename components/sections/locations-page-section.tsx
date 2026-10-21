@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-import { formatLocationDateRange } from "@/lib/format-location-date";
+import {
+  COMING_SOON_DATE_LABEL,
+  formatLocationDateRange,
+} from "@/lib/format-location-date";
 import {
   LOCATION_SOLD_OUT_CLASS_NAME,
   locationActionClassName,
@@ -79,11 +82,17 @@ const ROW_CLASS_NAME =
   "flex touch-manipulation items-end justify-between gap-4 py-2.5 [-webkit-tap-highlight-color:transparent] min-[768px]:gap-6 min-[768px]:py-[clamp(0.625rem,calc(1.707vw-0.1944rem),1.1714rem)] min-[1280px]:gap-[1.875rem] min-[1280px]:py-[1.1714rem]";
 
 export function LocationListItem({ location }: LocationListItemProps) {
-  const dateLabel = formatLocationDateRange(location.dates);
+  const dateLabel = location.displayComingSoon
+    ? COMING_SOON_DATE_LABEL
+    : formatLocationDateRange(location.dates);
 
   return (
     <div className={ROW_CLASS_NAME}>
-      <LocationListItemDetails city={location.city} dateLabel={dateLabel} startDate={location.dates.startDate} />
+      <LocationListItemDetails
+        city={location.city}
+        dateLabel={dateLabel}
+        startDate={location.displayComingSoon ? undefined : location.dates.startDate}
+      />
       <LocationListItemAction cta={location.cta} status={location.status} />
     </div>
   );
@@ -92,7 +101,7 @@ export function LocationListItem({ location }: LocationListItemProps) {
 interface LocationListItemDetailsProps {
   city: string;
   dateLabel: string;
-  startDate: string;
+  startDate?: string;
 }
 
 function LocationListItemDetails({
@@ -113,12 +122,20 @@ function LocationListItemDetails({
       >
         {city}
       </h2>
-      <time
-        dateTime={startDate}
-        className={cn(TEXT_DATE, "font-body leading-[1.3] tracking-body min-[768px]:min-h-[2.125rem]")}
-      >
-        {dateLabel}
-      </time>
+      {startDate ? (
+        <time
+          dateTime={startDate}
+          className={cn(TEXT_DATE, "font-body leading-[1.3] tracking-body min-[768px]:min-h-[2.125rem]")}
+        >
+          {dateLabel}
+        </time>
+      ) : (
+        <span
+          className={cn(TEXT_DATE, "font-body leading-[1.3] tracking-body min-[768px]:min-h-[2.125rem]")}
+        >
+          {dateLabel}
+        </span>
+      )}
     </span>
   );
 }

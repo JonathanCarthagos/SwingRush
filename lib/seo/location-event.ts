@@ -9,8 +9,12 @@ export function locationEventStructuredData(content: LocationDetailPageContent) 
     "@type": "Event",
     name: `SwingRush ${content.city}`,
     description: content.seo.description,
-    startDate: content.dates.startDate,
-    endDate: content.dates.endDate,
+    ...(content.displayComingSoon
+      ? {}
+      : {
+          startDate: content.dates.startDate,
+          endDate: content.dates.endDate,
+        }),
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
     location: {

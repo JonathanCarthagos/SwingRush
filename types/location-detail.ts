@@ -80,6 +80,7 @@ export interface LocationWaitlistContent {
   city: string;
   venueName?: string;
   dates: LocationDateRange;
+  displayComingSoon: boolean;
   introduction: string;
   seo: {
     title: string;
@@ -95,6 +96,7 @@ export interface LocationDetailPageContent {
   city: string;
   venueName: string;
   dates: LocationDateRange;
+  displayComingSoon: boolean;
   introduction: string;
   seo: {
     title: string;

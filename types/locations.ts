@@ -21,6 +21,8 @@ export interface LocationListItem {
   city: string;
   slug: LocationSlug;
   dates: LocationDateRange;
+  /** Public label is "Coming Soon"; the stored range stays in the CMS. */
+  displayComingSoon: boolean;
   cta: LocationCta;
   status: LocationStatus;
 }

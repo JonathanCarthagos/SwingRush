@@ -30,6 +30,7 @@ function createLocation(
     city,
     slug,
     dates,
+    displayComingSoon: false,
     status,
     cta: {
       label: status === "register" ? "Register" : "Join Waitlist",

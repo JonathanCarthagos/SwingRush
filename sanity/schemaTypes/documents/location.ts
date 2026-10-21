@@ -63,12 +63,21 @@ export const location = defineType({
       title: "Event dates",
       type: "object",
       group: "content",
-      options: { columns: 2 },
+      fieldsets: [{ name: "range", options: { columns: 2 } }],
       fields: [
+        defineField({
+          name: "displayComingSoon",
+          title: 'Display "Coming Soon" instead of specific dates',
+          type: "boolean",
+          description:
+            "Dates stay required. The public site hides them and shows Coming Soon while this is on.",
+          initialValue: false,
+        }),
         defineField({
           name: "startDate",
           title: "Start date",
           type: "date",
+          fieldset: "range",
           options: { dateFormat: "YYYY-MM-DD" },
           validation: (rule) => rule.required(),
         }),
@@ -76,6 +85,7 @@ export const location = defineType({
           name: "endDate",
           title: "End date",
           type: "date",
+          fieldset: "range",
           options: { dateFormat: "YYYY-MM-DD" },
           validation: (rule) =>
             rule.required().custom((endDate, context) => {
