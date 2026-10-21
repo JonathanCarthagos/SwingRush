@@ -1,5 +1,6 @@
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { HOME_PAGE_CONTENT } from "@/data/home";
+import { bandHeading, bandTitleEm } from "@/lib/hero-title";
 import { cn } from "@/lib/utils";
 
 export interface ArenaProps extends React.HTMLAttributes<HTMLElement> {
@@ -27,10 +28,14 @@ export function Arena({
       <div className="flex w-full flex-col items-center gap-[0.875rem] min-[768px]:gap-[clamp(0.875rem,calc(0.6875rem+0.390625vw),1rem)] min-[1280px]:gap-4">
         <DisplayHeading
           as="h2"
-          text={heading}
-          className="box-border max-w-full px-[0.08em] font-display text-[4rem] uppercase leading-[0.84502] text-white min-[768px]:text-[clamp(4rem,calc(0.625rem+7.03125vw),6.25rem)]"
+          text={bandHeading(heading, true)}
+          wrap={false}
+          style={
+            { "--band-title-em": bandTitleEm(heading, true) } as React.CSSProperties
+          }
+          className="box-border flex w-full min-w-0 max-w-full flex-col items-center px-[0.08em] text-center font-display text-[4rem] uppercase leading-[0.84502] text-white min-[768px]:text-[clamp(4rem,calc(0.625rem+7.03125vw),6.25rem)] min-[1280px]:whitespace-nowrap min-[1280px]:text-[min(6.25rem,calc((100vw-4rem)/var(--band-title-em)))] min-[1280px]:leading-[0.845]"
         />
-        <p className="max-w-[16.8533125rem] font-body text-ramp-body font-normal leading-[1.3] tracking-body text-white min-[768px]:max-w-[clamp(16.8533125rem,calc(-12.85990625rem+61.9025390625vw),36.662125rem)] min-[1280px]:max-w-[36.662125rem]">
+        <p className="w-full max-w-[16.8533125rem] text-center font-body text-ramp-body font-normal leading-[1.3] tracking-body text-white min-[768px]:max-w-[clamp(16.8533125rem,calc(-12.85990625rem+61.9025390625vw),36.662125rem)] min-[1280px]:max-w-[36.662125rem]">
           {description}
         </p>
       </div>

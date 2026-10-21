@@ -45,6 +45,30 @@ export function homeWideLineEm(value: string): number {
   return Math.max(...lines.map((line) => heroLineEm(line)));
 }
 
+/**
+ * Band headings (call to action, arena). Line breaks stay when the layout uses them.
+ * Otherwise the words collapse to one line. Either way the band centers and scales the
+ * result — an editor's Enter key cannot shove the heading left or out of the frame.
+ */
+export function bandHeading(value: string, keepBreaks: boolean): string {
+  const clean = stegaClean(value);
+
+  if (!keepBreaks) return heroWords(clean);
+
+  return clean
+    .split(/\r?\n/)
+    .map((line) => line.replace(/[ \t]+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+/** Width, in em, of the longest band line. Drives the desktop fit size. */
+export function bandTitleEm(value: string, keepBreaks: boolean): number {
+  const lines = bandHeading(value, keepBreaks).split("\n");
+
+  return Math.max(...lines.map((line) => heroLineEm(line)));
+}
+
 /** Page heroes are one line from 768px. Challenges still stacks after the first word on phones. */
 export function pageHeroHeading(value: string, stackOnMobile: boolean): string {
   const words = heroWords(value);

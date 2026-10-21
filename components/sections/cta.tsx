@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { DisplayHeading } from "@/components/ui/display-heading";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { bandHeading, bandTitleEm } from "@/lib/hero-title";
 import { cn } from "@/lib/utils";
 
 type CtaVariant = "brand" | "inverted" | "solid";
@@ -51,7 +52,7 @@ const CTA_VARIANTS: Record<
       "min-h-[22.3125rem] min-[768px]:h-[clamp(22.3125rem,calc(-0.46875rem+47.4609375vw),37.5rem)] min-[768px]:min-h-0 min-[1280px]:h-[37.5rem]",
     ),
     contentClassName: "min-[768px]:max-w-none",
-    headingClassName: "w-full min-w-0 text-white",
+    headingClassName: "text-white",
     bodyClassName: "text-white",
     headingWrap: true,
     buttonVariant: null,
@@ -82,9 +83,10 @@ export function Cta({
 }: CtaProps) {
   const styles = CTA_VARIANTS[variant];
   const resolvedHeading = heading ?? styles.heading;
-  const desktopHeading = keepBreaks
-    ? resolvedHeading
-    : resolvedHeading.replace(/\s+/g, " ");
+  // Phones and tablets keep the editor's lines and wrap them. Desktop may collapse
+  // to one line (keepBreaks off) but still centers that line and shrinks it to the band.
+  const mobileHeading = bandHeading(resolvedHeading, true);
+  const desktopHeading = bandHeading(resolvedHeading, keepBreaks);
 
   return (
     <section
@@ -97,32 +99,37 @@ export function Cta({
     >
       <div
         className={cn(
-          "flex w-full flex-col items-center gap-4 min-[768px]:max-w-[45.75rem] min-[768px]:gap-[clamp(1rem,calc(0.0625rem+1.953125vw),1.625rem)]",
+          "flex w-full flex-col items-center gap-4 min-[768px]:max-w-[45.75rem] min-[768px]:gap-[clamp(1rem,calc(0.0625rem+1.953125vw),1.625rem)] min-[1280px]:max-w-none",
           styles.contentClassName,
         )}
       >
         <div className="flex w-full flex-col items-center gap-[0.8125rem] min-[768px]:gap-4">
           <DisplayHeading
             as="h2"
-            text={resolvedHeading}
+            text={mobileHeading}
             wrap={styles.headingWrap}
             className={cn(
-              "box-border max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] font-display text-[4rem] leading-[3.375rem] [text-wrap:balance] min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(4rem,calc(0.625rem+7.03125vw),6.25rem)] min-[768px]:leading-[clamp(3.375rem,calc(0.5154375rem+5.957421875vw),5.281375rem)] min-[1280px]:hidden",
+              "box-border w-full min-w-0 max-w-[calc(100vw-2rem)] whitespace-pre-line px-[0.08em] text-center font-display text-[4rem] leading-[3.375rem] [text-wrap:balance] min-[768px]:max-w-[calc(100vw-4rem)] min-[768px]:text-[clamp(4rem,calc(0.625rem+7.03125vw),6.25rem)] min-[768px]:leading-[clamp(3.375rem,calc(0.5154375rem+5.957421875vw),5.281375rem)] min-[1280px]:hidden",
               styles.headingClassName,
             )}
           />
           <DisplayHeading
             as="h2"
             text={desktopHeading}
-            wrap={styles.headingWrap}
+            wrap={false}
+            style={
+              {
+                "--band-title-em": bandTitleEm(resolvedHeading, keepBreaks),
+              } as React.CSSProperties
+            }
             className={cn(
-              "hidden px-[0.08em] font-display min-[1280px]:block min-[1280px]:text-[6.25rem] min-[1280px]:leading-[5.281375rem]",
+              "hidden w-full min-w-0 max-w-full flex-col items-center px-[0.08em] text-center font-display whitespace-nowrap min-[1280px]:flex min-[1280px]:text-[min(6.25rem,calc((100vw-4rem)/var(--band-title-em)))] min-[1280px]:leading-[0.845]",
               styles.headingClassName,
             )}
           />
           <p
             className={cn(
-              "max-w-[16.85rem] font-body text-ramp-body leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem]",
+              "w-full max-w-[16.85rem] text-center font-body text-ramp-body leading-[1.3] tracking-body min-[768px]:max-w-[36.662125rem]",
               mobileDescription && "min-[1280px]:hidden",
               styles.bodyClassName,
             )}
@@ -132,7 +139,7 @@ export function Cta({
           {mobileDescription ? (
             <p
               className={cn(
-                "hidden max-w-[16.85rem] font-body text-ramp-body leading-[1.3] tracking-body min-[768px]:w-full min-[768px]:max-w-[36.662125rem] min-[1280px]:block",
+                "hidden w-full max-w-[16.85rem] text-center font-body text-ramp-body leading-[1.3] tracking-body min-[768px]:max-w-[36.662125rem] min-[1280px]:block",
                 styles.bodyClassName,
               )}
             >

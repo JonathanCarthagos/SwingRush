@@ -10,7 +10,8 @@ export const headlineBlock = defineType({
       title: "Heading",
       type: "text",
       rows: 2,
-      description: "Each line break becomes a new line in the display type.",
+      description:
+        "The words of this heading. The site centers every line and scales a long line down so it stays inside the band. A line break starts a new centered line. It does not change the alignment.",
       validation: (rule) => rule.required(),
     }),
     defineField({

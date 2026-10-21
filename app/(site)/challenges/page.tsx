@@ -43,7 +43,6 @@ export default async function ChallengesPage() {
           description={closingCta.description}
           ctaLabel={closingCta.ctaLabel}
           ctaHref={closingCta.ctaHref}
-          className="min-[1280px]:[&>div]:max-w-none min-[1280px]:[&_h2]:whitespace-nowrap"
         />
       </main>
       <CmsLive />
