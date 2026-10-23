@@ -133,6 +133,40 @@ function DetailImage({ image }: { image: NonNullable<HowItWorksItem["image"]> })
   );
 }
 
+/** "Label: value" lines. A prose sentence with a colon in the middle does not qualify. */
+function factLines(body: string): string[] | null {
+  const lines = body
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length < 3) return null;
+  if (!lines.every((line) => /^[^:]{2,60}:\s+\S/.test(line))) return null;
+
+  return lines;
+}
+
+function SectionBody({ body }: { body: string }) {
+  const facts = factLines(body);
+
+  if (!facts) {
+    return (
+      <p className="whitespace-pre-line min-[1280px]:whitespace-normal">{body}</p>
+    );
+  }
+
+  return (
+    <>
+      <p className="whitespace-pre-line min-[1280px]:hidden">{body}</p>
+      <ul className="hidden list-disc flex-col gap-[0.4em] pl-[1.15em] marker:text-current min-[1280px]:flex">
+        {facts.map((line) => (
+          <li key={line}>{line}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
 function DetailCopy({ item }: { item: HowItWorksItem }) {
   return (
     // Paragraph gaps equal one blank line (1.3em) at every type size.
@@ -143,9 +177,7 @@ function DetailCopy({ item }: { item: HowItWorksItem }) {
       {item.sections?.map((section, index) => (
         <div key={index}>
           <h3 className="font-bold">{section.heading}</h3>
-          <p className="whitespace-pre-line min-[1280px]:whitespace-normal">
-            {section.body}
-          </p>
+          <SectionBody body={section.body} />
         </div>
       ))}
     </div>

@@ -24,13 +24,14 @@ interface RawItem {
   image?: { src?: string | null; alt?: string | null } | null;
 }
 
-// Anchors used by the original CMS items, pointed at the fallback item whose photo they share.
+// Old anchors from the first CMS import. The photo follows the item key, never a
+// renamed anchor: "categories" used to mean Teams, and reusing that name was
+// swapping the Skills Divisions photo for the Teams photo.
 const LEGACY_ITEM_IDS: Record<string, string> = {
   challenges: "skills-challenges",
   "tee-times": "race-format",
   scoring: "race-format",
   divisions: "skills-divisions",
-  categories: "teams",
 };
 
 const LOCAL_ITEM_IMAGES = new Map<string, HowItWorksItemImage>(
@@ -46,6 +47,7 @@ const DEFAULT_ITEM_IMAGE: HowItWorksItemImage = {
 
 function adaptImage(
   image: RawItem["image"],
+  key: string,
   id: string,
   title: string,
 ): HowItWorksItemImage {
@@ -53,7 +55,9 @@ function adaptImage(
   if (src) return { src, alt: text(image?.alt) ?? title };
 
   return (
+    LOCAL_ITEM_IMAGES.get(key) ??
     LOCAL_ITEM_IMAGES.get(id) ??
+    LOCAL_ITEM_IMAGES.get(LEGACY_ITEM_IDS[key] ?? "") ??
     LOCAL_ITEM_IMAGES.get(LEGACY_ITEM_IDS[id] ?? "") ??
     DEFAULT_ITEM_IMAGE
   );
@@ -97,7 +101,7 @@ function adaptItems(items: RawItem[] | null | undefined): HowItWorksItem[] {
         title,
         content,
         ...(sections.length > 0 ? { sections } : {}),
-        image: adaptImage(item.image, id, title),
+        image: adaptImage(item.image, item._key, id, title),
         ...(linkLabel && linkHref
           ? { link: { label: linkLabel, href: linkHref } }
           : {}),
