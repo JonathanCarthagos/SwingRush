@@ -82,16 +82,19 @@ function DetailRow({ item }: { item: HowItWorksItem }) {
       <div className={cn("flex min-w-0 flex-col", STACK_GAP)}>
         {item.image ? <DetailImage image={item.image} /> : null}
 
-        <DetailCopy item={item} />
+        <div>
+          <DetailCopy item={item} />
 
-        {item.link ? (
-          <TextLink
-            href={item.link.href}
-            className="inline-flex min-h-11 w-fit items-start font-body text-ramp-body font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[1280px]:-mt-4 min-[1280px]:font-bold min-[1280px]:leading-[1.3]"
-          >
-            {item.link.label}
-          </TextLink>
-        ) : null}
+          {item.link ? (
+            <TextLink
+              href={item.link.href}
+              persistentUnderline
+              className="mt-[1.0625rem] inline-flex min-h-11 w-fit items-start font-body text-ramp-body font-medium leading-[1.1] tracking-body focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current min-[768px]:mt-[clamp(1.0625rem,calc(0.03125rem+2.1484375vw),1.75rem)] min-[1280px]:mt-3 min-[1280px]:font-bold min-[1280px]:leading-[1.3]"
+            >
+              {item.link.label}
+            </TextLink>
+          ) : null}
+        </div>
       </div>
     </article>
   );
