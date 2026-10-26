@@ -159,14 +159,11 @@ function SectionBody({ body }: { body: string }) {
   }
 
   return (
-    <>
-      <p className="whitespace-pre-line min-[1280px]:hidden">{body}</p>
-      <ul className="hidden list-disc flex-col gap-[0.4em] pl-[1.15em] marker:text-current min-[1280px]:flex">
-        {facts.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
-    </>
+    <ul className="flex list-disc flex-col gap-[0.4em] pl-[1.15em] marker:text-current">
+      {facts.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ul>
   );
 }
 

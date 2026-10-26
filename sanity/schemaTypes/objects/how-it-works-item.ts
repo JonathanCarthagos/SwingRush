@@ -17,7 +17,7 @@ export const howItWorksSection = defineType({
       type: "text",
       rows: 3,
       description:
-        "One fact per line, written as Label: value. On desktop each line becomes a bullet. A single paragraph stays a paragraph.",
+        "One fact per line, written as Label: value. Each line becomes a bullet at every screen size. A single paragraph stays a paragraph.",
       validation: (rule) => rule.required(),
     }),
   ],
