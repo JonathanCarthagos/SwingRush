@@ -72,7 +72,11 @@ interface RawHowItWorksPage {
     webmSrc?: string | null;
     mp4Src?: string | null;
   } | null;
-  arena?: { heading?: string | null; description?: string | null } | null;
+  arena?: {
+    heading?: string | null;
+    description?: string | null;
+    action?: { label?: string | null; href?: string | null } | null;
+  } | null;
   introduction?: string | null;
   items?: RawItem[] | null;
 }
@@ -132,6 +136,10 @@ function adaptHowItWorksPage(
       arenaHeading: text(raw.arena?.heading) ?? fallback.hero.arenaHeading,
       arenaDescription:
         text(raw.arena?.description) ?? fallback.hero.arenaDescription,
+      arenaCtaLabel:
+        text(raw.arena?.action?.label) ?? fallback.hero.arenaCtaLabel,
+      arenaCtaHref:
+        text(raw.arena?.action?.href) ?? fallback.hero.arenaCtaHref,
     },
     introduction: text(raw.introduction) ?? fallback.introduction,
     items: items.length > 0 ? items : fallback.items,

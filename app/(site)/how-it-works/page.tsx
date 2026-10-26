@@ -37,10 +37,9 @@ export default async function HowItWorksPage() {
           id="how-it-works-arena"
           variant="inverted"
           heading={hero.arenaHeading}
-          mobileDescription={hero.arenaDescription}
-          description="Do you have the skills to complete the world’s first arena golf gauntlet and become a Swingrusher?"
-          ctaLabel="Sign Up"
-          ctaHref="/locations"
+          description={hero.arenaDescription}
+          ctaLabel={hero.arenaCtaLabel}
+          ctaHref={hero.arenaCtaHref}
         />
       </main>
       <CmsLive />

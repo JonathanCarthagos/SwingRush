@@ -33,6 +33,8 @@ export interface HowItWorksHeroContent {
   posterSrc: string;
   arenaHeading: string;
   arenaDescription: string;
+  arenaCtaLabel: string;
+  arenaCtaHref: string;
 }
 
 export interface HowItWorksPageContent {
