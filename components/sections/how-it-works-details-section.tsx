@@ -174,12 +174,16 @@ function DetailCopy({ item }: { item: HowItWorksItem }) {
       {item.content.split("\n\n").map((paragraph, index) => (
         <p key={index}>{paragraph}</p>
       ))}
-      {item.sections?.map((section, index) => (
-        <div key={index}>
-          <h3 className="font-bold">{section.heading}</h3>
-          <SectionBody body={section.body} />
+      {item.sections && item.sections.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {item.sections.map((section, index) => (
+            <div key={index} className="flex flex-col gap-4">
+              <h3 className="font-bold">{section.heading}</h3>
+              <SectionBody body={section.body} />
+            </div>
+          ))}
         </div>
-      ))}
+      ) : null}
     </div>
   );
 }
