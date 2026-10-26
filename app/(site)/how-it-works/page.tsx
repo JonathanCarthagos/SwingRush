@@ -36,6 +36,7 @@ export default async function HowItWorksPage() {
         <Cta
           id="how-it-works-arena"
           variant="inverted"
+          keepBreaks
           heading={hero.arenaHeading}
           description={hero.arenaDescription}
           ctaLabel={hero.arenaCtaLabel}
