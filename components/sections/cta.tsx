@@ -53,7 +53,7 @@ const CTA_VARIANTS: Record<
     ),
     contentClassName: "min-[768px]:max-w-none",
     headingClassName: "text-white",
-    bodyClassName: "text-white",
+    bodyClassName: "text-white cta-solid-body min-[1280px]:max-w-none",
     headingWrap: true,
     buttonVariant: null,
     buttonClassName: "",

@@ -75,6 +75,24 @@ html.lenis [data-lenis-prevent-wheel] {
   }
 }
 
+/* Skills band only. Same ramp as text-ramp-body below 1280px; 25px from desktop.
+   A plain class so tailwind-merge does not drop it beside text-white. */
+.cta-solid-body {
+  font-size: 1.0625rem;
+}
+
+@media (min-width: 768px) {
+  .cta-solid-body {
+    font-size: clamp(1.0625rem, calc(0.40625rem + 1.3671875vw), 1.5rem);
+  }
+}
+
+@media (min-width: 1280px) {
+  .cta-solid-body {
+    font-size: 1.5625rem;
+  }
+}
+
 @utility text-ramp-subhead {
   font-size: 1.0625rem;
 
