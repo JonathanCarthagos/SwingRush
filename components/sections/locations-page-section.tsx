@@ -116,7 +116,7 @@ function LocationListItemDetails({
           "break-words font-display uppercase leading-[1.05]",
           // 137px button + 16px gap + 32px page padding. 5.4em covers "San Francisco".
           "text-[min(2.5rem,calc((100vw-11.5625rem)/5.4))]",
-          "min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[1.0533]",
+          "min-[768px]:text-[clamp(2.5rem,calc(6.836vw-0.78rem),4.6875rem)] min-[1280px]:px-[0.08em] min-[1280px]:text-[4.6875rem] min-[1280px]:leading-[0.85]",
         )}
         translate="no"
       >
