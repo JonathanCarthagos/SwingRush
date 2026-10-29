@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { definePlugin, useClient } from "sanity";
 
 import { apiVersion } from "@/sanity/env";
@@ -24,6 +24,7 @@ interface WaitlistLocationOption {
   _id: string;
   city: string;
   slug: string;
+  signupCount: number;
 }
 
 const COLUMNS = [
@@ -40,10 +41,11 @@ const COLUMNS = [
   "sourcePath",
 ] as const satisfies readonly (keyof WaitlistExportRow)[];
 
-const LOCATIONS_QUERY = `*[_type == "location" && defined(slug.current) && defined(city)] | order(sortOrder asc) {
+const LOCATIONS_QUERY = `*[_type == "location" && !(_id in path("drafts.**")) && defined(slug.current) && defined(city)] | order(sortOrder asc) {
   _id,
   city,
-  "slug": slug.current
+  "slug": slug.current,
+  "signupCount": count(*[_type == "waitlistContact" && locationSlug == ^.slug.current && _id in path("drafts.**")])
 }`;
 
 const SIGNUPS_QUERY = `*[_type == "waitlistContact" && locationSlug == $slug] | order(consentedAt desc) {
@@ -61,6 +63,19 @@ const SIGNUPS_QUERY = `*[_type == "waitlistContact" && locationSlug == $slug] | 
   sourcePath
 }`;
 
+function formatSignupCount(count: number) {
+  return count.toLocaleString("en-US");
+}
+
+function exportReadyMessage(location: WaitlistLocationOption) {
+  if (location.signupCount === 0) {
+    return `No waitlist signups for ${location.city} yet.`;
+  }
+
+  const noun = location.signupCount === 1 ? "signup" : "signups";
+  return `${formatSignupCount(location.signupCount)} ${noun} ready to export.`;
+}
+
 function csvCell(value: unknown) {
   const text = value == null ? "" : String(value);
   return `"${text.replaceAll('"', '""')}"`;
@@ -76,6 +91,10 @@ function toCsv(rows: readonly WaitlistExportRow[]) {
 
 function ExportWaitlistTool() {
   const client = useClient({ apiVersion });
+  const draftClient = useMemo(
+    () => client.withConfig({ perspective: "raw" }),
+    [client],
+  );
   const [locations, setLocations] = useState<WaitlistLocationOption[]>([]);
   const [slug, setSlug] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
@@ -88,7 +107,7 @@ function ExportWaitlistTool() {
   useEffect(() => {
     let cancelled = false;
 
-    client
+    draftClient
       .fetch<WaitlistLocationOption[]>(LOCATIONS_QUERY)
       .then((rows) => {
         if (!cancelled) setLocations(rows);
@@ -103,7 +122,7 @@ function ExportWaitlistTool() {
     return () => {
       cancelled = true;
     };
-  }, [client]);
+  }, [draftClient]);
 
   const selected = locations.find((location) => location.slug === slug);
 
@@ -114,9 +133,9 @@ function ExportWaitlistTool() {
     setMessage("Preparing the CSV…");
 
     try {
-      const rows = await client
-        .withConfig({ perspective: "raw" })
-        .fetch<WaitlistExportRow[]>(SIGNUPS_QUERY, { slug: selected.slug });
+      const rows = await draftClient.fetch<WaitlistExportRow[]>(SIGNUPS_QUERY, {
+        slug: selected.slug,
+      });
       const drafts = rows.filter((row) => row._id.startsWith("drafts."));
 
       if (drafts.length === 0) {
@@ -163,7 +182,18 @@ function ExportWaitlistTool() {
       <select
         id="waitlist-export-location"
         value={slug}
-        onChange={(event) => setSlug(event.target.value)}
+        onChange={(event) => {
+          const nextSlug = event.target.value;
+          setSlug(nextSlug);
+          const location = locations.find((item) => item.slug === nextSlug);
+          if (!location) {
+            setStatus("idle");
+            setMessage("Choose a city, then download its unpublished signups.");
+            return;
+          }
+          setStatus("ready");
+          setMessage(exportReadyMessage(location));
+        }}
         disabled={locations.length === 0 || status === "loading"}
         style={{
           display: "block",
@@ -177,7 +207,7 @@ function ExportWaitlistTool() {
         <option value="">Select a city</option>
         {locations.map((location) => (
           <option key={location._id} value={location.slug}>
-            {location.city}
+            {`${location.city} (${formatSignupCount(location.signupCount ?? 0)})`}
           </option>
         ))}
       </select>

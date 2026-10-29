@@ -15,6 +15,25 @@ import { privateDocumentTypes, singletonTypes } from "@/sanity/schemaTypes";
 interface WaitlistLocationPane {
   _id: string;
   city: string;
+  signupCount: number;
+}
+
+interface WaitlistStructureCounts {
+  locations: WaitlistLocationPane[];
+  unassignedCount: number;
+}
+
+function formatSignupCount(count: number) {
+  return count.toLocaleString("en-US");
+}
+
+function waitlistItemTitle(city: string, count: number) {
+  return `${city} (${formatSignupCount(count)})`;
+}
+
+function waitlistPaneTitle(city: string, count: number) {
+  const noun = count === 1 ? "signup" : "signups";
+  return `${city} · ${formatSignupCount(count)} ${noun}`;
 }
 
 const WAITLIST_SIGNUP_ORDERING = [
@@ -47,12 +66,19 @@ function singleton(
 }
 
 export const structure: StructureResolver = async (S, context) => {
-  const locations = await context.getClient({ apiVersion }).fetch<WaitlistLocationPane[]>(
-    `*[_type == "location" && !(_id in path("drafts.**")) && defined(city)] | order(sortOrder asc) {
-      _id,
-      city
-    }`,
-  );
+  const { locations, unassignedCount } = await context
+    .getClient({ apiVersion })
+    .withConfig({ perspective: "raw" })
+    .fetch<WaitlistStructureCounts>(
+      `{
+        "locations": *[_type == "location" && !(_id in path("drafts.**")) && defined(city)] | order(sortOrder asc) {
+          _id,
+          city,
+          "signupCount": count(*[_type == "waitlistContact" && location._ref == ^._id])
+        },
+        "unassignedCount": count(*[_type == "waitlistContact" && !defined(location._ref)])
+      }`,
+    );
 
   return S.list()
     .title("Content")
@@ -124,10 +150,10 @@ export const structure: StructureResolver = async (S, context) => {
               ...locations.map((location) =>
                 S.listItem()
                   .id(`waitlist-${location._id}`)
-                  .title(location.city)
+                  .title(waitlistItemTitle(location.city, location.signupCount))
                   .child(
                     waitlistSignups(S, {
-                      title: location.city,
+                      title: waitlistPaneTitle(location.city, location.signupCount),
                       filter:
                         '_type == "waitlistContact" && location._ref == $locationId',
                       params: { locationId: location._id },
@@ -136,10 +162,10 @@ export const structure: StructureResolver = async (S, context) => {
               ),
               S.listItem()
                 .id("waitlist-unassigned")
-                .title("Unassigned")
+                .title(waitlistItemTitle("Unassigned", unassignedCount))
                 .child(
                   waitlistSignups(S, {
-                    title: "Unassigned",
+                    title: waitlistPaneTitle("Unassigned", unassignedCount),
                     filter:
                       '_type == "waitlistContact" && !defined(location._ref)',
                   }),
