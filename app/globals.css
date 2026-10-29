@@ -6,9 +6,6 @@
 :root {
   --background: #ffffff;
   --foreground: #000000;
-  /* Page transition: horizontal push, same curve in and out (same object, same physics). */
-  --page-ease: cubic-bezier(0.8, 0, 0.2, 1);
-  --page-duration: 850ms;
 }
 
 @theme inline {
@@ -64,82 +61,6 @@ html.lenis [data-lenis-prevent-wheel] {
   font-synthesis: none;
 }
 
-/* ---------------------------------------------------------------------------
-   Page transition (View Transitions API via React <ViewTransition>).
-   Old page leaves 0 -> -100%, new page enters 100% -> 0. Nav stays anchored.
-   Transform-only (translate), no layout properties.
---------------------------------------------------------------------------- */
-@keyframes page-push-out {
-  from {
-    translate: 0;
-  }
-  to {
-    translate: -100%;
-  }
-}
-
-@keyframes page-push-in {
-  from {
-    translate: 100%;
-  }
-  to {
-    translate: 0;
-  }
-}
-
-@keyframes page-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes page-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-::view-transition-old(.page-out) {
-  animation: var(--page-duration) var(--page-ease) both page-push-out;
-}
-
-::view-transition-new(.page-in) {
-  animation: var(--page-duration) var(--page-ease) both page-push-in;
-}
-
-/* The nav travels with the pages: same keyframes, duration and curve, so the
-   whole screen reads as one push. The group itself does not morph. */
-::view-transition-group(site-nav) {
-  animation: none;
-  z-index: 100;
-}
-
-::view-transition-old(site-nav) {
-  animation: var(--page-duration) var(--page-ease) both page-push-out;
-  mix-blend-mode: normal;
-}
-
-::view-transition-new(site-nav) {
-  animation: var(--page-duration) var(--page-ease) both page-push-in;
-  mix-blend-mode: normal;
-}
-
-/* The Nav header joins the transition through this name. Embedded previews
-   (Sanity Presentation iframe) drop it, so nothing pushes there, nav included. */
-.site-nav-vt {
-  view-transition-name: site-nav;
-}
-
-html[data-embedded] .site-nav-vt {
-  view-transition-name: none;
-}
-
 /* Shared type ramps. Mobile stays 1.0625rem; tablet interpolates; desktop locks.
    Registered as utilities so Tailwind v4 emits them and a later utility can override. */
 @utility text-ramp-body {
@@ -163,18 +84,5 @@ html[data-embedded] .site-nav-vt {
 
   @media (min-width: 1280px) {
     font-size: 1.875rem;
-  }
-}
-
-/* Reduced motion: keep a short cross-fade, drop the positional movement. */
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(.page-out),
-  ::view-transition-old(site-nav) {
-    animation: 200ms ease-out both page-fade-out;
-  }
-
-  ::view-transition-new(.page-in),
-  ::view-transition-new(site-nav) {
-    animation: 200ms ease-out both page-fade-in;
   }
 }

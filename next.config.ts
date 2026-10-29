@@ -5,10 +5,6 @@ import { imageJpegQuality } from "./scripts/image-compression.mjs";
 // Shared with scripts/compress-images.mjs so source files and delivery match.
 
 const nextConfig: NextConfig = {
-  experimental: {
-    // React <ViewTransition> + browser View Transitions API for route changes.
-    viewTransition: true,
-  },
   images: {
     qualities: [imageJpegQuality],
     remotePatterns: [
