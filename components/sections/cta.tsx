@@ -39,7 +39,7 @@ const CTA_VARIANTS: Record<
     sectionClassName: cn("bg-brand-deep", lockedBandHeight),
     contentClassName: "",
     headingClassName: "text-brand",
-    bodyClassName: "text-brand",
+    bodyClassName: "text-brand cta-solid-body",
     headingWrap: false,
     buttonVariant: "outline",
     buttonClassName:

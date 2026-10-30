@@ -75,8 +75,8 @@ html.lenis [data-lenis-prevent-wheel] {
   }
 }
 
-/* Skills band only. Same ramp as text-ramp-body below 1280px; 25px from desktop.
-   A plain class so tailwind-merge does not drop it beside text-white. */
+/* Home CTA band support lines at 25px desktop. Same ramp as text-ramp-body below 1280px.
+   Plain class so tailwind-merge keeps it beside text-white or text-brand. */
 .cta-solid-body {
   font-size: 1.0625rem;
 }

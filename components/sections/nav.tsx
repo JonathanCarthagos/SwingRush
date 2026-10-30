@@ -291,6 +291,7 @@ export function Nav({ solid = false }: NavProps) {
                 <TextLink
                   key={link.href}
                   href={link.href}
+                  instantHoverUnderline
                   className="whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                 >
                   {link.label}

@@ -68,7 +68,7 @@ export function LegalPageSection({ content }: LegalPageSectionProps) {
           wrap
           className="box-border max-w-full px-[0.08em] font-display text-[4rem] uppercase leading-[0.84] [text-wrap:balance] min-[768px]:text-[clamp(4rem,calc(100vw*200/1680),12.5rem)]"
         />
-        <p className="mt-4 font-nav text-[1.0625rem] leading-[1.3] tracking-nav min-[768px]:mt-[clamp(1rem,calc(1.758vw+0.15625rem),1.5625rem)] min-[768px]:text-[clamp(1.0625rem,calc(1.367vw+0.40625rem),1.5rem)] min-[1280px]:mt-[1.5625rem] min-[1280px]:text-2xl">
+        <p className="mt-4 font-nav text-[1.0625rem] uppercase leading-[1.3] tracking-nav min-[768px]:mt-[clamp(1rem,calc(1.758vw+0.15625rem),1.5625rem)] min-[768px]:text-[clamp(1.0625rem,calc(1.367vw+0.40625rem),1.5rem)] min-[1280px]:mt-[1.5625rem] min-[1280px]:text-2xl">
           {lastPublished.label}:{" "}
           <time dateTime={lastPublished.isoDate}>{lastPublished.display}</time>
         </p>

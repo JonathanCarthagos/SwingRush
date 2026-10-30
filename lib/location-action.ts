@@ -5,9 +5,9 @@ import type { LocationStatus } from "@/types/locations";
  * Status button shared by the Locations list and the city page.
  * Sizes ramp from the mobile frame (137×34, 14px) to the desktop frame (192×34, 20px).
  */
-// Same left-to-right brand fill as the shared Button, without changing this button's size.
+// Same brand hover as the shared Button: color eases in, no left-to-right wipe.
 const WAITLIST_HOVER_FILL =
-  "relative isolate overflow-hidden border-white text-white [transition:color_480ms_cubic-bezier(0.23,1,0.32,1),border-color_480ms_cubic-bezier(0.23,1,0.32,1),transform_160ms_cubic-bezier(0.23,1,0.32,1)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:origin-left before:scale-x-0 before:bg-brand before:content-[''] before:[transition:scale_480ms_cubic-bezier(0.23,1,0.32,1)] [@media(hover:hover)]:hover:border-brand [@media(hover:hover)]:hover:text-brand-deep [@media(hover:hover)]:hover:before:scale-x-100 focus-visible:border-brand focus-visible:text-brand-deep focus-visible:before:scale-x-100 active:scale-[0.97] motion-reduce:transition-none motion-reduce:before:transition-none motion-reduce:active:scale-100";
+  "border-white bg-transparent text-white [transition:color_220ms_cubic-bezier(0.23,1,0.32,1),background-color_220ms_cubic-bezier(0.23,1,0.32,1),border-color_220ms_cubic-bezier(0.23,1,0.32,1),transform_160ms_cubic-bezier(0.23,1,0.32,1)] [@media(hover:hover)]:hover:border-brand [@media(hover:hover)]:hover:bg-brand [@media(hover:hover)]:hover:text-brand-deep focus-visible:border-brand focus-visible:bg-brand focus-visible:text-brand-deep active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100";
 
 export function locationActionClassName(status: LocationStatus) {
   return cn(
