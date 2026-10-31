@@ -44,13 +44,13 @@ const CONTROL =
 // Keeps browser autofill from repainting the white field blue or yellow.
 const AUTOFILL =
   "[color-scheme:light] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000]";
-// From 768px a mirrored input goes transparent only once the span holds its value (data-mirror="on"),
-// so a value the browser wrote without events still paints black on the input itself.
-// Below that, the input paints the display face directly and can scroll when the value is long.
+// The mirror span draws the italic at every width. A native input clips the face's descenders,
+// which is what cut the tail of "j" on phones. The input stays on top and turns transparent
+// once the span holds the value, and it still scrolls a long email.
 const MIRROR_INPUT =
-  "peer h-full w-full overflow-x-auto bg-transparent text-black [color-scheme:light] [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] min-[768px]:absolute min-[768px]:inset-0 min-[768px]:data-[mirror=on]:text-transparent min-[768px]:data-[mirror=on]:[-webkit-text-fill-color:transparent]";
+  "peer absolute inset-0 h-full w-full overflow-x-auto bg-transparent text-black [color-scheme:light] [-webkit-text-fill-color:#000] autofill:shadow-[inset_0_0_0_100rem_#fff] autofill:[-webkit-text-fill-color:#000] data-[mirror=on]:text-transparent data-[mirror=on]:[-webkit-text-fill-color:transparent]";
 const MIRROR_TEXT =
-  "waitlist-mirror-text pointer-events-none hidden h-full w-full items-center overflow-visible min-[768px]:flex [@media(scripting:none)]:invisible";
+  "waitlist-mirror-text pointer-events-none flex h-full w-full items-center overflow-visible whitespace-nowrap [@media(scripting:none)]:invisible";
 const AUTOFILL_ANIMATION = "waitlist-autofill-watch";
 const MIRROR_INPUT_CLASS = "waitlist-mirror-input";
 // While the browser marks a field as autofilled, the input itself paints the value black
@@ -73,7 +73,8 @@ const AUTOFILL_STYLES = [":-webkit-autofill", ":autofill"]
         color: #000 !important;
         -webkit-text-fill-color: #000 !important;
       }
-      .waitlist-mirror-text:has(+ .waitlist-mirror-input${pseudo}) {
+      .waitlist-mirror-text:has(+ .waitlist-mirror-input${pseudo}),
+      :has(> .waitlist-mirror-text):has(+ .waitlist-mirror-input${pseudo}) > .waitlist-mirror-text {
         visibility: hidden;
       }`,
   )
@@ -216,6 +217,17 @@ export function WaitlistForm({
       return;
     }
     if (input.name === "email") setEmail(input.value);
+  };
+
+  // The visible line is the span. A long value scrolls inside the input, so the span follows.
+  const syncMirrorScroll = (input: HTMLInputElement) => {
+    const mirror = input.previousElementSibling?.querySelector(
+      ".waitlist-mirror-text",
+    );
+    if (!(mirror instanceof HTMLElement)) return;
+    mirror.style.transform = input.scrollLeft
+      ? `translateX(${-input.scrollLeft}px)`
+      : "";
   };
 
   // Chrome and Safari select the whole autofilled value. type="email" rejects
@@ -395,17 +407,19 @@ export function WaitlistForm({
         >
           {/* The native input clips italic descenders. The visible text is the span; the input stays on top for typing, caret, and autofill. */}
           <div className={cn(fieldBox, "relative")}>
-            <span
-              aria-hidden="true"
-              className={cn(
-                FIELD_INSET,
-                FIELD_TEXT,
-                MIRROR_TEXT,
-                !email && "invisible",
-              )}
-            >
-              {email}
-            </span>
+            <div className="pointer-events-none absolute inset-0 overflow-x-clip">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  FIELD_INSET,
+                  FIELD_TEXT,
+                  MIRROR_TEXT,
+                  !email && "invisible",
+                )}
+              >
+                {email}
+              </span>
+            </div>
             <input
               id="waitlist-email"
               name="email"
@@ -421,6 +435,7 @@ export function WaitlistForm({
               onFocus={(event) => watchAutofillValue(event.currentTarget)}
               onInput={(event) => syncMirroredField(event.currentTarget)}
               onChange={(event) => syncMirroredField(event.currentTarget)}
+              onScroll={(event) => syncMirrorScroll(event.currentTarget)}
               onAnimationStart={onAutofill}
               aria-invalid={errors.email ? true : undefined}
               aria-describedby={describedBy("email")}
@@ -450,18 +465,19 @@ export function WaitlistForm({
         >
           {compact ? (
             <div className={cn(fieldBox, "relative")}>
-              <span
-                aria-hidden="true"
-                className={cn(
-                  FIELD_INSET,
-                  FIELD_TEXT,
-                  MIRROR_TEXT,
-                  "min-[768px]:whitespace-nowrap",
-                  !phone && "invisible",
-                )}
-              >
-                {phone}
-              </span>
+              <div className="pointer-events-none absolute inset-0 overflow-x-clip">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    FIELD_INSET,
+                    FIELD_TEXT,
+                    MIRROR_TEXT,
+                    !phone && "invisible",
+                  )}
+                >
+                  {phone}
+                </span>
+              </div>
               <input
                 ref={phoneRef}
                 id="waitlist-phone"
@@ -477,6 +493,7 @@ export function WaitlistForm({
                 onFocus={(event) => watchAutofillValue(event.currentTarget)}
                 onInput={(event) => syncMirroredField(event.currentTarget)}
                 onChange={(event) => syncMirroredField(event.currentTarget)}
+                onScroll={(event) => syncMirrorScroll(event.currentTarget)}
                 onAnimationStart={onAutofill}
                 aria-invalid={errors.phone ? true : undefined}
                 aria-describedby={describedBy("phone")}
